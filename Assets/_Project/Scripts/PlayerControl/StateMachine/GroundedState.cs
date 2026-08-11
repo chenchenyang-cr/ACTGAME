@@ -2,6 +2,11 @@ public abstract class GroundedState : PlayerState
 {
     protected GroundedState(PlayerStateMachine machine) : base(machine) { }
 
+    public override void Enter()
+    {
+        Machine.Movement.SetRotationMode(PlayerRotationMode.MovementDirection);
+    }
+
     public override bool TryHandleCommand(PlayerActionCommand command)
     {
         switch (command)

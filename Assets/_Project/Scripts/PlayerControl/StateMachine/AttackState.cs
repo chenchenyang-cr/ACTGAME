@@ -15,6 +15,7 @@ public sealed class AttackState : PlayerState
 
     public override void Enter()
     {
+        Machine.Movement.SetRotationMode(PlayerRotationMode.Animation);
         Machine.RaiseLightAttackRequested(comboIndex);
     }
 

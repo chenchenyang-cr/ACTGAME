@@ -6,6 +6,7 @@ public sealed class HitState : PlayerState
 
     public override void Enter()
     {
+        Machine.Movement.SetRotationMode(PlayerRotationMode.Animation);
         Machine.RaiseHitStateEntered();
     }
 

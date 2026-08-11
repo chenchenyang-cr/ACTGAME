@@ -2,6 +2,14 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+
+public enum PlayerRotationMode
+{
+    MovementDirection,
+    Animation,
+    Preserve
+}
+
 public class PlayerMovement : MonoBehaviour
 {
     [Header("Dependencies")]
@@ -57,6 +65,8 @@ public class PlayerMovement : MonoBehaviour
     private Vector3 turn180TargetDirection;
     private float lastTurn180CorrectionWeight;
     private bool hasCompletedTurn180Correction;
+    private PlayerRotationMode rotationMode = PlayerRotationMode.MovementDirection;
+    private bool isCombatMovement;
 
     private void Awake()
     {
@@ -102,10 +112,14 @@ public class PlayerMovement : MonoBehaviour
     {
         moveInput = Vector2.ClampMagnitude(input, 1f);
         UpdateMoveDirection();
-        bool isCombatMovement = animator != null && animator.GetFloat(CombatWeightHash) >= CombatModeThreshold;
-        bool isTurning180 = UpdateTurn180(isCombatMovement);
-        UpdateRotation(isCombatMovement || isTurning180);
+        isCombatMovement = animator != null && animator.GetFloat(CombatWeightHash) >= CombatModeThreshold;
+        UpdateTurn180(isCombatMovement);
         UpdateAnimatorParameters(isCombatMovement, hasMoveInput);
+    }
+
+    public void SetRotationMode(PlayerRotationMode mode)
+    {
+        rotationMode = mode;
     }
 
     private bool UpdateTurn180(bool isCombatMovement)
@@ -198,31 +212,49 @@ public class PlayerMovement : MonoBehaviour
 
     private Quaternion ProcessRootRotation(Quaternion animationDeltaRotation)
     {
-        if (!isBlendingTurn180Rotation)
+        if (isBlendingTurn180Rotation)
+        {
+            bool isStillInTurnState = TryGetTurn180NormalizedTime(out float normalizedTime);
+            if (!hasEnteredTurn180State && !isStillInTurnState)
+            {
+                return Quaternion.identity;
+            }
+
+            if (!isStillInTurnState)
+            {
+                isBlendingTurn180Rotation = false;
+                return ResolveRotation(animationDeltaRotation);
+            }
+
+            hasEnteredTurn180State = true;
+            if (!hasCompletedTurn180Correction)
+            {
+                return ProcessTurn180Rotation(animationDeltaRotation, normalizedTime);
+            }
+        }
+
+        return ResolveRotation(animationDeltaRotation);
+    }
+
+    private Quaternion ResolveRotation(Quaternion animationDeltaRotation)
+    {
+        if (rotationMode == PlayerRotationMode.Animation)
         {
             return animationDeltaRotation;
         }
 
-        bool isStillInTurnState = TryGetTurn180NormalizedTime(out float normalizedTime);
-        if (!hasEnteredTurn180State && !isStillInTurnState)
+        if (rotationMode == PlayerRotationMode.Preserve || isCombatMovement)
         {
-            return animationDeltaRotation;
-        }
-
-        if (!isStillInTurnState)
-        {
-            isBlendingTurn180Rotation = false;
             return Quaternion.identity;
         }
 
-        hasEnteredTurn180State = true;
-        if (hasCompletedTurn180Correction)
-        {
-            // The correction already finished inside the animation. Cancel only
-            // the remaining authored yaw so normal code rotation can respond now.
-            return Quaternion.identity;
-        }
+        return CalculateMovementRotation();
+    }
 
+    private Quaternion ProcessTurn180Rotation(
+        Quaternion animationDeltaRotation,
+        float normalizedTime)
+    {
         if (normalizedTime < turn180CorrectionStartNormalizedTime)
         {
             return animationDeltaRotation;
@@ -302,17 +334,20 @@ public class PlayerMovement : MonoBehaviour
        
        worldMoveDirection=Vector3.ClampMagnitude((cameraForward * moveInput.y + cameraRight * moveInput.x), 1f);
     }
-    private void UpdateRotation(bool preserveFacing)
+    private Quaternion CalculateMovementRotation()
     {
-        // Combat locomotion is directional/strafe movement, so its facing is
-        // controlled externally. Normal locomotion faces the move direction.
-        if (preserveFacing || worldMoveDirection.sqrMagnitude < 0.001f)
+        if (worldMoveDirection.sqrMagnitude < 0.001f)
         {
-            return;
+            return Quaternion.identity;
         }
 
+        Quaternion currentRotation = transform.rotation;
         Quaternion targetRotation = Quaternion.LookRotation(worldMoveDirection);
-        transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+        Quaternion nextRotation = Quaternion.RotateTowards(
+            currentRotation,
+            targetRotation,
+            rotationSpeed * Time.deltaTime);
+        return Quaternion.Inverse(currentRotation) * nextRotation;
     }
 
     private Vector2 GetTargetAnimatorDirection(bool isCombatMovement)

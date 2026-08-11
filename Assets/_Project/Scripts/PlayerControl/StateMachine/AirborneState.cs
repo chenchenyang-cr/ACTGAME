@@ -12,6 +12,7 @@ public sealed class AirborneState : PlayerState
     {
         elapsedTime = 0f;
         hasLeftGround = false;
+        Machine.Movement.SetRotationMode(PlayerRotationMode.MovementDirection);
     }
 
     public override void Tick(Vector2 moveInput, bool hasMoveInput)
