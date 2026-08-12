@@ -19,4 +19,9 @@ public abstract class PlayerState
     {
         return false;
     }
+
+    public virtual bool ShouldConsumeHandledCommand(PlayerActionCommand command)
+    {
+        return true;
+    }
 }

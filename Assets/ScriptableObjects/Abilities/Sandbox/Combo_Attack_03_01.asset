@@ -1,0 +1,63 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-6283006303377267396
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 0}
+  m_Name: GameplayCollection
+  m_EditorClassIdentifier: Assembly-CSharp:CombatEditor:AbilityEventObj_GameplayCollection
+  IsActive: 1
+  Expanded: 1
+  Windows:
+  - Enabled: 1
+    Range: {x: 0.25, y: 0.75}
+    Window: {fileID: -3044722068839261311}
+--- !u!114 &-3044722068839261311
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 0}
+  m_Name: Combo Window
+  m_EditorClassIdentifier: Assembly-CSharp:CombatEditor:AbilityEventObj_ComboWindow
+  IsActive: 1
+  Priority: 0
+  CommandId: LightAttack
+  NextAbility: {fileID: 0}
+  ConsumeBufferedInput: 1
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 757d9b080c65e9847b379b2a8a5ae8ab, type: 3}
+  m_Name: Combo_Attack_03_01
+  m_EditorClassIdentifier: 
+  AbilityType: 0
+  Clip: {fileID: 7400000, guid: 1929dd5cb95d34f4687dbd0924570037, type: 2}
+  PreviewPercentageRange: {x: 0, y: 1}
+  loopCount: 0
+  events:
+  - EventTime: 0
+    EventRange: {x: 0.031578947, y: 0.86315787}
+    EventMultiRange:
+    - 0.2
+    - 0.4
+    - 0.6
+    - 0.8
+    Previewable: 0
+    Obj: {fileID: 0}

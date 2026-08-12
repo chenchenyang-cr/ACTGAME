@@ -243,7 +243,7 @@ namespace CombatEditor
                 }
                 //Label
 
-                if (GUI.Button(LabelRect, eves[i].Obj.name, style))
+                if (GUI.Button(LabelRect, GetTrackDisplayName(eves[i]), style))
                 {
                     //OnClickFields(i, eves[i]);
                 }
@@ -292,6 +292,24 @@ namespace CombatEditor
             PaintAddAbilityButton();
             GUI.EndScrollView();
         
+        }
+
+        private string GetTrackDisplayName(AbilityEvent abilityEvent)
+        {
+            if (abilityEvent?.Obj is AbilityEventObj_ComboWindow combo)
+            {
+                string next = combo.NextAbility != null ? combo.NextAbility.name : "None";
+                return $"Combo: {combo.CommandId} -> {next}";
+            }
+            if (abilityEvent?.Obj is AbilityEventObj_RotationWindow rotation)
+                return $"Rotation: {rotation.Policy}";
+            if (abilityEvent?.Obj is AbilityEventObj_TargetAssistWindow assist)
+                return $"Target Assist: {assist.MaxAcquireDistance:0.#}m";
+            if (abilityEvent?.Obj is AbilityEventObj_InterruptWindow interrupt)
+                return $"Interrupt: {interrupt.AllowedCommandIds}";
+            if (abilityEvent?.Obj is AbilityEventObj_ExitWindow)
+                return "Exit To Controller";
+            return abilityEvent?.Obj != null ? abilityEvent.Obj.name : "Missing Event";
         }
         
         public void PaintAddAbilityButton()

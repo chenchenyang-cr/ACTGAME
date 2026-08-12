@@ -1,4 +1,5 @@
 using System;
+using CombatEditor;
 using UnityEngine;
 
 [RequireComponent(typeof(PlayerInputReader), typeof(PlayerInputBuffer))]
@@ -28,6 +29,7 @@ public sealed class PlayerStateMachine : MonoBehaviour
     public event Action JumpRequested;
     public event Action DodgeRequested;
     public event Action<int> LightAttackRequested;
+    public event Action<AbilityScriptableObject> AbilityRequested;
     public event Action HitStateEntered;
 
     private Vector2 lastMoveInput;
@@ -83,7 +85,9 @@ public sealed class PlayerStateMachine : MonoBehaviour
             return;
         }
 
-        if (CurrentState.TryHandleCommand(input.Command))
+        PlayerState handlingState = CurrentState;
+        if (handlingState.TryHandleCommand(input.Command) &&
+            handlingState.ShouldConsumeHandledCommand(input.Command))
         {
             inputBuffer.TryConsumeNext(out _);
         }
@@ -170,6 +174,11 @@ public sealed class PlayerStateMachine : MonoBehaviour
     internal void RaiseLightAttackRequested(int comboIndex)
     {
         LightAttackRequested?.Invoke(comboIndex);
+    }
+
+    internal void RaiseAbilityRequested(AbilityScriptableObject ability)
+    {
+        AbilityRequested?.Invoke(ability);
     }
 
     internal void RaiseHitStateEntered()

@@ -172,6 +172,7 @@ namespace CombatEditor
         }
 
 
+
         public void PaintEventBG(int i)
         {
             Rect OutTrackRect = new Rect(L3TrackAvailableRect.x, L3TrackAvailableRect.y + (i + 1) * LineHeight, MaxWidth, LineHeight);
