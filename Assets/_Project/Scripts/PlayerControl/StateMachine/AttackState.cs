@@ -56,7 +56,7 @@ public sealed class AttackState : PlayerState
                 case PlayerActionCommand.Dodge:
                     Machine.ChangeState(Machine.DodgeState);
                     return true;
-                case PlayerActionCommand.Jump when Machine.IsGrounded:
+                case PlayerActionCommand.Jump when Machine.IsGrounded && Machine.Movement.TryJump():
                     Machine.ChangeState(Machine.AirborneState);
                     Machine.RaiseJumpRequested();
                     return true;

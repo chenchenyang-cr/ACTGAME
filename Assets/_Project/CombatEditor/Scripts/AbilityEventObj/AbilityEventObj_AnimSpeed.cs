@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Serialization;
 
  namespace CombatEditor {	
 
@@ -17,9 +16,6 @@ using UnityEngine.Serialization;
 	{
 	    public AnimSpeedMode Mode = AnimSpeedMode.Constant;
 	    public float Speed = 1;
-	    public float SpeedAtCurve0 = 0;
-	    [FormerlySerializedAs("BaseSpeed")]
-	    public float SpeedAtCurve1 = 1;
 	    [MyAnimationCurve]
 	    public AnimationCurve SpeedCurve = AnimationCurve.Linear(0, 1, 1, 1);
 
@@ -28,7 +24,7 @@ using UnityEngine.Serialization;
 	        if (Mode == AnimSpeedMode.Curve)
 	        {
 	            float curveValue = EvaluateCurve(normalizedTime);
-	            return Mathf.Max(0, Mathf.Lerp(SpeedAtCurve0, SpeedAtCurve1, curveValue));
+	            return Mathf.Max(0, Speed * curveValue);
 	        }
 
 	        return Mathf.Max(0, Speed);

@@ -565,7 +565,7 @@ Transform:
   m_GameObject: {fileID: 963194225}
   serializedVersion: 2
   m_LocalRotation: {x: -0.15915784, y: 0.4989869, z: 0.09379789, w: 0.8466894}
-  m_LocalPosition: {x: -5.5113583, y: 0, z: -2.1314857}
+  m_LocalPosition: {x: -6.233795, y: 0, z: 28.671824}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -865,7 +865,7 @@ Transform:
   m_GameObject: {fileID: 1430916678}
   serializedVersion: 2
   m_LocalRotation: {x: 0.11483096, y: -0, z: -0, w: 0.9933851}
-  m_LocalPosition: {x: -5.5113583, y: 0, z: -2.1314857}
+  m_LocalPosition: {x: -6.233795, y: 0, z: 28.671824}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1139,6 +1139,7 @@ GameObject:
   - component: {fileID: 1687072553}
   - component: {fileID: 6521557876880841998}
   - component: {fileID: 6521557876880841997}
+  - component: {fileID: 6521557876880841999}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -1186,6 +1187,9 @@ MonoBehaviour:
     Label: F2_Rename
     CombatObjs:
     - {fileID: 11400000, guid: c2e28c6312c3ae34c902ae692de56a1e, type: 2}
+    - {fileID: 11400000, guid: 5880d7edbd714d245ad3f919041e9078, type: 2}
+    - {fileID: 11400000, guid: 6b6f3a263c7ba034ca74b6e1ac28c6a9, type: 2}
+    - {fileID: 11400000, guid: 3996a2156a4d8674eafce0147160b1a7, type: 2}
   clip: {fileID: 0}
   Nodes: []
 --- !u!4 &1687072555
@@ -1197,7 +1201,7 @@ Transform:
   m_GameObject: {fileID: 1687072552}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -2.886865, y: 0, z: -0.67820096}
+  m_LocalPosition: {x: -3.7114174, y: 0, z: 30.154663}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -3276,12 +3280,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   inputReader: {fileID: 6521557876880841994}
+  characterController: {fileID: 6521557876880841993}
   cameraTransform: {fileID: 0}
+  gravity: -25
+  groundedVerticalSpeed: -2
+  jumpHeight: 1.5
+  maximumFallSpeed: 35
   rotationSpeed: 600
   turn180Threshold: 135
   turn180CorrectionStartNormalizedTime: 0.2
   turn180CorrectionEndNormalizedTime: 0.6
   turn180RetargetThreshold: 5
+  turn180SettlementRotationSpeed: 360
   turn180RotationBlend:
     serializedVersion: 2
     m_Curve:
@@ -3388,6 +3398,9 @@ MonoBehaviour:
   inputBuffer: {fileID: 6521557876880841998}
   playerMovement: {fileID: 6521557876880841992}
   characterController: {fileID: 6521557876880841993}
+  combatAdapter: {fileID: 6521557876880841999}
+  animator: {fileID: 6521557876880841991}
+  abilityAnimatorLayer: 0
 --- !u!114 &6521557876880841998
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3401,6 +3414,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bufferDuration: 0.2
+--- !u!114 &6521557876880841999
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1687072552}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0d11a4e2198198d47b733d64039e2316, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  stateMachine: {fileID: 6521557876880841997}
+  movement: {fileID: 6521557876880841992}
+  firstLightAttack: {fileID: 11400000, guid: c2e28c6312c3ae34c902ae692de56a1e, type: 2}
 --- !u!4 &6557004216867450470
 Transform:
   m_ObjectHideFlags: 0

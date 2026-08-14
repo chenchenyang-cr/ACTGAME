@@ -27,7 +27,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 1357334210a34768871b684cf97e142c, type: 3}
   m_Name: Combo Window
   m_EditorClassIdentifier: Assembly-CSharp:CombatEditor:AbilityEventObj_ComboWindow
   IsActive: 1
@@ -35,6 +35,54 @@ MonoBehaviour:
   CommandId: LightAttack
   NextAbility: {fileID: 0}
   ConsumeBufferedInput: 1
+--- !u!114 &-1943465616927396906
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28e2dd982f5c43b48b940242e405acc4, type: 3}
+  m_Name: AnimSpeed
+  m_EditorClassIdentifier: 
+  IsActive: 1
+  Mode: 1
+  Speed: 1.3
+  SpeedCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.26517993
+      value: 1.0547638
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -53,11 +101,79 @@ MonoBehaviour:
   loopCount: 0
   events:
   - EventTime: 0
-    EventRange: {x: 0.031578947, y: 0.86315787}
+    EventRange: {x: 0, y: 1}
     EventMultiRange:
     - 0.2
     - 0.4
     - 0.6
     - 0.8
     Previewable: 0
-    Obj: {fileID: 0}
+    Obj: {fileID: -1943465616927396906}
+  - EventTime: 0
+    EventRange: {x: 0.6, y: 0.8105263}
+    EventMultiRange:
+    - 0.2
+    - 0.4
+    - 0.6
+    - 0.8
+    Previewable: 0
+    Obj: {fileID: 6732824279665397779}
+  - EventTime: 0
+    EventRange: {x: 0.8210526, y: 1}
+    EventMultiRange:
+    - 0.2
+    - 0.4
+    - 0.6
+    - 0.8
+    Previewable: 0
+    Obj: {fileID: 4919940600789696165}
+--- !u!114 &4919940600789696165
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 231a8a44ef9b48a1814fd95d84637a40, type: 3}
+  m_Name: ExitWindow
+  m_EditorClassIdentifier: Assembly-CSharp:CombatEditor:AbilityEventObj_ExitWindow
+  IsActive: 1
+  Priority: 0
+  AllowControllerExit: 1
+  ExitOnWindowEnter: 1
+--- !u!114 &5539396830412640129
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1357334210a34768871b684cf97e142c, type: 3}
+  m_Name: ComboWindow
+  m_EditorClassIdentifier: Assembly-CSharp:CombatEditor:AbilityEventObj_ComboWindow
+  IsActive: 1
+  Priority: 0
+  CommandId: LightAttack
+  NextAbility: {fileID: 0}
+  ConsumeBufferedInput: 1
+--- !u!114 &6732824279665397779
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1357334210a34768871b684cf97e142c, type: 3}
+  m_Name: ComboWindow
+  m_EditorClassIdentifier: Assembly-CSharp:CombatEditor:AbilityEventObj_ComboWindow
+  IsActive: 1
+  Priority: 0
+  CommandId: LightAttack
+  NextAbility: {fileID: 11400000, guid: 5880d7edbd714d245ad3f919041e9078, type: 2}
+  ConsumeBufferedInput: 1

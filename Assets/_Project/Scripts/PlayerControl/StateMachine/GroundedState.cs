@@ -12,7 +12,7 @@ public abstract class GroundedState : PlayerState
         switch (command)
         {
             case PlayerActionCommand.Jump:
-                if (!Machine.IsGrounded)
+                if (!Machine.IsGrounded || !Machine.Movement.TryJump())
                 {
                     return false;
                 }

@@ -16,7 +16,18 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField]
     private PlayerInputReader inputReader;
     [SerializeField]
+    private CharacterController characterController;
+    [SerializeField]
     private Transform cameraTransform;
+    [Header("Vertical Motion")]
+    [SerializeField]
+    private float gravity = -25f;
+    [SerializeField]
+    private float groundedVerticalSpeed = -2f;
+    [SerializeField, Min(0.1f)]
+    private float jumpHeight = 1.5f;
+    [SerializeField, Min(1f)]
+    private float maximumFallSpeed = 35f;
     [Header("Rotation")]
     [SerializeField]
     private float rotationSpeed = 720;
@@ -28,6 +39,8 @@ public class PlayerMovement : MonoBehaviour
     private float turn180CorrectionEndNormalizedTime = 0.75f;
     [SerializeField, Range(0.1f, 45f)]
     private float turn180RetargetThreshold = 5f;
+    [SerializeField, Min(1f)]
+    private float turn180SettlementRotationSpeed = 360f;
     [SerializeField]
     private AnimationCurve turn180RotationBlend = AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
     [Header("Animation")]
@@ -65,11 +78,19 @@ public class PlayerMovement : MonoBehaviour
     private Vector3 turn180TargetDirection;
     private float lastTurn180CorrectionWeight;
     private bool hasCompletedTurn180Correction;
+    private bool isSettlingTurn180Rotation;
     private PlayerRotationMode rotationMode = PlayerRotationMode.MovementDirection;
     private bool isCombatMovement;
+    private float verticalVelocity;
+
+    public bool IsGrounded { get; private set; }
 
     private void Awake()
     {
+        if (characterController == null)
+        {
+            characterController = GetComponent<CharacterController>();
+        }
         if (animator == null)
         {
             animator = GetComponentInChildren<Animator>();
@@ -101,6 +122,7 @@ public class PlayerMovement : MonoBehaviour
         rootMotionApplier?.SetRootRotationProcessor(null);
 
         isBlendingTurn180Rotation = false;
+        isSettlingTurn180Rotation = false;
     }
 
     private void BindRootRotationProcessor()
@@ -110,11 +132,64 @@ public class PlayerMovement : MonoBehaviour
 
     public void Tick(Vector2 input, bool hasMoveInput)
     {
+        UpdateVerticalMotion();
         moveInput = Vector2.ClampMagnitude(input, 1f);
         UpdateMoveDirection();
         isCombatMovement = animator != null && animator.GetFloat(CombatWeightHash) >= CombatModeThreshold;
         UpdateTurn180(isCombatMovement);
         UpdateAnimatorParameters(isCombatMovement, hasMoveInput);
+    }
+
+    public bool TryJump()
+    {
+        if (!IsGrounded || gravity >= 0f)
+        {
+            return false;
+        }
+
+        verticalVelocity = Mathf.Sqrt(jumpHeight * -2f * gravity);
+        IsGrounded = false;
+        return true;
+    }
+
+    private void UpdateVerticalMotion()
+    {
+        if (characterController == null || !characterController.enabled)
+        {
+            IsGrounded = false;
+            return;
+        }
+
+        if (IsGrounded && verticalVelocity < 0f)
+        {
+            verticalVelocity = groundedVerticalSpeed;
+        }
+        else
+        {
+            verticalVelocity = Mathf.Max(
+                verticalVelocity + gravity * Time.deltaTime,
+                -maximumFallSpeed);
+        }
+
+        CollisionFlags collisionFlags = characterController.Move(
+            Vector3.up * (verticalVelocity * Time.deltaTime));
+        bool hitGround = (collisionFlags & CollisionFlags.Below) != 0 ||
+                         characterController.isGrounded;
+
+        if (hitGround && verticalVelocity <= 0f)
+        {
+            IsGrounded = true;
+            verticalVelocity = groundedVerticalSpeed;
+        }
+        else
+        {
+            IsGrounded = false;
+        }
+
+        if ((collisionFlags & CollisionFlags.Above) != 0 && verticalVelocity > 0f)
+        {
+            verticalVelocity = 0f;
+        }
     }
 
     public void SetRotationMode(PlayerRotationMode mode)
@@ -132,6 +207,12 @@ public class PlayerMovement : MonoBehaviour
         if (isBlendingTurn180Rotation)
         {
             TryRetargetOrRestartTurn180();
+            return true;
+        }
+
+        if (isSettlingTurn180Rotation)
+        {
+            UpdateTurn180SettlementTarget();
             return true;
         }
 
@@ -195,10 +276,41 @@ public class PlayerMovement : MonoBehaviour
             return;
         }
 
-        if (!hasCompletedTurn180Correction)
+        if (targetChangeAngle >= turn180RetargetThreshold)
         {
             turn180TargetDirection = latestTargetDirection;
+            if (hasCompletedTurn180Correction)
+            {
+                isSettlingTurn180Rotation = true;
+            }
         }
+    }
+
+    private void UpdateTurn180SettlementTarget()
+    {
+        if (worldMoveDirection.sqrMagnitude < MoveInputThreshold * MoveInputThreshold)
+        {
+            return;
+        }
+
+        Vector3 latestTargetDirection = worldMoveDirection.normalized;
+        float angleFromCurrentFacing = Vector3.Angle(
+            transform.forward,
+            latestTargetDirection);
+
+        if (angleFromCurrentFacing >= turn180Threshold)
+        {
+            float signedAngle = Vector3.SignedAngle(
+                transform.forward,
+                latestTargetDirection,
+                Vector3.up);
+            animator.SetFloat(TurnDirectionHash, signedAngle < 0f ? -1f : 1f);
+            BeginTurn180RotationBlend(latestTargetDirection);
+            animator.CrossFadeInFixedTime(Turn180StateHash, 0.08f, 0, 0f);
+            return;
+        }
+
+        turn180TargetDirection = latestTargetDirection;
     }
 
     private void BeginTurn180RotationBlend(Vector3 targetDirection)
@@ -208,6 +320,7 @@ public class PlayerMovement : MonoBehaviour
         turn180TargetDirection = targetDirection;
         lastTurn180CorrectionWeight = 0f;
         hasCompletedTurn180Correction = false;
+        isSettlingTurn180Rotation = false;
     }
 
     private Quaternion ProcessRootRotation(Quaternion animationDeltaRotation)
@@ -223,6 +336,10 @@ public class PlayerMovement : MonoBehaviour
             if (!isStillInTurnState)
             {
                 isBlendingTurn180Rotation = false;
+                if (isSettlingTurn180Rotation)
+                {
+                    return ProcessTurn180Settlement();
+                }
                 return ResolveRotation(animationDeltaRotation);
             }
 
@@ -231,9 +348,45 @@ public class PlayerMovement : MonoBehaviour
             {
                 return ProcessTurn180Rotation(animationDeltaRotation, normalizedTime);
             }
+
+            if (isSettlingTurn180Rotation)
+            {
+                return ProcessTurn180Settlement();
+            }
+        }
+
+        if (isSettlingTurn180Rotation)
+        {
+            return ProcessTurn180Settlement();
         }
 
         return ResolveRotation(animationDeltaRotation);
+    }
+
+    private Quaternion ProcessTurn180Settlement()
+    {
+        if (turn180TargetDirection.sqrMagnitude < MoveInputThreshold * MoveInputThreshold)
+        {
+            isSettlingTurn180Rotation = false;
+            return Quaternion.identity;
+        }
+
+        Quaternion currentRotation = transform.rotation;
+        Quaternion targetRotation = Quaternion.LookRotation(
+            turn180TargetDirection,
+            Vector3.up);
+        Quaternion nextRotation = Quaternion.RotateTowards(
+            currentRotation,
+            targetRotation,
+            turn180SettlementRotationSpeed * Time.deltaTime);
+
+        if (Quaternion.Angle(nextRotation, targetRotation) <= 0.1f)
+        {
+            nextRotation = targetRotation;
+            isSettlingTurn180Rotation = false;
+        }
+
+        return Quaternion.Inverse(currentRotation) * nextRotation;
     }
 
     private Quaternion ResolveRotation(Quaternion animationDeltaRotation)

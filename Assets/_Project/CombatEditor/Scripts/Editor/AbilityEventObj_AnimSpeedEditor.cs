@@ -8,16 +8,12 @@ namespace CombatEditor
     {
         SerializedProperty modeProperty;
         SerializedProperty speedProperty;
-        SerializedProperty speedAtCurve0Property;
-        SerializedProperty speedAtCurve1Property;
         SerializedProperty speedCurveProperty;
 
         void OnEnable()
         {
             modeProperty = serializedObject.FindProperty("Mode");
             speedProperty = serializedObject.FindProperty("Speed");
-            speedAtCurve0Property = serializedObject.FindProperty("SpeedAtCurve0");
-            speedAtCurve1Property = serializedObject.FindProperty("SpeedAtCurve1");
             speedCurveProperty = serializedObject.FindProperty("SpeedCurve");
         }
 
@@ -27,15 +23,11 @@ namespace CombatEditor
 
             EditorGUILayout.PropertyField(modeProperty);
 
+            EditorGUILayout.PropertyField(speedProperty, new GUIContent("Speed"));
+
             AnimSpeedMode mode = (AnimSpeedMode)modeProperty.enumValueIndex;
-            if (mode == AnimSpeedMode.Constant)
+            if (mode == AnimSpeedMode.Curve)
             {
-                EditorGUILayout.PropertyField(speedProperty, new GUIContent("Speed"));
-            }
-            else
-            {
-                EditorGUILayout.PropertyField(speedAtCurve0Property, new GUIContent("Speed At Curve 0"));
-                EditorGUILayout.PropertyField(speedAtCurve1Property, new GUIContent("Speed At Curve 1"));
                 EditorGUILayout.PropertyField(speedCurveProperty, new GUIContent("Speed Curve"));
             }
 

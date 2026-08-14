@@ -1,0 +1,118 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-5840626216839708897
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 231a8a44ef9b48a1814fd95d84637a40, type: 3}
+  m_Name: ExitWindow
+  m_EditorClassIdentifier: Assembly-CSharp:CombatEditor:AbilityEventObj_ExitWindow
+  IsActive: 1
+  Priority: 0
+  AllowControllerExit: 1
+  ExitOnWindowEnter: 1
+--- !u!114 &-3156322314013319816
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28e2dd982f5c43b48b940242e405acc4, type: 3}
+  m_Name: AnimSpeed
+  m_EditorClassIdentifier: 
+  IsActive: 1
+  Mode: 1
+  Speed: 1.3
+  SpeedCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 757d9b080c65e9847b379b2a8a5ae8ab, type: 3}
+  m_Name: Combo_Attack_03_03
+  m_EditorClassIdentifier: 
+  AbilityType: 0
+  Clip: {fileID: 7400000, guid: 5dfc365d63632bb4198cfbd3e59ba317, type: 2}
+  PreviewPercentageRange: {x: 0, y: 1}
+  loopCount: 0
+  events:
+  - EventTime: 0
+    EventRange: {x: 0, y: 1}
+    EventMultiRange:
+    - 0.2
+    - 0.4
+    - 0.6
+    - 0.8
+    Previewable: 0
+    Obj: {fileID: -3156322314013319816}
+  - EventTime: 0
+    EventRange: {x: 0.5344828, y: 0.87931037}
+    EventMultiRange:
+    - 0.2
+    - 0.4
+    - 0.6
+    - 0.8
+    Previewable: 0
+    Obj: {fileID: 7834813309201651391}
+  - EventTime: 0
+    EventRange: {x: 0.87931037, y: 1}
+    EventMultiRange:
+    - 0.2
+    - 0.4
+    - 0.6
+    - 0.8
+    Previewable: 0
+    Obj: {fileID: -5840626216839708897}
+--- !u!114 &7834813309201651391
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1357334210a34768871b684cf97e142c, type: 3}
+  m_Name: ComboWindow
+  m_EditorClassIdentifier: Assembly-CSharp:CombatEditor:AbilityEventObj_ComboWindow
+  IsActive: 1
+  Priority: 0
+  CommandId: LightAttack
+  NextAbility: {fileID: 11400000, guid: 3996a2156a4d8674eafce0147160b1a7, type: 2}
+  ConsumeBufferedInput: 1
