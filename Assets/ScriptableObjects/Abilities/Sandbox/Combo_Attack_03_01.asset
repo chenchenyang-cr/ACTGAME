@@ -83,6 +83,24 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &-805514264540463391
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f589d20422384f75962aaf6a2b81617a, type: 3}
+  m_Name: InterruptWindow
+  m_EditorClassIdentifier: 
+  IsActive: 1
+  Priority: 0
+  AllowedCommandIds: Dodge
+  AllowMovement: 1
+  MinimumPriority: 0
+  AllowHitReaction: 1
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -110,7 +128,7 @@ MonoBehaviour:
     Previewable: 0
     Obj: {fileID: -1943465616927396906}
   - EventTime: 0
-    EventRange: {x: 0.6, y: 0.8105263}
+    EventRange: {x: 0.5473684, y: 1}
     EventMultiRange:
     - 0.2
     - 0.4
@@ -119,7 +137,7 @@ MonoBehaviour:
     Previewable: 0
     Obj: {fileID: 6732824279665397779}
   - EventTime: 0
-    EventRange: {x: 0.8210526, y: 1}
+    EventRange: {x: 0.86315787, y: 1}
     EventMultiRange:
     - 0.2
     - 0.4
@@ -127,6 +145,15 @@ MonoBehaviour:
     - 0.8
     Previewable: 0
     Obj: {fileID: 4919940600789696165}
+  - EventTime: 0
+    EventRange: {x: 0.5473684, y: 1}
+    EventMultiRange:
+    - 0.2
+    - 0.4
+    - 0.6
+    - 0.8
+    Previewable: 0
+    Obj: {fileID: -805514264540463391}
 --- !u!114 &4919940600789696165
 MonoBehaviour:
   m_ObjectHideFlags: 0

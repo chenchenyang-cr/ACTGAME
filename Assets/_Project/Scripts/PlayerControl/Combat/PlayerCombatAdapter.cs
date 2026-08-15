@@ -80,6 +80,16 @@ public sealed class PlayerCombatAdapter : MonoBehaviour, ICombatGameplayWindowLi
         return IsInterruptAllowed(command.ToString());
     }
 
+    public bool CanInterruptWithMovement()
+    {
+        foreach (AbilityEventObj_InterruptWindow window in interruptWindows.Values)
+        {
+            if (window.AllowMovement) return true;
+        }
+
+        return false;
+    }
+
     public void OnCombatWindowEntered(in CombatGameplayWindowContext context)
     {
         switch (context.Window)
@@ -113,11 +123,14 @@ public sealed class PlayerCombatAdapter : MonoBehaviour, ICombatGameplayWindowLi
         in CombatGameplayWindowContext context,
         CombatWindowExitReason reason)
     {
-        rotationWindows.Remove(context.Handle);
+        bool rotationPolicyChanged = rotationWindows.Remove(context.Handle);
         comboWindows.Remove(context.Handle);
         interruptWindows.Remove(context.Handle);
         exitWindows.Remove(context.Handle);
-        ApplyRotationPolicy();
+        if (rotationPolicyChanged)
+        {
+            ApplyRotationPolicy();
+        }
     }
 
     private bool IsInterruptAllowed(string commandId)
@@ -142,6 +155,11 @@ public sealed class PlayerCombatAdapter : MonoBehaviour, ICombatGameplayWindowLi
 
         if (selected == null)
         {
+            if (stateMachine != null && stateMachine.CurrentState != stateMachine.AttackState)
+            {
+                return;
+            }
+
             movement.SetRotationMode(PlayerRotationMode.Preserve);
             return;
         }

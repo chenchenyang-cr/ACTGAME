@@ -5,7 +5,7 @@ public class PlayerInputBuffer : MonoBehaviour
 {
     [SerializeField]
     [Min(0)]
-    private float bufferDuration = 0.2f;
+    private float bufferDuration = 0.35f;
     private readonly Queue<BufferedInput> inputBuffer = new();
     public int Count => inputBuffer.Count;
 

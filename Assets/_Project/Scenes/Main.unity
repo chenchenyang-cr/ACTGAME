@@ -565,7 +565,7 @@ Transform:
   m_GameObject: {fileID: 963194225}
   serializedVersion: 2
   m_LocalRotation: {x: -0.15915784, y: 0.4989869, z: 0.09379789, w: 0.8466894}
-  m_LocalPosition: {x: -6.233795, y: 0, z: 28.671824}
+  m_LocalPosition: {x: -5.6524067, y: 0, z: 21.033306}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -865,7 +865,7 @@ Transform:
   m_GameObject: {fileID: 1430916678}
   serializedVersion: 2
   m_LocalRotation: {x: 0.11483096, y: -0, z: -0, w: 0.9933851}
-  m_LocalPosition: {x: -6.233795, y: 0, z: 28.671824}
+  m_LocalPosition: {x: -5.6524067, y: 0, z: 21.033306}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1201,7 +1201,7 @@ Transform:
   m_GameObject: {fileID: 1687072552}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -3.7114174, y: 0, z: 30.154663}
+  m_LocalPosition: {x: -3.0596974, y: 0, z: 22.441494}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -3401,6 +3401,11 @@ MonoBehaviour:
   combatAdapter: {fileID: 6521557876880841999}
   animator: {fileID: 6521557876880841991}
   abilityAnimatorLayer: 0
+  combatStanceTimeout: 4
+  combatWeightParameter: CombatWeight
+  combatExitLayerName: Combat Upper Body
+  combatExitStateName: Idle_Combat_To_Idle
+  combatExitBlendDuration: 0.1
 --- !u!114 &6521557876880841998
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3413,7 +3418,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8bf29077fc934e74eba6472b103e412d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bufferDuration: 0.2
+  bufferDuration: 0.35
 --- !u!114 &6521557876880841999
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -38,11 +38,11 @@ public static class LocomotionAnimatorBuilder
 
     private static readonly LocomotionTransitionConfig CombatTransitionConfig =
         new LocomotionTransitionConfig(
-            startToLoopExitTime: 0.97f,
-            startToLoopDuration: 0.03f,
-            loopToEndDuration: 0.06f,
-            endToIdleExitTime: 0.95f,
-            endToIdleDuration: 0.12f);
+            startToLoopExitTime: 0.7f,
+            startToLoopDuration: 0.2f,
+            loopToEndDuration: 0.1f,
+            endToIdleExitTime: 0.8f,
+            endToIdleDuration: 0.25f);
 
     private static readonly DirectionClip[] ForwardDirections =
     {
@@ -250,6 +250,8 @@ public static class LocomotionAnimatorBuilder
         AddTransition(combatLoop, normalLoop, false, 0f, Condition(AnimatorConditionMode.Less, CombatWeight, 0.5f));
         AddTransition(normalStop, combatStop, false, 0f, Condition(AnimatorConditionMode.Greater, CombatWeight, 0.5f));
         AddTransition(combatStop, normalStop, false, 0f, Condition(AnimatorConditionMode.Less, CombatWeight, 0.5f));
+
+        CombatStanceAnimatorConfigurator.EnsureConfigured();
 
     }
 

@@ -306,7 +306,17 @@ namespace CombatEditor
             if (abilityEvent?.Obj is AbilityEventObj_TargetAssistWindow assist)
                 return $"Target Assist: {assist.MaxAcquireDistance:0.#}m";
             if (abilityEvent?.Obj is AbilityEventObj_InterruptWindow interrupt)
-                return $"Interrupt: {interrupt.AllowedCommandIds}";
+            {
+                string allowed = interrupt.AllowedCommandIds;
+                if (interrupt.AllowMovement)
+                {
+                    allowed = string.IsNullOrWhiteSpace(allowed)
+                        ? "Movement"
+                        : $"{allowed},Movement";
+                }
+
+                return $"Interrupt: {allowed}";
+            }
             if (abilityEvent?.Obj is AbilityEventObj_ExitWindow)
                 return "Exit To Controller";
             return abilityEvent?.Obj != null ? abilityEvent.Obj.name : "Missing Event";

@@ -21,6 +21,19 @@ public sealed class PlayerStateMachine : MonoBehaviour
     [SerializeField]
     [Min(0)]
     private int abilityAnimatorLayer;
+    [Header("Combat Stance")]
+    [SerializeField]
+    [Min(0f)]
+    private float combatStanceTimeout = 4f;
+    [SerializeField]
+    private string combatWeightParameter = "CombatWeight";
+    [SerializeField]
+    private string combatExitLayerName = "Combat Upper Body";
+    [SerializeField]
+    private string combatExitStateName = "Idle_Combat_To_Idle";
+    [SerializeField]
+    [Min(0f)]
+    private float combatExitBlendDuration = 0.1f;
 
     public PlayerState CurrentState { get; private set; }
     public IdleState IdleState { get; private set; }
@@ -43,6 +56,7 @@ public sealed class PlayerStateMachine : MonoBehaviour
 
     private Vector2 lastMoveInput;
     private bool lastHasMoveInput;
+    private PlayerCombatStanceAnimator combatStanceAnimator;
 
     private void Awake()
     {
@@ -70,6 +84,14 @@ public sealed class PlayerStateMachine : MonoBehaviour
         {
             animator = GetComponentInChildren<Animator>();
         }
+
+        combatStanceAnimator = new PlayerCombatStanceAnimator(
+            animator,
+            combatStanceTimeout,
+            combatWeightParameter,
+            combatExitLayerName,
+            combatExitStateName,
+            combatExitBlendDuration);
 
         IdleState = new IdleState(this);
         LocomotionState = new LocomotionState(this);
@@ -107,6 +129,9 @@ public sealed class PlayerStateMachine : MonoBehaviour
 
         ProcessBufferedCommand(inputBuffer);
         CurrentState?.Tick(moveInput, hasMoveInput);
+        bool canLeaveCombatStance = CurrentState == IdleState ||
+                                    CurrentState == LocomotionState;
+        combatStanceAnimator?.Tick(canLeaveCombatStance);
     }
 
     private void ProcessBufferedCommand(PlayerInputBuffer inputBuffer)
@@ -217,6 +242,8 @@ public sealed class PlayerStateMachine : MonoBehaviour
 
     private void PlayAbility(AbilityScriptableObject ability)
     {
+        combatStanceAnimator?.NotifyCombatActivity();
+
         if (ability == null || ability.Clip == null || animator == null)
         {
             return;

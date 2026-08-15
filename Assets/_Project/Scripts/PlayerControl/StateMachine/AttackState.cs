@@ -33,6 +33,15 @@ public sealed class AttackState : PlayerState
 
     public override void Tick(Vector2 moveInput, bool hasMoveInput)
     {
+        if (hasMoveInput &&
+            combatAdapter != null &&
+            combatAdapter.CanInterruptWithMovement())
+        {
+            Machine.CompleteAttack();
+            Machine.Movement.Tick(moveInput, true);
+            return;
+        }
+
         Machine.Movement.Tick(Vector2.zero, false);
     }
 

@@ -65,6 +65,24 @@ MonoBehaviour:
   CommandId: LightAttack
   NextAbility: {fileID: 11400000, guid: 6b6f3a263c7ba034ca74b6e1ac28c6a9, type: 2}
   ConsumeBufferedInput: 1
+--- !u!114 &-5888227656416249998
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f589d20422384f75962aaf6a2b81617a, type: 3}
+  m_Name: InterruptWindow
+  m_EditorClassIdentifier: 
+  IsActive: 1
+  Priority: 0
+  AllowedCommandIds: Dodge
+  AllowMovement: 1
+  MinimumPriority: 0
+  AllowHitReaction: 0
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -92,7 +110,7 @@ MonoBehaviour:
     Previewable: 0
     Obj: {fileID: -9043952565468035638}
   - EventTime: 0
-    EventRange: {x: 0.48235294, y: 0.8352941}
+    EventRange: {x: 0.5058824, y: 1}
     EventMultiRange:
     - 0.2
     - 0.4
@@ -109,6 +127,15 @@ MonoBehaviour:
     - 0.8
     Previewable: 0
     Obj: {fileID: 1824578341362531727}
+  - EventTime: 0
+    EventRange: {x: 0.5058824, y: 1}
+    EventMultiRange:
+    - 0.2
+    - 0.4
+    - 0.6
+    - 0.8
+    Previewable: 0
+    Obj: {fileID: -5888227656416249998}
 --- !u!114 &1824578341362531727
 MonoBehaviour:
   m_ObjectHideFlags: 0

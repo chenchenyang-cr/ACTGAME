@@ -396,7 +396,7 @@ public class PlayerMovement : MonoBehaviour
             return animationDeltaRotation;
         }
 
-        if (rotationMode == PlayerRotationMode.Preserve || isCombatMovement)
+        if (rotationMode == PlayerRotationMode.Preserve)
         {
             return Quaternion.identity;
         }
@@ -503,17 +503,11 @@ public class PlayerMovement : MonoBehaviour
         return Quaternion.Inverse(currentRotation) * nextRotation;
     }
 
-    private Vector2 GetTargetAnimatorDirection(bool isCombatMovement)
+    private static Vector2 GetTargetAnimatorDirection()
     {
-        // Once normal locomotion rotates the character towards its movement,
-        // the matching animation is always forward. Only combat locomotion
-        // should select the authored side/back directional clips.
-        if (!isCombatMovement)
-        {
-            return Vector2.up;
-        }
-
-        return GetNormalizedLocalMoveDirection();
+        // Until target lock-on is implemented, both locomotion modes face the
+        // movement direction and only sample their authored forward clips.
+        return Vector2.up;
     }
 
     private void UpdateAnimatorParameters(bool isCombatMovement, bool hasMoveInput)
@@ -528,7 +522,7 @@ public class PlayerMovement : MonoBehaviour
         float targetMoveSpeed = isMoving
             ? Mathf.Lerp(WalkGaitSample, RunGaitSample, inputMagnitude)
             : 0f;
-        Vector2 targetDirection = GetTargetAnimatorDirection(isCombatMovement);
+        Vector2 targetDirection = GetTargetAnimatorDirection();
         if (targetDirection.sqrMagnitude <= MoveInputThreshold * MoveInputThreshold)
         {
             targetDirection = lastNonZeroLocalDirection;

@@ -9,6 +9,8 @@ namespace CombatEditor
     {
         [Tooltip("Comma separated game-defined command IDs, for example Dodge,HeavyAttack.")]
         public string AllowedCommandIds = "Dodge";
+        [Tooltip("Allow movement input to cancel the current ability while this window is active.")]
+        public bool AllowMovement;
         [Min(0)] public int MinimumPriority;
         public bool AllowHitReaction = true;
         public override CombatGameplayWindowType WindowType => CombatGameplayWindowType.Interrupt;
