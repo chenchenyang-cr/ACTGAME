@@ -10,6 +10,26 @@ public enum PlayerRotationMode
     Preserve
 }
 
+public readonly struct PlayerMovementDirectionSnapshot
+{
+    public Vector2 Input { get; }
+    public Vector3 WorldDirection { get; }
+    public Vector2 LocalDirection { get; }
+    public bool HasDirection { get; }
+
+    public PlayerMovementDirectionSnapshot(
+        Vector2 input,
+        Vector3 worldDirection,
+        Vector2 localDirection,
+        bool hasDirection)
+    {
+        Input = input;
+        WorldDirection = worldDirection;
+        LocalDirection = localDirection;
+        HasDirection = hasDirection;
+    }
+}
+
 public class PlayerMovement : MonoBehaviour
 {
     [Header("Dependencies")]
@@ -136,8 +156,37 @@ public class PlayerMovement : MonoBehaviour
         moveInput = Vector2.ClampMagnitude(input, 1f);
         UpdateMoveDirection();
         isCombatMovement = animator != null && animator.GetFloat(CombatWeightHash) >= CombatModeThreshold;
-        UpdateTurn180(isCombatMovement);
+        UpdateTurn180();
         UpdateAnimatorParameters(isCombatMovement, hasMoveInput);
+    }
+
+    public void PrepareLocomotionAnimation(Vector2 input)
+    {
+        moveInput = Vector2.ClampMagnitude(input, 1f);
+        UpdateMoveDirection();
+        isCombatMovement = animator != null &&
+                           animator.GetFloat(CombatWeightHash) >= CombatModeThreshold;
+        UpdateAnimatorParameters(isCombatMovement, true);
+    }
+
+    public PlayerMovementDirectionSnapshot CaptureDirectionSnapshot(Vector2 input)
+    {
+        Vector2 clampedInput = Vector2.ClampMagnitude(input, 1f);
+        Vector3 worldDirection = ResolveWorldMoveDirection(clampedInput);
+        bool hasDirection = worldDirection.sqrMagnitude > MoveInputThreshold * MoveInputThreshold;
+        Vector2 localDirection = Vector2.zero;
+
+        if (hasDirection)
+        {
+            Vector3 local = transform.InverseTransformDirection(worldDirection.normalized);
+            localDirection = new Vector2(local.x, local.z).normalized;
+        }
+
+        return new PlayerMovementDirectionSnapshot(
+            clampedInput,
+            worldDirection,
+            localDirection,
+            hasDirection);
     }
 
     public bool TryJump()
@@ -197,7 +246,18 @@ public class PlayerMovement : MonoBehaviour
         rotationMode = mode;
     }
 
-    private bool UpdateTurn180(bool isCombatMovement)
+    public void FaceWorldDirectionImmediately(Vector3 worldDirection)
+    {
+        worldDirection.y = 0f;
+        if (worldDirection.sqrMagnitude <= MoveInputThreshold * MoveInputThreshold)
+        {
+            return;
+        }
+
+        transform.rotation = Quaternion.LookRotation(worldDirection.normalized, Vector3.up);
+    }
+
+    private bool UpdateTurn180()
     {
         if (animator == null)
         {
@@ -216,8 +276,7 @@ public class PlayerMovement : MonoBehaviour
             return true;
         }
 
-        if (isCombatMovement ||
-            worldMoveDirection.sqrMagnitude < MoveInputThreshold * MoveInputThreshold)
+        if (worldMoveDirection.sqrMagnitude < MoveInputThreshold * MoveInputThreshold)
         {
             return false;
         }
@@ -244,7 +303,7 @@ public class PlayerMovement : MonoBehaviour
         float directionSign = signedAngle < 0f ? -1f : 1f;
         animator.SetFloat(TurnDirectionHash, directionSign);
         BeginTurn180RotationBlend(worldMoveDirection.normalized);
-        animator.CrossFadeInFixedTime(Turn180StateHash, 0.08f, 0, 0f);
+        PlayerAnimatorTransition.TryCrossFade(animator, 0, Turn180StateHash, 0.08f);
         return true;
     }
 
@@ -272,7 +331,7 @@ public class PlayerMovement : MonoBehaviour
                 Vector3.up);
             animator.SetFloat(TurnDirectionHash, signedAngle < 0f ? -1f : 1f);
             BeginTurn180RotationBlend(latestTargetDirection);
-            animator.CrossFadeInFixedTime(Turn180StateHash, 0.08f, 0, 0f);
+            PlayerAnimatorTransition.TryCrossFade(animator, 0, Turn180StateHash, 0.08f);
             return;
         }
 
@@ -306,7 +365,7 @@ public class PlayerMovement : MonoBehaviour
                 Vector3.up);
             animator.SetFloat(TurnDirectionHash, signedAngle < 0f ? -1f : 1f);
             BeginTurn180RotationBlend(latestTargetDirection);
-            animator.CrossFadeInFixedTime(Turn180StateHash, 0.08f, 0, 0f);
+            PlayerAnimatorTransition.TryCrossFade(animator, 0, Turn180StateHash, 0.08f);
             return;
         }
 
@@ -474,18 +533,23 @@ public class PlayerMovement : MonoBehaviour
 
     private void UpdateMoveDirection()
     {
+        worldMoveDirection = ResolveWorldMoveDirection(moveInput);
+    }
+
+    private Vector3 ResolveWorldMoveDirection(Vector2 input)
+    {
         if (cameraTransform == null)
         {
-            worldMoveDirection = new Vector3(moveInput.x, 0f, moveInput.y);
-            return;
+            return new Vector3(input.x, 0f, input.y);
         }
+
         Vector3 cameraForward = cameraTransform.forward;
         Vector3 cameraRight = cameraTransform.right;
         cameraForward.y = 0f;
         cameraRight.y = 0f;
         cameraForward.Normalize();
-       
-       worldMoveDirection=Vector3.ClampMagnitude((cameraForward * moveInput.y + cameraRight * moveInput.x), 1f);
+
+        return Vector3.ClampMagnitude(cameraForward * input.y + cameraRight * input.x, 1f);
     }
     private Quaternion CalculateMovementRotation()
     {
@@ -540,7 +604,7 @@ public class PlayerMovement : MonoBehaviour
 
             if (!wasMoving)
             {
-                Vector2 startDirection = QuantizePhaseDirection(targetDirection);
+                Vector2 startDirection = QuantizeEightWayDirection(targetDirection);
                 animator.SetFloat(StartXHash, startDirection.x);
                 animator.SetFloat(StartYHash, startDirection.y);
             }
@@ -558,7 +622,7 @@ public class PlayerMovement : MonoBehaviour
         {
             if (wasMoving)
             {
-                Vector2 stopDirection = QuantizePhaseDirection(lastNonZeroLocalDirection);
+                Vector2 stopDirection = QuantizeEightWayDirection(lastNonZeroLocalDirection);
                 animator.SetFloat(StopXHash, stopDirection.x);
                 animator.SetFloat(StopYHash, stopDirection.y);
             }
@@ -580,7 +644,7 @@ public class PlayerMovement : MonoBehaviour
         wasMoving = isMoving;
     }
 
-    private static Vector2 QuantizePhaseDirection(Vector2 direction)
+    public static Vector2 QuantizeEightWayDirection(Vector2 direction)
     {
         if (direction.sqrMagnitude <= MoveInputThreshold * MoveInputThreshold)
         {

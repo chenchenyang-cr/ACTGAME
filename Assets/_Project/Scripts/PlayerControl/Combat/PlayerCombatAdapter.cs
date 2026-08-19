@@ -12,15 +12,19 @@ public sealed class PlayerCombatAdapter : MonoBehaviour, ICombatGameplayWindowLi
     [SerializeField] private PlayerStateMachine stateMachine;
     [SerializeField] private PlayerMovement movement;
     [SerializeField] private AbilityScriptableObject firstLightAttack;
+    [SerializeField] private AbilityScriptableObject dodgeAbility;
 
     private readonly Dictionary<CombatWindowHandle, AbilityEventObj_RotationWindow> rotationWindows = new();
     private readonly Dictionary<CombatWindowHandle, AbilityEventObj_ComboWindow> comboWindows = new();
     private readonly Dictionary<CombatWindowHandle, AbilityEventObj_InterruptWindow> interruptWindows = new();
     private readonly HashSet<CombatWindowHandle> exitWindows = new();
     private IPlayerCombatTargetAssist targetAssist;
+    private CombatController combatController;
+    private GameplayWindowAbilityRunner dodgeWindowRunner;
 
     public AbilityScriptableObject CurrentAbility { get; private set; }
     public AbilityScriptableObject FirstLightAttack => firstLightAttack;
+    public AbilityScriptableObject DodgeAbility => dodgeAbility;
     public bool CanExitAttack => exitWindows.Count > 0;
 
     public event Action<AbilityScriptableObject> AbilityRequested;
@@ -29,20 +33,52 @@ public sealed class PlayerCombatAdapter : MonoBehaviour, ICombatGameplayWindowLi
     {
         if (stateMachine == null) stateMachine = GetComponent<PlayerStateMachine>();
         if (movement == null) movement = GetComponent<PlayerMovement>();
+        combatController = GetComponent<CombatController>();
+        if (combatController == null) combatController = GetComponentInChildren<CombatController>();
+        dodgeWindowRunner = new GameplayWindowAbilityRunner(combatController);
         targetAssist = GetComponent<IPlayerCombatTargetAssist>();
     }
 
     private void OnDisable()
     {
+        EndDodgeAbility();
         ClearWindows();
     }
 
     public void BeginAbility(AbilityScriptableObject ability)
     {
+        dodgeWindowRunner?.End();
         ClearWindows();
         CurrentAbility = ability;
         AbilityRequested?.Invoke(ability);
-        stateMachine?.RaiseAbilityRequested(ability);
+    }
+
+    public bool BeginDodgeAbility()
+    {
+        dodgeWindowRunner?.End();
+        ClearWindows();
+        CurrentAbility = dodgeAbility;
+        if (dodgeAbility == null)
+        {
+            Debug.LogError("Dodge Ability is not configured on PlayerCombatAdapter.", this);
+            return false;
+        }
+
+        return dodgeWindowRunner != null && dodgeWindowRunner.Begin(dodgeAbility);
+    }
+
+    public void UpdateDodgeAbility(float normalizedTime)
+    {
+        dodgeWindowRunner?.Update(normalizedTime);
+    }
+
+    public void EndDodgeAbility()
+    {
+        dodgeWindowRunner?.End();
+        if (CurrentAbility == dodgeAbility)
+        {
+            CurrentAbility = null;
+        }
     }
 
     public bool TryTransition(PlayerActionCommand command, out bool consumeBufferedInput)
@@ -106,7 +142,7 @@ public sealed class PlayerCombatAdapter : MonoBehaviour, ICombatGameplayWindowLi
                 break;
             case AbilityEventObj_ExitWindow exit:
                 if (exit.AllowControllerExit) exitWindows.Add(context.Handle);
-                if (exit.ExitOnWindowEnter) stateMachine?.CompleteAttack();
+                if (exit.ExitOnWindowEnter) stateMachine?.CompleteCurrentAction();
                 break;
         }
     }
@@ -185,6 +221,111 @@ public sealed class PlayerCombatAdapter : MonoBehaviour, ICombatGameplayWindowLi
         comboWindows.Clear();
         interruptWindows.Clear();
         exitWindows.Clear();
+    }
+
+    private sealed class GameplayWindowAbilityRunner
+    {
+        private readonly CombatController controller;
+        private readonly List<WindowEntry> entries = new();
+        private bool active;
+
+        public GameplayWindowAbilityRunner(CombatController controller)
+        {
+            this.controller = controller;
+        }
+
+        public bool Begin(AbilityScriptableObject ability)
+        {
+            End();
+            if (ability == null || controller == null)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < ability.events.Count; i++)
+            {
+                AbilityEvent abilityEvent = ability.events[i];
+                if (abilityEvent?.Obj is not AbilityEventObj_GameplayWindow window || !window.IsActive)
+                {
+                    continue;
+                }
+
+                AbilityEventEffect effect = window.Initialize();
+                effect.eve = abilityEvent;
+                effect.AnimObj = ability;
+                effect._combatController = controller;
+                entries.Add(new WindowEntry(abilityEvent, effect));
+            }
+
+            active = true;
+            return true;
+        }
+
+        public void Update(float normalizedTime)
+        {
+            if (!active)
+            {
+                return;
+            }
+
+            float currentTime = Mathf.Clamp01(normalizedTime);
+            for (int i = 0; i < entries.Count; i++)
+            {
+                WindowEntry entry = entries[i];
+                float startTime = entry.AbilityEvent.GetEventStartTime();
+                float endTime = entry.AbilityEvent.GetEventEndTime();
+                bool isInsideWindow = currentTime >= startTime && currentTime < endTime;
+
+                if (isInsideWindow && !entry.Effect.IsRunning)
+                {
+                    entry.Effect.StartEffect();
+                    if (!active)
+                    {
+                        return;
+                    }
+                }
+
+                if (isInsideWindow && entry.Effect.IsRunning)
+                {
+                    entry.Effect.EffectRunning(currentTime);
+                }
+                else if (!isInsideWindow && entry.Effect.IsRunning)
+                {
+                    entry.Effect.EndEffect();
+                }
+            }
+        }
+
+        public void End()
+        {
+            if (!active && entries.Count == 0)
+            {
+                return;
+            }
+
+            active = false;
+            WindowEntry[] snapshot = entries.ToArray();
+            entries.Clear();
+            for (int i = 0; i < snapshot.Length; i++)
+            {
+                if (snapshot[i].Effect.IsRunning)
+                {
+                    snapshot[i].Effect.EndEffect();
+                }
+            }
+        }
+
+        private sealed class WindowEntry
+        {
+            public AbilityEvent AbilityEvent { get; }
+            public AbilityEventEffect Effect { get; }
+
+            public WindowEntry(AbilityEvent abilityEvent, AbilityEventEffect effect)
+            {
+                AbilityEvent = abilityEvent;
+                Effect = effect;
+            }
+        }
     }
 }
 

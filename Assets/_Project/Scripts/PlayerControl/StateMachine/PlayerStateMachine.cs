@@ -2,6 +2,87 @@ using System;
 using CombatEditor;
 using UnityEngine;
 
+public static class PlayerAnimatorTransition
+{
+    public static bool TryCrossFade(
+        Animator animator,
+        int layer,
+        string relativeStatePath,
+        float duration,
+        out int stateHash,
+        float normalizedTime = 0f,
+        UnityEngine.Object logContext = null)
+    {
+        stateHash = 0;
+        if (!ValidateLayer(animator, layer, logContext))
+        {
+            return false;
+        }
+
+        if (string.IsNullOrWhiteSpace(relativeStatePath))
+        {
+            Debug.LogError("Animator state path cannot be empty.", logContext ?? animator);
+            return false;
+        }
+
+        string statePath = $"{animator.GetLayerName(layer)}.{relativeStatePath}";
+        stateHash = Animator.StringToHash(statePath);
+        return TryCrossFade(
+            animator,
+            layer,
+            stateHash,
+            duration,
+            normalizedTime,
+            logContext,
+            statePath);
+    }
+
+    public static bool TryCrossFade(
+        Animator animator,
+        int layer,
+        int stateHash,
+        float duration,
+        float normalizedTime = 0f,
+        UnityEngine.Object logContext = null,
+        string stateLabel = null)
+    {
+        if (!ValidateLayer(animator, layer, logContext))
+        {
+            return false;
+        }
+
+        if (!animator.HasState(layer, stateHash))
+        {
+            string label = string.IsNullOrWhiteSpace(stateLabel)
+                ? stateHash.ToString()
+                : stateLabel;
+            Debug.LogError($"Animator does not contain state '{label}'.", logContext ?? animator);
+            return false;
+        }
+
+        animator.CrossFadeInFixedTime(
+            stateHash,
+            Mathf.Max(0f, duration),
+            layer,
+            Mathf.Max(0f, normalizedTime));
+        return true;
+    }
+
+    private static bool ValidateLayer(
+        Animator animator,
+        int layer,
+        UnityEngine.Object logContext)
+    {
+        if (animator != null && layer >= 0 && layer < animator.layerCount)
+        {
+            return true;
+        }
+
+        Debug.LogError($"Animator layer {layer} does not exist.", logContext ?? animator);
+        return false;
+    }
+}
+
 [RequireComponent(typeof(PlayerInputReader), typeof(PlayerInputBuffer))]
 [RequireComponent(typeof(CharacterController), typeof(PlayerMovement))]
 public sealed class PlayerStateMachine : MonoBehaviour
@@ -21,6 +102,21 @@ public sealed class PlayerStateMachine : MonoBehaviour
     [SerializeField]
     [Min(0)]
     private int abilityAnimatorLayer;
+    [Header("Animation Transitions")]
+    [SerializeField]
+    [Min(0f)]
+    private float animationBlendDuration = 0.12f;
+    [SerializeField]
+    private string idleStateName = "Idle";
+    [SerializeField]
+    private string normalLocomotionLoopStateName = "NormalLocomotion.Loop";
+    [SerializeField]
+    private string combatLocomotionLoopStateName = "CombatLocomotion.Loop";
+    [Header("Dodge Animation")]
+    [SerializeField]
+    private string dodgeNormalStateName = "DodgeNormal";
+    [SerializeField]
+    private string dodgeCombatStateName = "DodgeCombat";
     [Header("Combat Stance")]
     [SerializeField]
     [Min(0f)]
@@ -49,14 +145,21 @@ public sealed class PlayerStateMachine : MonoBehaviour
         : characterController != null && characterController.isGrounded;
 
     public event Action JumpRequested;
-    public event Action DodgeRequested;
-    public event Action<int> LightAttackRequested;
-    public event Action<AbilityScriptableObject> AbilityRequested;
     public event Action HitStateEntered;
 
+    private static readonly int DodgeXHash = Animator.StringToHash("DodgeX");
+    private static readonly int DodgeYHash = Animator.StringToHash("DodgeY");
+    private int combatWeightHash;
     private Vector2 lastMoveInput;
     private bool lastHasMoveInput;
     private PlayerCombatStanceAnimator combatStanceAnimator;
+    private bool isDodgeAnimationPlaying;
+    private bool hasEnteredDodgeAnimation;
+    private int dodgeAnimationStateHash;
+    private int dodgeAnimationRequestFrame;
+
+    internal Vector2 LatestMoveInput => lastMoveInput;
+    internal bool HasLatestMoveInput => lastHasMoveInput;
 
     private void Awake()
     {
@@ -84,6 +187,8 @@ public sealed class PlayerStateMachine : MonoBehaviour
         {
             animator = GetComponentInChildren<Animator>();
         }
+
+        combatWeightHash = Animator.StringToHash(combatWeightParameter);
 
         combatStanceAnimator = new PlayerCombatStanceAnimator(
             animator,
@@ -129,23 +234,19 @@ public sealed class PlayerStateMachine : MonoBehaviour
 
         ProcessBufferedCommand(inputBuffer);
         CurrentState?.Tick(moveInput, hasMoveInput);
-        bool canLeaveCombatStance = CurrentState == IdleState ||
-                                    CurrentState == LocomotionState;
+        bool canLeaveCombatStance = CurrentState == IdleState ||CurrentState == LocomotionState;
         combatStanceAnimator?.Tick(canLeaveCombatStance);
     }
 
     private void ProcessBufferedCommand(PlayerInputBuffer inputBuffer)
     {
-        if (CurrentState == null ||
-            inputBuffer == null ||
-            !inputBuffer.TryPeek(out BufferedInput input))
+        if (CurrentState == null ||inputBuffer == null ||!inputBuffer.TryPeek(out BufferedInput input))
         {
             return;
         }
 
         PlayerState handlingState = CurrentState;
-        if (handlingState.TryHandleCommand(input.Command) &&
-            handlingState.ShouldConsumeHandledCommand(input.Command))
+        if (handlingState.TryHandleCommand(input.Command) &&handlingState.ShouldConsumeHandledCommand(input.Command))
         {
             inputBuffer.TryConsumeNext(out _);
         }
@@ -174,22 +275,6 @@ public sealed class PlayerStateMachine : MonoBehaviour
         ChangeState(lastHasMoveInput ? LocomotionState : IdleState);
     }
 
-    public void OpenComboWindow()
-    {
-        if (CurrentState == AttackState)
-        {
-            AttackState.OpenComboWindow();
-        }
-    }
-
-    public void CloseComboWindow()
-    {
-        if (CurrentState == AttackState)
-        {
-            AttackState.CloseComboWindow();
-        }
-    }
-
     public void CompleteAttack()
     {
         if (CurrentState == AttackState)
@@ -199,12 +284,46 @@ public sealed class PlayerStateMachine : MonoBehaviour
         }
     }
 
-    public void CompleteDodge()
+    public void CompleteCurrentAction()
     {
-        if (CurrentState == DodgeState)
+        if (CurrentState == AttackState)
         {
-            ReturnToControllableState();
+            CompleteAttack();
         }
+        else if (CurrentState == DodgeState)
+        {
+            CompleteDodge(lastMoveInput, lastHasMoveInput);
+        }
+    }
+
+    public void CompleteDodge(Vector2 moveInput, bool hasMoveInput)
+    {
+        if (CurrentState != DodgeState)
+        {
+            return;
+        }
+
+        if (!IsGrounded)
+        {
+            ChangeState(AirborneState);
+            return;
+        }
+
+        Vector2 currentMoveInput = Vector2.ClampMagnitude(moveInput, 1f);
+        bool returnToLocomotion = hasMoveInput || currentMoveInput.sqrMagnitude > 0.0001f;
+        if (!returnToLocomotion)
+        {
+            ChangeState(IdleState);
+            CrossFadeToIdle();
+            return;
+        }
+
+        string locomotionLoopState = IsCombatAnimationActive()
+            ? combatLocomotionLoopStateName
+            : normalLocomotionLoopStateName;
+        ChangeState(LocomotionState);
+        playerMovement.PrepareLocomotionAnimation(currentMoveInput);
+        TryCrossFadeAnimation(locomotionLoopState, out _);
     }
 
     public void EnterHitState()
@@ -225,19 +344,103 @@ public sealed class PlayerStateMachine : MonoBehaviour
         JumpRequested?.Invoke();
     }
 
-    internal void RaiseDodgeRequested()
+    internal bool PlayDodgeAnimation(Vector2 localDirection)
     {
-        DodgeRequested?.Invoke();
+        if (!ValidateAnimatorLayer())
+        {
+            return false;
+        }
+
+        Vector2 direction = PlayerMovement.QuantizeEightWayDirection(localDirection);
+        animator.SetFloat(DodgeXHash, direction.x);
+        animator.SetFloat(DodgeYHash, direction.y);
+
+        bool useCombatDodge = IsCombatAnimationActive();
+        string stateName = useCombatDodge ? dodgeCombatStateName : dodgeNormalStateName;
+        if (!TryCrossFadeAnimation(stateName, out int stateHash))
+        {
+            return false;
+        }
+
+        dodgeAnimationStateHash = stateHash;
+        dodgeAnimationRequestFrame = Time.frameCount;
+        hasEnteredDodgeAnimation = false;
+        isDodgeAnimationPlaying = true;
+        return true;
     }
 
-    internal void RaiseLightAttackRequested(int comboIndex)
+    internal void BeginDodgeAbility()
     {
-        LightAttackRequested?.Invoke(comboIndex);
+        combatAdapter?.BeginDodgeAbility();
     }
 
-    internal void RaiseAbilityRequested(AbilityScriptableObject ability)
+    internal void UpdateDodgeAbilityWindows()
     {
-        AbilityRequested?.Invoke(ability);
+        if (TryGetDodgeAnimationState(out AnimatorStateInfo stateInfo))
+        {
+            combatAdapter?.UpdateDodgeAbility(stateInfo.normalizedTime);
+        }
+    }
+
+    internal void EndDodgeAbility()
+    {
+        combatAdapter?.EndDodgeAbility();
+    }
+
+    internal bool CanDodgeInterruptWithMovement()
+    {
+        return combatAdapter != null && combatAdapter.CanInterruptWithMovement();
+    }
+
+    internal bool IsDodgeAnimationComplete()
+    {
+        if (!isDodgeAnimationPlaying)
+        {
+            return true;
+        }
+
+        if (Time.frameCount <= dodgeAnimationRequestFrame)
+        {
+            return false;
+        }
+
+        if (TryGetDodgeAnimationState(out AnimatorStateInfo stateInfo))
+        {
+            return stateInfo.normalizedTime >= 1f;
+        }
+
+        return hasEnteredDodgeAnimation;
+    }
+
+    private bool TryGetDodgeAnimationState(out AnimatorStateInfo stateInfo)
+    {
+        if (animator.IsInTransition(abilityAnimatorLayer))
+        {
+            AnimatorStateInfo nextState = animator.GetNextAnimatorStateInfo(abilityAnimatorLayer);
+            if (nextState.fullPathHash == dodgeAnimationStateHash)
+            {
+                hasEnteredDodgeAnimation = true;
+                stateInfo = nextState;
+                return true;
+            }
+        }
+
+        AnimatorStateInfo currentState = animator.GetCurrentAnimatorStateInfo(abilityAnimatorLayer);
+        if (currentState.fullPathHash == dodgeAnimationStateHash)
+        {
+            hasEnteredDodgeAnimation = true;
+            stateInfo = currentState;
+            return true;
+        }
+
+        stateInfo = default;
+        return false;
+    }
+
+    internal void StopTrackingDodgeAnimation()
+    {
+        isDodgeAnimationPlaying = false;
+        hasEnteredDodgeAnimation = false;
     }
 
     private void PlayAbility(AbilityScriptableObject ability)
@@ -249,41 +452,45 @@ public sealed class PlayerStateMachine : MonoBehaviour
             return;
         }
 
-        if (abilityAnimatorLayer < 0 || abilityAnimatorLayer >= animator.layerCount)
-        {
-            Debug.LogError($"Animator layer {abilityAnimatorLayer} does not exist.", this);
-            return;
-        }
-
-        string statePath = $"{animator.GetLayerName(abilityAnimatorLayer)}.{ability.Clip.name}";
-        int stateHash = Animator.StringToHash(statePath);
-        if (!animator.HasState(abilityAnimatorLayer, stateHash))
-        {
-            Debug.LogError($"Animator does not contain ability state '{statePath}'.", this);
-            return;
-        }
-
-        animator.CrossFadeInFixedTime(stateHash, 0.05f, abilityAnimatorLayer, 0f);
+        TryCrossFadeAnimation(ability.Clip.name, out _);
     }
 
     private void CrossFadeToIdle()
     {
-        if (animator == null ||
-            abilityAnimatorLayer < 0 ||
-            abilityAnimatorLayer >= animator.layerCount)
+        TryCrossFadeAnimation(idleStateName, out _);
+    }
+
+    private bool IsCombatAnimationActive()
+    {
+        return animator != null && animator.GetFloat(combatWeightHash) >= 0.5f;
+    }
+
+    private bool TryCrossFadeAnimation(
+        string relativeStatePath,
+        out int stateHash,
+        float normalizedTime = 0f)
+    {
+        return PlayerAnimatorTransition.TryCrossFade(
+            animator,
+            abilityAnimatorLayer,
+            relativeStatePath,
+            animationBlendDuration,
+            out stateHash,
+            normalizedTime,
+            this);
+    }
+
+    private bool ValidateAnimatorLayer()
+    {
+        if (animator != null &&
+            abilityAnimatorLayer >= 0 &&
+            abilityAnimatorLayer < animator.layerCount)
         {
-            return;
+            return true;
         }
 
-        string idleStatePath = $"{animator.GetLayerName(abilityAnimatorLayer)}.Idle";
-        int idleStateHash = Animator.StringToHash(idleStatePath);
-        if (!animator.HasState(abilityAnimatorLayer, idleStateHash))
-        {
-            Debug.LogError($"Animator does not contain idle state '{idleStatePath}'.", this);
-            return;
-        }
-
-        animator.CrossFadeInFixedTime(idleStateHash, 0.1f, abilityAnimatorLayer, 0f);
+        Debug.LogError($"Animator layer {abilityAnimatorLayer} does not exist.", this);
+        return false;
     }
 
     internal void RaiseHitStateEntered()

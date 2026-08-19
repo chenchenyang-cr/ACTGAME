@@ -26,7 +26,6 @@ public abstract class GroundedState : PlayerState
                 return true;
 
             case PlayerActionCommand.LightAttack:
-                Machine.AttackState.BeginAttack();
                 Machine.ChangeState(Machine.AttackState);
                 return true;
 

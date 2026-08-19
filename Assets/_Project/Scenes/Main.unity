@@ -565,7 +565,7 @@ Transform:
   m_GameObject: {fileID: 963194225}
   serializedVersion: 2
   m_LocalRotation: {x: -0.15915784, y: 0.4989869, z: 0.09379789, w: 0.8466894}
-  m_LocalPosition: {x: -5.6524067, y: 0, z: 21.033306}
+  m_LocalPosition: {x: -5.62844, y: 0, z: 23.7186}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -865,7 +865,7 @@ Transform:
   m_GameObject: {fileID: 1430916678}
   serializedVersion: 2
   m_LocalRotation: {x: 0.11483096, y: -0, z: -0, w: 0.9933851}
-  m_LocalPosition: {x: -5.6524067, y: 0, z: 21.033306}
+  m_LocalPosition: {x: -5.62844, y: 0, z: 23.7186}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1190,6 +1190,10 @@ MonoBehaviour:
     - {fileID: 11400000, guid: 5880d7edbd714d245ad3f919041e9078, type: 2}
     - {fileID: 11400000, guid: 6b6f3a263c7ba034ca74b6e1ac28c6a9, type: 2}
     - {fileID: 11400000, guid: 3996a2156a4d8674eafce0147160b1a7, type: 2}
+  - IsFolded: 1
+    Label: F2_Rename
+    CombatObjs:
+    - {fileID: 11400000, guid: 693585e0c9a86d140ad56dce1b6b3307, type: 2}
   clip: {fileID: 0}
   Nodes: []
 --- !u!4 &1687072555
@@ -1201,7 +1205,7 @@ Transform:
   m_GameObject: {fileID: 1687072552}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -3.0596974, y: 0, z: 22.441494}
+  m_LocalPosition: {x: -3.0364435, y: 0, z: 25.12762}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -3401,6 +3405,12 @@ MonoBehaviour:
   combatAdapter: {fileID: 6521557876880841999}
   animator: {fileID: 6521557876880841991}
   abilityAnimatorLayer: 0
+  animationBlendDuration: 0.12
+  idleStateName: Idle
+  normalLocomotionLoopStateName: NormalLocomotion.Loop
+  combatLocomotionLoopStateName: CombatLocomotion.Loop
+  dodgeNormalStateName: DodgeNormal
+  dodgeCombatStateName: DodgeCombat
   combatStanceTimeout: 4
   combatWeightParameter: CombatWeight
   combatExitLayerName: Combat Upper Body
@@ -3434,6 +3444,7 @@ MonoBehaviour:
   stateMachine: {fileID: 6521557876880841997}
   movement: {fileID: 6521557876880841992}
   firstLightAttack: {fileID: 11400000, guid: c2e28c6312c3ae34c902ae692de56a1e, type: 2}
+  dodgeAbility: {fileID: 11400000, guid: 693585e0c9a86d140ad56dce1b6b3307, type: 2}
 --- !u!4 &6557004216867450470
 Transform:
   m_ObjectHideFlags: 0

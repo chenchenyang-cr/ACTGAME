@@ -104,7 +104,15 @@ public sealed class PlayerCombatStanceAnimator
         }
 
         animator.SetLayerWeight(exitLayer, exitBlendDuration > 0f ? 0f : 1f);
-        animator.Play(exitStateHash, exitLayer, 0f);
+        if (!PlayerAnimatorTransition.TryCrossFade(
+                animator,
+                exitLayer,
+                exitStateHash,
+                exitBlendDuration))
+        {
+            return;
+        }
+
         exitAnimationStartTime = Time.time;
         exitAnimationStartFrame = Time.frameCount;
         exitAnimationPlaying = true;
@@ -124,7 +132,7 @@ public sealed class PlayerCombatStanceAnimator
             animator.SetLayerWeight(exitLayer, layerWeight);
         }
 
-        // Animator.Play takes effect during Animator evaluation later in the frame.
+        // CrossFade takes effect during Animator evaluation later in the frame.
         // Waiting one frame prevents reading the zero-weight state's old loop time.
         if (Time.frameCount == exitAnimationStartFrame)
         {

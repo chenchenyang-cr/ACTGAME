@@ -2,17 +2,13 @@ using UnityEngine;
 
 public sealed class AttackState : PlayerState
 {
-    private bool comboWindowOpen;
-    private int comboIndex;
     private PlayerCombatAdapter combatAdapter;
     private bool consumeLastHandledCommand = true;
 
     public AttackState(PlayerStateMachine machine) : base(machine) { }
 
-    public void BeginAttack()
+    private void BeginAttack()
     {
-        comboIndex = 1;
-        comboWindowOpen = false;
         combatAdapter = Machine.GetComponent<PlayerCombatAdapter>();
         if (combatAdapter != null && combatAdapter.FirstLightAttack != null)
         {
@@ -23,19 +19,12 @@ public sealed class AttackState : PlayerState
     public override void Enter()
     {
         Machine.Movement.SetRotationMode(PlayerRotationMode.Animation);
-        Machine.RaiseLightAttackRequested(comboIndex);
-    }
-
-    public override void Exit()
-    {
-        comboWindowOpen = false;
+        BeginAttack();
     }
 
     public override void Tick(Vector2 moveInput, bool hasMoveInput)
     {
-        if (hasMoveInput &&
-            combatAdapter != null &&
-            combatAdapter.CanInterruptWithMovement())
+        if (hasMoveInput &&combatAdapter != null &&combatAdapter.CanInterruptWithMovement())
         {
             Machine.CompleteAttack();
             Machine.Movement.Tick(moveInput, true);
@@ -52,8 +41,6 @@ public sealed class AttackState : PlayerState
             if (combatAdapter.TryTransition(command, out bool consumeBufferedInput))
             {
                 consumeLastHandledCommand = consumeBufferedInput;
-                comboIndex++;
-                Machine.RaiseLightAttackRequested(comboIndex);
                 return true;
             }
 
@@ -74,15 +61,7 @@ public sealed class AttackState : PlayerState
             }
         }
 
-        if (command != PlayerActionCommand.LightAttack || !comboWindowOpen)
-        {
-            return false;
-        }
-
-        comboWindowOpen = false;
-        comboIndex++;
-        Machine.RaiseLightAttackRequested(comboIndex);
-        return true;
+        return false;
     }
 
     public override bool ShouldConsumeHandledCommand(PlayerActionCommand command)
@@ -90,13 +69,4 @@ public sealed class AttackState : PlayerState
         return consumeLastHandledCommand;
     }
 
-    public void OpenComboWindow()
-    {
-        comboWindowOpen = true;
-    }
-
-    public void CloseComboWindow()
-    {
-        comboWindowOpen = false;
-    }
 }

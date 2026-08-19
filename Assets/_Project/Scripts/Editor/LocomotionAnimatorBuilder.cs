@@ -21,6 +21,8 @@ public static class LocomotionAnimatorBuilder
     private const string StopX = "StopX";
     private const string StopY = "StopY";
     private const string TurnDirection = "TurnDirection";
+    private const string DodgeX = "DodgeX";
+    private const string DodgeY = "DodgeY";
     private const string LocomotionStartTag = "LocomotionStart";
     private const string LocomotionLoopTag = "LocomotionLoop";
     private const string LocomotionEndTag = "LocomotionEnd";
@@ -38,11 +40,11 @@ public static class LocomotionAnimatorBuilder
 
     private static readonly LocomotionTransitionConfig CombatTransitionConfig =
         new LocomotionTransitionConfig(
-            startToLoopExitTime: 0.7f,
-            startToLoopDuration: 0.2f,
-            loopToEndDuration: 0.1f,
-            endToIdleExitTime: 0.8f,
-            endToIdleDuration: 0.25f);
+            startToLoopExitTime: 0.6f,
+            startToLoopDuration: 0.5f,
+            loopToEndDuration: 0.06f,
+            endToIdleExitTime: 0.7f,
+            endToIdleDuration: 0.5f);
 
     private static readonly DirectionClip[] ForwardDirections =
     {
@@ -252,6 +254,7 @@ public static class LocomotionAnimatorBuilder
         AddTransition(combatStop, normalStop, false, 0f, Condition(AnimatorConditionMode.Less, CombatWeight, 0.5f));
 
         CombatStanceAnimatorConfigurator.EnsureConfigured();
+        DodgeAnimatorConfigurator.EnsureConfigured(controller);
 
     }
 
@@ -321,6 +324,8 @@ public static class LocomotionAnimatorBuilder
             FloatParameter(StopX),
             FloatParameter(StopY),
             FloatParameter(TurnDirection),
+            FloatParameter(DodgeX),
+            FloatParameter(DodgeY),
         };
     }
 
@@ -623,6 +628,408 @@ public static class LocomotionAnimatorBuilder
             this.mode = mode;
             this.parameter = parameter;
             this.threshold = threshold;
+        }
+    }
+}
+
+[InitializeOnLoad]
+internal static class CombatLocomotionTransitionConfigurator
+{
+    private const string ControllerPath = "Assets/_Project/Animations/Controllers/9CG_Sword.controller";
+
+    static CombatLocomotionTransitionConfigurator()
+    {
+        EditorApplication.delayCall += EnsureConfiguredWhenReady;
+    }
+
+    private static void EnsureConfiguredWhenReady()
+    {
+        if (EditorApplication.isCompiling || EditorApplication.isUpdating)
+        {
+            EditorApplication.delayCall += EnsureConfiguredWhenReady;
+            return;
+        }
+
+        EnsureConfigured();
+    }
+
+    private static void EnsureConfigured()
+    {
+        AnimatorController controller =
+            AssetDatabase.LoadAssetAtPath<AnimatorController>(ControllerPath);
+        if (controller == null || controller.layers.Length == 0)
+        {
+            return;
+        }
+
+        AnimatorStateMachine root = controller.layers[0].stateMachine;
+        AnimatorStateMachine normal = FindMachine(root, "NormalLocomotion");
+        AnimatorStateMachine combat = FindMachine(root, "CombatLocomotion");
+        AnimatorState idle = FindState(root, "Idle");
+        if (normal == null || combat == null || idle == null)
+        {
+            return;
+        }
+
+        AnimatorState normalStart = FindState(normal, "Start");
+        AnimatorState normalLoop = FindState(normal, "Loop");
+        AnimatorState normalEnd = FindState(normal, "End");
+        AnimatorState combatStart = FindState(combat, "Start");
+        AnimatorState combatLoop = FindState(combat, "Loop");
+        AnimatorState combatEnd = FindState(combat, "End");
+        if (normalStart == null || normalLoop == null || normalEnd == null ||
+            combatStart == null || combatLoop == null || combatEnd == null)
+        {
+            return;
+        }
+
+        bool changed = false;
+        changed |= CopyTransition(normalStart, normalLoop, combatStart, combatLoop);
+        changed |= CopyTransition(normalStart, normalEnd, combatStart, combatEnd);
+        changed |= CopyTransition(normalLoop, normalEnd, combatLoop, combatEnd);
+        changed |= CopyTransition(normalEnd, normalStart, combatEnd, combatStart);
+        changed |= CopyTransition(normalEnd, idle, combatEnd, idle);
+
+        if (!changed)
+        {
+            return;
+        }
+
+        EditorUtility.SetDirty(controller);
+        AssetDatabase.SaveAssets();
+        Debug.Log("Synchronized CombatLocomotion transitions with NormalLocomotion.", controller);
+    }
+
+    private static bool CopyTransition(
+        AnimatorState sourceState,
+        AnimatorState sourceDestination,
+        AnimatorState targetState,
+        AnimatorState targetDestination)
+    {
+        AnimatorStateTransition source = sourceState.transitions
+            .FirstOrDefault(transition => transition.destinationState == sourceDestination);
+        AnimatorStateTransition target = targetState.transitions
+            .FirstOrDefault(transition => transition.destinationState == targetDestination);
+        if (source == null || target == null)
+        {
+            return false;
+        }
+
+        bool changed = source.hasExitTime != target.hasExitTime ||
+                       !Mathf.Approximately(source.exitTime, target.exitTime) ||
+                       source.hasFixedDuration != target.hasFixedDuration ||
+                       !Mathf.Approximately(source.duration, target.duration) ||
+                       !Mathf.Approximately(source.offset, target.offset) ||
+                       source.interruptionSource != target.interruptionSource ||
+                       source.orderedInterruption != target.orderedInterruption ||
+                       source.mute != target.mute ||
+                       source.solo != target.solo ||
+                       !ConditionsMatch(source.conditions, target.conditions);
+        if (!changed)
+        {
+            return false;
+        }
+
+        target.hasExitTime = source.hasExitTime;
+        target.exitTime = source.exitTime;
+        target.hasFixedDuration = source.hasFixedDuration;
+        target.duration = source.duration;
+        target.offset = source.offset;
+        target.interruptionSource = source.interruptionSource;
+        target.orderedInterruption = source.orderedInterruption;
+        target.mute = source.mute;
+        target.solo = source.solo;
+        target.conditions = source.conditions;
+        EditorUtility.SetDirty(target);
+        return true;
+    }
+
+    private static bool ConditionsMatch(
+        AnimatorCondition[] source,
+        AnimatorCondition[] target)
+    {
+        if (source.Length != target.Length)
+        {
+            return false;
+        }
+
+        for (int i = 0; i < source.Length; i++)
+        {
+            if (source[i].mode != target[i].mode ||
+                source[i].parameter != target[i].parameter ||
+                !Mathf.Approximately(source[i].threshold, target[i].threshold))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static AnimatorStateMachine FindMachine(
+        AnimatorStateMachine root,
+        string machineName)
+    {
+        return root.stateMachines
+            .Select(child => child.stateMachine)
+            .FirstOrDefault(machine => machine.name == machineName);
+    }
+
+    private static AnimatorState FindState(AnimatorStateMachine machine, string stateName)
+    {
+        return machine.states
+            .Select(child => child.state)
+            .FirstOrDefault(state => state.name == stateName);
+    }
+}
+
+[InitializeOnLoad]
+internal static class DodgeAnimatorConfigurator
+{
+    private const string ControllerPath = "Assets/_Project/Animations/Controllers/9CG_Sword.controller";
+    private const string NormalClipRoot =
+        "Assets/ThirdParty/SwordAnimationPack/Animation/Humanoid/06_Dodge/01_Dodge";
+    private const string CombatClipRoot =
+        "Assets/ThirdParty/SwordAnimationPack/Animation/Humanoid/06_Dodge/02_Dodge_Combat";
+    private const string DodgeX = "DodgeX";
+    private const string DodgeY = "DodgeY";
+    private const string DodgeTag = "Dodge";
+    private const float Diagonal = 0.707107f;
+
+    private static readonly DodgeClip[] NormalClips =
+    {
+        Clip(NormalClipRoot, "Dodge_F", 0f, 1f),
+        Clip(NormalClipRoot, "Dodge_F_R_45", Diagonal, Diagonal),
+        Clip(NormalClipRoot, "Dodge_R", 1f, 0f),
+        Clip(NormalClipRoot, "Dodge_B_R_45", Diagonal, -Diagonal),
+        Clip(NormalClipRoot, "Dodge_B", 0f, -1f),
+        Clip(NormalClipRoot, "Dodge_B_L_45", -Diagonal, -Diagonal),
+        Clip(NormalClipRoot, "Dodge_L", -1f, 0f),
+        Clip(NormalClipRoot, "Dodge_F_L_45", -Diagonal, Diagonal),
+    };
+
+    private static readonly DodgeClip[] CombatClips =
+    {
+        Clip(CombatClipRoot, "Dodge_Combat_F", 0f, 1f),
+        // The package names this clip R_L_45, but its authored root motion is forward-right.
+        Clip(CombatClipRoot, "Dodge_Combat_R_L_45", Diagonal, Diagonal),
+        Clip(CombatClipRoot, "Dodge_Combat_R", 1f, 0f),
+        Clip(CombatClipRoot, "Dodge_Combat_B_R_45", Diagonal, -Diagonal),
+        Clip(CombatClipRoot, "Dodge_Combat_B", 0f, -1f),
+        Clip(CombatClipRoot, "Dodge_Combat_B_L_45", -Diagonal, -Diagonal),
+        Clip(CombatClipRoot, "Dodge_Combat_L", -1f, 0f),
+        Clip(CombatClipRoot, "Dodge_Combat_F_L_45", -Diagonal, Diagonal),
+    };
+
+    static DodgeAnimatorConfigurator()
+    {
+        EditorApplication.delayCall += EnsureConfiguredWhenReady;
+    }
+
+    public static void EnsureConfigured(AnimatorController controller = null)
+    {
+        controller ??= AssetDatabase.LoadAssetAtPath<AnimatorController>(ControllerPath);
+        if (controller == null || controller.layers.Length == 0)
+        {
+            return;
+        }
+
+        AnimationClip[] normalClips = LoadClips(NormalClips);
+        AnimationClip[] combatClips = LoadClips(CombatClips);
+        if (normalClips == null || combatClips == null)
+        {
+            return;
+        }
+
+        bool changed = EnsureFloatParameter(controller, DodgeX);
+        changed |= EnsureFloatParameter(controller, DodgeY);
+
+        AnimatorStateMachine root = controller.layers[0].stateMachine;
+        BlendTree normalTree = GetOrCreateTree(controller, "Generated_Dodge_Normal", ref changed);
+        BlendTree combatTree = GetOrCreateTree(controller, "Generated_Dodge_Combat", ref changed);
+        changed |= ConfigureTree(normalTree, NormalClips, normalClips);
+        changed |= ConfigureTree(combatTree, CombatClips, combatClips);
+        changed |= EnsureState(root, "DodgeNormal", normalTree, new Vector3(820f, 20f));
+        changed |= EnsureState(root, "DodgeCombat", combatTree, new Vector3(820f, 140f));
+
+        if (!changed)
+        {
+            return;
+        }
+
+        EditorUtility.SetDirty(controller);
+        EditorUtility.SetDirty(root);
+        AssetDatabase.SaveAssets();
+        Debug.Log("Configured normal/combat eight-direction dodge animation states.", controller);
+    }
+
+    private static void EnsureConfiguredWhenReady()
+    {
+        if (EditorApplication.isCompiling || EditorApplication.isUpdating)
+        {
+            EditorApplication.delayCall += EnsureConfiguredWhenReady;
+            return;
+        }
+
+        EnsureConfigured();
+    }
+
+    private static bool EnsureFloatParameter(AnimatorController controller, string parameterName)
+    {
+        AnimatorControllerParameter parameter = controller.parameters
+            .FirstOrDefault(candidate => candidate.name == parameterName);
+        if (parameter != null)
+        {
+            if (parameter.type != AnimatorControllerParameterType.Float)
+            {
+                Debug.LogError($"Animator parameter '{parameterName}' must be a Float.", controller);
+            }
+
+            return false;
+        }
+
+        controller.AddParameter(parameterName, AnimatorControllerParameterType.Float);
+        return true;
+    }
+
+    private static BlendTree GetOrCreateTree(
+        AnimatorController controller,
+        string treeName,
+        ref bool changed)
+    {
+        BlendTree tree = AssetDatabase.LoadAllAssetsAtPath(ControllerPath)
+            .OfType<BlendTree>()
+            .FirstOrDefault(candidate => candidate.name == treeName);
+        if (tree != null)
+        {
+            return tree;
+        }
+
+        tree = new BlendTree
+        {
+            name = treeName,
+            hideFlags = HideFlags.HideInHierarchy
+        };
+        AssetDatabase.AddObjectToAsset(tree, controller);
+        changed = true;
+        return tree;
+    }
+
+    private static bool ConfigureTree(
+        BlendTree tree,
+        DodgeClip[] definitions,
+        AnimationClip[] clips)
+    {
+        ChildMotion[] children = tree.children;
+        bool childrenMatch = children.Length == definitions.Length;
+        if (childrenMatch)
+        {
+            for (int i = 0; i < definitions.Length; i++)
+            {
+                if (children[i].motion != clips[i] ||
+                    Vector2.SqrMagnitude(children[i].position - definitions[i].position) > 0.000001f)
+                {
+                    childrenMatch = false;
+                    break;
+                }
+            }
+        }
+
+        bool settingsMatch = tree.blendType == BlendTreeType.FreeformDirectional2D &&
+                             tree.blendParameter == DodgeX &&
+                             tree.blendParameterY == DodgeY;
+        if (settingsMatch && childrenMatch)
+        {
+            return false;
+        }
+
+        tree.blendType = BlendTreeType.FreeformDirectional2D;
+        tree.blendParameter = DodgeX;
+        tree.blendParameterY = DodgeY;
+        tree.children = Array.Empty<ChildMotion>();
+        for (int i = 0; i < definitions.Length; i++)
+        {
+            tree.AddChild(clips[i], definitions[i].position);
+        }
+
+        EditorUtility.SetDirty(tree);
+        return true;
+    }
+
+    private static bool EnsureState(
+        AnimatorStateMachine root,
+        string stateName,
+        Motion motion,
+        Vector3 position)
+    {
+        AnimatorState state = root.states
+            .Select(child => child.state)
+            .FirstOrDefault(candidate => candidate.name == stateName);
+        bool changed = false;
+        if (state == null)
+        {
+            state = root.AddState(stateName, position);
+            changed = true;
+        }
+
+        if (state.motion != motion)
+        {
+            state.motion = motion;
+            changed = true;
+        }
+
+        if (state.tag != DodgeTag)
+        {
+            state.tag = DodgeTag;
+            changed = true;
+        }
+
+        if (!state.writeDefaultValues)
+        {
+            state.writeDefaultValues = true;
+            changed = true;
+        }
+
+        if (changed)
+        {
+            EditorUtility.SetDirty(state);
+        }
+
+        return changed;
+    }
+
+    private static AnimationClip[] LoadClips(DodgeClip[] definitions)
+    {
+        AnimationClip[] clips = new AnimationClip[definitions.Length];
+        for (int i = 0; i < definitions.Length; i++)
+        {
+            clips[i] = AssetDatabase.LoadAssetAtPath<AnimationClip>(definitions[i].path);
+            if (clips[i] != null)
+            {
+                continue;
+            }
+
+            Debug.LogError($"Dodge animation clip was not found: {definitions[i].path}");
+            return null;
+        }
+
+        return clips;
+    }
+
+    private static DodgeClip Clip(string root, string clipName, float x, float y)
+    {
+        return new DodgeClip($"{root}/{clipName}.anim", new Vector2(x, y));
+    }
+
+    private readonly struct DodgeClip
+    {
+        public readonly string path;
+        public readonly Vector2 position;
+
+        public DodgeClip(string path, Vector2 position)
+        {
+            this.path = path;
+            this.position = position;
         }
     }
 }
