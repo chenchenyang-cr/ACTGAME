@@ -53,16 +53,6 @@ public class PlayerMovement : MonoBehaviour
     private float rotationSpeed = 720;
     [SerializeField, Range(90f, 180f)]
     private float turn180Threshold = 135f;
-    [SerializeField, Range(0f, 1f)]
-    private float turn180CorrectionStartNormalizedTime = 0.45f;
-    [SerializeField, Range(0f, 1f)]
-    private float turn180CorrectionEndNormalizedTime = 0.75f;
-    [SerializeField, Range(0.1f, 45f)]
-    private float turn180RetargetThreshold = 5f;
-    [SerializeField, Min(1f)]
-    private float turn180SettlementRotationSpeed = 360f;
-    [SerializeField]
-    private AnimationCurve turn180RotationBlend = AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
     [Header("Animation")]
     [SerializeField]
     private Animator animator;
@@ -84,6 +74,7 @@ public class PlayerMovement : MonoBehaviour
     private const float CombatModeThreshold = 0.5f;
     private const float WalkGaitSample = 0.35f;
     private const float RunGaitSample = 1f;
+    private const float FastRunGaitSample = 2f;
     private const float DirectionStepDegrees = 45f;
 
     private Vector2 moveInput;
@@ -93,14 +84,10 @@ public class PlayerMovement : MonoBehaviour
     private Vector2 lastNonZeroLocalDirection = Vector2.up;
     private bool wasMoving;
     private CombatEditor.RootMotionParentApplier rootMotionApplier;
-    private bool isBlendingTurn180Rotation;
-    private bool hasEnteredTurn180State;
-    private Vector3 turn180TargetDirection;
-    private float lastTurn180CorrectionWeight;
-    private bool hasCompletedTurn180Correction;
-    private bool isSettlingTurn180Rotation;
+    private CombatEditor.ITurn180RootMotionHandler turn180RootMotionHandler;
     private PlayerRotationMode rotationMode = PlayerRotationMode.MovementDirection;
     private bool isCombatMovement;
+    private bool isFastMovementActive;
     private float verticalVelocity;
 
     public bool IsGrounded { get; private set; }
@@ -124,6 +111,7 @@ public class PlayerMovement : MonoBehaviour
                 rootMotionApplier = gameObject.AddComponent<CombatEditor.RootMotionParentApplier>();
             }
             rootMotionApplier.SetSourceAnimator(animator);
+            turn180RootMotionHandler = rootMotionApplier;
         }
         if (cameraTransform == null && Camera.main != null)
         {
@@ -138,11 +126,9 @@ public class PlayerMovement : MonoBehaviour
 
     private void OnDisable()
     {
+        turn180RootMotionHandler?.SetTurn180RootMotionActive(false);
         rootMotionApplier?.SetRootRotationProcessor(null);
         rootMotionApplier?.SetRootMotionTranslationScale(1f);
-
-        isBlendingTurn180Rotation = false;
-        isSettlingTurn180Rotation = false;
     }
 
     private void BindRootRotationProcessor()
@@ -156,7 +142,9 @@ public class PlayerMovement : MonoBehaviour
         moveInput = Vector2.ClampMagnitude(input, 1f);
         UpdateMoveDirection();
         isCombatMovement = animator != null && animator.GetFloat(CombatWeightHash) >= CombatModeThreshold;
-        UpdateTurn180();
+        bool isUsingTurn180RootMotion = UpdateTurn180();
+        turn180RootMotionHandler?.SetTurn180RootMotionActive(
+            isUsingTurn180RootMotion);
         UpdateAnimatorParameters(isCombatMovement, hasMoveInput);
     }
 
@@ -166,6 +154,11 @@ public class PlayerMovement : MonoBehaviour
         UpdateMoveDirection();
         isCombatMovement = animator != null &&
                            animator.GetFloat(CombatWeightHash) >= CombatModeThreshold;
+        if (isFastMovementActive)
+        {
+            smoothedAnimatorMoveAmount = FastRunGaitSample;
+            animator?.SetFloat(MoveSpeedHash, FastRunGaitSample);
+        }
         UpdateAnimatorParameters(isCombatMovement, true);
     }
 
@@ -251,6 +244,22 @@ public class PlayerMovement : MonoBehaviour
         rootMotionApplier?.SetRootMotionTranslationScale(scale);
     }
 
+    public void BeginFastMovement()
+    {
+        isFastMovementActive = true;
+        smoothedAnimatorMoveAmount = FastRunGaitSample;
+        animator?.SetFloat(MoveSpeedHash, FastRunGaitSample);
+    }
+
+    public void EndFastMovement()
+    {
+        isFastMovementActive = false;
+        turn180RootMotionHandler?.SetTurn180RootMotionActive(false);
+        smoothedAnimatorMoveAmount = Mathf.Min(
+            smoothedAnimatorMoveAmount,
+            RunGaitSample);
+    }
+
     public void FaceWorldDirectionImmediately(Vector3 worldDirection)
     {
         worldDirection.y = 0f;
@@ -264,35 +273,19 @@ public class PlayerMovement : MonoBehaviour
 
     private bool UpdateTurn180()
     {
-        if (animator == null)
+        if (animator == null || !isFastMovementActive)
         {
             return false;
         }
 
-        if (isBlendingTurn180Rotation)
+        if (IsTurn180AnimationActive())
         {
-            TryRetargetOrRestartTurn180();
-            return true;
-        }
-
-        if (isSettlingTurn180Rotation)
-        {
-            UpdateTurn180SettlementTarget();
             return true;
         }
 
         if (worldMoveDirection.sqrMagnitude < MoveInputThreshold * MoveInputThreshold)
         {
             return false;
-        }
-
-        AnimatorStateInfo currentState = animator.GetCurrentAnimatorStateInfo(0);
-        bool isInTurnState = currentState.IsTag("LocomotionTurn180") ||
-                             (animator.IsInTransition(0) &&
-                              animator.GetNextAnimatorStateInfo(0).IsTag("LocomotionTurn180"));
-        if (isInTurnState)
-        {
-            return true;
         }
 
         float angle = Vector3.Angle(transform.forward, worldMoveDirection);
@@ -307,150 +300,13 @@ public class PlayerMovement : MonoBehaviour
             Vector3.up);
         float directionSign = signedAngle < 0f ? -1f : 1f;
         animator.SetFloat(TurnDirectionHash, directionSign);
-        BeginTurn180RotationBlend(worldMoveDirection.normalized);
         PlayerAnimatorTransition.TryCrossFade(animator, 0, Turn180StateHash, 0.08f);
         return true;
     }
 
-    private void TryRetargetOrRestartTurn180()
-    {
-        if (worldMoveDirection.sqrMagnitude < MoveInputThreshold * MoveInputThreshold)
-        {
-            return;
-        }
-
-        Vector3 latestTargetDirection = worldMoveDirection.normalized;
-        float targetChangeAngle = Vector3.Angle(
-            turn180TargetDirection,
-            latestTargetDirection);
-        float angleFromCurrentFacing = Vector3.Angle(
-            transform.forward,
-            latestTargetDirection);
-
-        if (targetChangeAngle >= turn180RetargetThreshold &&
-            angleFromCurrentFacing >= turn180Threshold)
-        {
-            float signedAngle = Vector3.SignedAngle(
-                transform.forward,
-                latestTargetDirection,
-                Vector3.up);
-            animator.SetFloat(TurnDirectionHash, signedAngle < 0f ? -1f : 1f);
-            BeginTurn180RotationBlend(latestTargetDirection);
-            PlayerAnimatorTransition.TryCrossFade(animator, 0, Turn180StateHash, 0.08f);
-            return;
-        }
-
-        if (targetChangeAngle >= turn180RetargetThreshold)
-        {
-            turn180TargetDirection = latestTargetDirection;
-            if (hasCompletedTurn180Correction)
-            {
-                isSettlingTurn180Rotation = true;
-            }
-        }
-    }
-
-    private void UpdateTurn180SettlementTarget()
-    {
-        if (worldMoveDirection.sqrMagnitude < MoveInputThreshold * MoveInputThreshold)
-        {
-            return;
-        }
-
-        Vector3 latestTargetDirection = worldMoveDirection.normalized;
-        float angleFromCurrentFacing = Vector3.Angle(
-            transform.forward,
-            latestTargetDirection);
-
-        if (angleFromCurrentFacing >= turn180Threshold)
-        {
-            float signedAngle = Vector3.SignedAngle(
-                transform.forward,
-                latestTargetDirection,
-                Vector3.up);
-            animator.SetFloat(TurnDirectionHash, signedAngle < 0f ? -1f : 1f);
-            BeginTurn180RotationBlend(latestTargetDirection);
-            PlayerAnimatorTransition.TryCrossFade(animator, 0, Turn180StateHash, 0.08f);
-            return;
-        }
-
-        turn180TargetDirection = latestTargetDirection;
-    }
-
-    private void BeginTurn180RotationBlend(Vector3 targetDirection)
-    {
-        isBlendingTurn180Rotation = true;
-        hasEnteredTurn180State = false;
-        turn180TargetDirection = targetDirection;
-        lastTurn180CorrectionWeight = 0f;
-        hasCompletedTurn180Correction = false;
-        isSettlingTurn180Rotation = false;
-    }
-
     private Quaternion ProcessRootRotation(Quaternion animationDeltaRotation)
     {
-        if (isBlendingTurn180Rotation)
-        {
-            bool isStillInTurnState = TryGetTurn180NormalizedTime(out float normalizedTime);
-            if (!hasEnteredTurn180State && !isStillInTurnState)
-            {
-                return Quaternion.identity;
-            }
-
-            if (!isStillInTurnState)
-            {
-                isBlendingTurn180Rotation = false;
-                if (isSettlingTurn180Rotation)
-                {
-                    return ProcessTurn180Settlement();
-                }
-                return ResolveRotation(animationDeltaRotation);
-            }
-
-            hasEnteredTurn180State = true;
-            if (!hasCompletedTurn180Correction)
-            {
-                return ProcessTurn180Rotation(animationDeltaRotation, normalizedTime);
-            }
-
-            if (isSettlingTurn180Rotation)
-            {
-                return ProcessTurn180Settlement();
-            }
-        }
-
-        if (isSettlingTurn180Rotation)
-        {
-            return ProcessTurn180Settlement();
-        }
-
         return ResolveRotation(animationDeltaRotation);
-    }
-
-    private Quaternion ProcessTurn180Settlement()
-    {
-        if (turn180TargetDirection.sqrMagnitude < MoveInputThreshold * MoveInputThreshold)
-        {
-            isSettlingTurn180Rotation = false;
-            return Quaternion.identity;
-        }
-
-        Quaternion currentRotation = transform.rotation;
-        Quaternion targetRotation = Quaternion.LookRotation(
-            turn180TargetDirection,
-            Vector3.up);
-        Quaternion nextRotation = Quaternion.RotateTowards(
-            currentRotation,
-            targetRotation,
-            turn180SettlementRotationSpeed * Time.deltaTime);
-
-        if (Quaternion.Angle(nextRotation, targetRotation) <= 0.1f)
-        {
-            nextRotation = targetRotation;
-            isSettlingTurn180Rotation = false;
-        }
-
-        return Quaternion.Inverse(currentRotation) * nextRotation;
     }
 
     private Quaternion ResolveRotation(Quaternion animationDeltaRotation)
@@ -468,72 +324,24 @@ public class PlayerMovement : MonoBehaviour
         return CalculateMovementRotation();
     }
 
-    private Quaternion ProcessTurn180Rotation(
-        Quaternion animationDeltaRotation,
-        float normalizedTime)
+    private bool IsTurn180AnimationActive()
     {
-        if (normalizedTime < turn180CorrectionStartNormalizedTime)
+        if (animator == null)
         {
-            return animationDeltaRotation;
+            return false;
         }
 
-        float correctionEndTime = Mathf.Max(
-            turn180CorrectionStartNormalizedTime + 0.01f,
-            turn180CorrectionEndNormalizedTime);
-        float correctionProgress = Mathf.InverseLerp(
-            turn180CorrectionStartNormalizedTime,
-            correctionEndTime,
-            normalizedTime);
-        float correctionWeight = turn180RotationBlend != null
-            ? Mathf.Clamp01(turn180RotationBlend.Evaluate(correctionProgress))
-            : correctionProgress;
-
-        float remainingWeight = Mathf.Max(0.0001f, 1f - lastTurn180CorrectionWeight);
-        float frameCorrectionWeight = Mathf.Clamp01(
-            (correctionWeight - lastTurn180CorrectionWeight) / remainingWeight);
-        lastTurn180CorrectionWeight = Mathf.Max(
-            lastTurn180CorrectionWeight,
-            correctionWeight);
-
-        Quaternion predictedRotation = transform.rotation * animationDeltaRotation;
-        Quaternion targetRotation = Quaternion.LookRotation(
-            turn180TargetDirection,
-            Vector3.up);
-        Quaternion correctedRotation = Quaternion.Slerp(
-            predictedRotation,
-            targetRotation,
-            frameCorrectionWeight);
-
-        if (correctionProgress >= 0.999f)
-        {
-            correctedRotation = targetRotation;
-            hasCompletedTurn180Correction = true;
-        }
-
-        return Quaternion.Inverse(transform.rotation) * correctedRotation;
-    }
-
-    private bool TryGetTurn180NormalizedTime(out float normalizedTime)
-    {
         if (animator.IsInTransition(0))
         {
             AnimatorStateInfo nextState = animator.GetNextAnimatorStateInfo(0);
             if (nextState.IsTag("LocomotionTurn180"))
             {
-                normalizedTime = nextState.normalizedTime;
                 return true;
             }
         }
 
         AnimatorStateInfo currentState = animator.GetCurrentAnimatorStateInfo(0);
-        if (currentState.IsTag("LocomotionTurn180"))
-        {
-            normalizedTime = currentState.normalizedTime;
-            return true;
-        }
-
-        normalizedTime = 0f;
-        return false;
+        return currentState.IsTag("LocomotionTurn180");
     }
 
     private void UpdateMoveDirection()
@@ -589,7 +397,9 @@ public class PlayerMovement : MonoBehaviour
         bool isMoving = hasMoveInput;
         float inputMagnitude = moveInput.magnitude;
         float targetMoveSpeed = isMoving
-            ? Mathf.Lerp(WalkGaitSample, RunGaitSample, inputMagnitude)
+            ? isFastMovementActive
+                ? FastRunGaitSample
+                : Mathf.Lerp(WalkGaitSample, RunGaitSample, inputMagnitude)
             : 0f;
         Vector2 targetDirection = GetTargetAnimatorDirection();
         if (targetDirection.sqrMagnitude <= MoveInputThreshold * MoveInputThreshold)

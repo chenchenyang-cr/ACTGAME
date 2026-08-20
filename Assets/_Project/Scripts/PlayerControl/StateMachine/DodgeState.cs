@@ -71,6 +71,11 @@ public sealed class DodgeState : PlayerState
             return false;
         }
 
+        if (hasMoveInput)
+        {
+            return Machine.EnterFastLocomotionLoop(moveInput);
+        }
+
         return CompleteToControllableState(moveInput, hasMoveInput);
     }
 }

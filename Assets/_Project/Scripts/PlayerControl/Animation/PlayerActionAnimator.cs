@@ -135,7 +135,7 @@ public sealed class PlayerActionAnimator
         TryCrossFade(idleStateName, idleReturnBlendDuration, out _);
     }
 
-    public void PlayLocomotion()
+    public void PlayLocomotionLoop()
     {
         string stateName = IsCombatAnimationActive()
             ? combatLocomotionLoopStateName

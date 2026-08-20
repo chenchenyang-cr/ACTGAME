@@ -28,6 +28,7 @@ public static class LocomotionAnimatorBuilder
     private const string LocomotionEndTag = "LocomotionEnd";
     private const string LocomotionTurn180Tag = "LocomotionTurn180";
     private const float SharedTransitionDuration = 0.12f;
+    private const float FastRunGaitThreshold = 2f;
 
     // Captured from the currently tuned Animator Controller.
     private static readonly LocomotionTransitionConfig NormalTransitionConfig =
@@ -84,6 +85,11 @@ public static class LocomotionAnimatorBuilder
         Build(true);
     }
 
+    internal static void EnsureBuilt()
+    {
+        Build(false);
+    }
+
     private static void Build(bool force)
     {
         AnimatorController controller = AssetDatabase.LoadAssetAtPath<AnimatorController>(ControllerPath);
@@ -137,8 +143,26 @@ public static class LocomotionAnimatorBuilder
 
         return HasLocomotionStates(normal) &&
                HasLocomotionStates(combat) &&
+               HasFastRunGait(normal) &&
+               HasFastRunGait(combat) &&
                HasTransitionConfig(normal, NormalTransitionConfig) &&
                HasTransitionConfig(combat, CombatTransitionConfig);
+    }
+
+    private static bool HasFastRunGait(AnimatorStateMachine machine)
+    {
+        AnimatorState loop = machine.states
+            .Select(child => child.state)
+            .FirstOrDefault(state => state.name == "Loop");
+        if (loop?.motion is not BlendTree gaitTree)
+        {
+            return false;
+        }
+
+        return gaitTree.children.Any(child =>
+            Mathf.Approximately(child.threshold, FastRunGaitThreshold) &&
+            child.motion is BlendTree fastRunTree &&
+            fastRunTree.name.EndsWith("_FastRun", StringComparison.Ordinal));
     }
 
     private static bool HasLocomotionStates(AnimatorStateMachine machine)
@@ -390,7 +414,33 @@ public static class LocomotionAnimatorBuilder
         gaitTree.useAutomaticThresholds = false;
         gaitTree.AddChild(CreateDirectionTree(controller, label + "_Walk", "Walk", combat, phase, xParameter, yParameter), 0.35f);
         gaitTree.AddChild(CreateDirectionTree(controller, label + "_Run", "Run", combat, phase, xParameter, yParameter), 1f);
+        if (string.Equals(phase, "Loop", StringComparison.Ordinal))
+        {
+            gaitTree.AddChild(
+                CreateFastRunTree(controller, label + "_FastRun", combat, xParameter),
+                FastRunGaitThreshold);
+        }
         return gaitTree;
+    }
+
+    private static BlendTree CreateFastRunTree(
+        AnimatorController controller,
+        string label,
+        bool combat,
+        string directionParameter)
+    {
+        string prefix = combat ? "Run_Fast_Combat" : "Run_Fast";
+        BlendTree tree = CreateTree(
+            controller,
+            "Generated_" + label,
+            BlendTreeType.Simple1D,
+            directionParameter,
+            directionParameter);
+        tree.useAutomaticThresholds = false;
+        tree.AddChild(RequireClip(prefix + "_Lean_L_Loop_RM"), -1f);
+        tree.AddChild(RequireClip(prefix + "_Loop_RM"), 0f);
+        tree.AddChild(RequireClip(prefix + "_Lean_R_Loop_RM"), 1f);
+        return tree;
     }
 
     private static BlendTree CreateDirectionTree(
@@ -633,6 +683,26 @@ public static class LocomotionAnimatorBuilder
 }
 
 [InitializeOnLoad]
+internal static class LocomotionAnimatorAutoBuilder
+{
+    static LocomotionAnimatorAutoBuilder()
+    {
+        EditorApplication.delayCall += EnsureBuiltWhenReady;
+    }
+
+    private static void EnsureBuiltWhenReady()
+    {
+        if (EditorApplication.isCompiling || EditorApplication.isUpdating)
+        {
+            EditorApplication.delayCall += EnsureBuiltWhenReady;
+            return;
+        }
+
+        LocomotionAnimatorBuilder.EnsureBuilt();
+    }
+}
+
+[InitializeOnLoad]
 internal static class CombatLocomotionTransitionConfigurator
 {
     private const string ControllerPath = "Assets/_Project/Animations/Controllers/9CG_Sword.controller";
@@ -851,6 +921,7 @@ internal static class DodgeAnimatorConfigurator
         changed |= ConfigureTree(combatTree, CombatClips, combatClips);
         changed |= EnsureState(root, "DodgeNormal", normalTree, new Vector3(820f, 20f));
         changed |= EnsureState(root, "DodgeCombat", combatTree, new Vector3(820f, 140f));
+        changed |= RemoveState(root, "FastRun");
 
         if (!changed)
         {
@@ -996,6 +1067,20 @@ internal static class DodgeAnimatorConfigurator
         }
 
         return changed;
+    }
+
+    private static bool RemoveState(AnimatorStateMachine root, string stateName)
+    {
+        AnimatorState state = root.states
+            .Select(child => child.state)
+            .FirstOrDefault(candidate => candidate.name == stateName);
+        if (state == null)
+        {
+            return false;
+        }
+
+        root.RemoveState(state);
+        return true;
     }
 
     private static AnimationClip[] LoadClips(DodgeClip[] definitions)

@@ -220,9 +220,35 @@ public sealed class PlayerStateMachine : MonoBehaviour
             return true;
         }
 
-        playerMovement.PrepareLocomotionAnimation(currentMoveInput);
+        // Action recovery (including Dodge -> FastMovement) must land directly
+        // in the locomotion loop. Cross-fade before setting IsMoving so the
+        // Animator cannot briefly take the Idle -> Start transition first.
         ChangeState(LocomotionState);
-        ActionAnimator?.PlayLocomotion();
+        ActionAnimator?.PlayLocomotionLoop();
+        playerMovement.PrepareLocomotionAnimation(currentMoveInput);
+        return true;
+    }
+
+    internal bool EnterFastLocomotionLoop(Vector2 moveInput)
+    {
+        if (!IsGrounded)
+        {
+            ChangeState(AirborneState);
+            return true;
+        }
+
+        Vector2 currentMoveInput = Vector2.ClampMagnitude(moveInput, 1f);
+        if (currentMoveInput.sqrMagnitude <= 0.0001f)
+        {
+            return ReturnToControllableState(currentMoveInput, false);
+        }
+
+        // MoveSpeed must already be 2 when the Loop state is sampled for the
+        // first time, so this intentionally happens before the cross-fade.
+        playerMovement.BeginFastMovement();
+        ChangeState(LocomotionState);
+        ActionAnimator?.PlayLocomotionLoop();
+        playerMovement.PrepareLocomotionAnimation(currentMoveInput);
         return true;
     }
 

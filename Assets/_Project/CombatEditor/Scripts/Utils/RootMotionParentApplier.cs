@@ -3,7 +3,7 @@
 namespace CombatEditor
 {
     [DisallowMultipleComponent]
-    public class RootMotionParentApplier : MonoBehaviour
+    public class RootMotionParentApplier : MonoBehaviour, ITurn180RootMotionHandler
     {
         [SerializeField] private RootMotionReceiver receiver;
         [SerializeField] private Animator sourceAnimator;
@@ -16,12 +16,20 @@ namespace CombatEditor
         [SerializeField, Min(0.01f)] private float velocityMatchTolerance = 0.05f;
         [SerializeField, Min(0.05f)] private float maximumMatchTime = 0.35f;
 
+        [Header("Turn 180 Root Motion")]
+        [SerializeField, Min(0.01f)] private float turn180BlendSmoothTime = 0.08f;
+
         private int lastAppliedFrame = -1;
         private Vector3 appliedPlanarVelocity;
         private Vector3 planarVelocitySmoothDamp;
         private bool matchingLocomotionVelocity;
         private float velocityMatchElapsed;
         private float rootMotionTranslationScale = 1f;
+        private float lastStablePlanarSpeed;
+        private float turn180PlanarSpeed;
+        private float turn180BlendWeight;
+        private float turn180BlendVelocity;
+        private bool applyingTurn180Motion;
 
         private void Reset()
         {
@@ -51,6 +59,12 @@ namespace CombatEditor
             TryResolveReceiver();
         }
 
+        private void OnDisable()
+        {
+            receiver?.SetTurn180RootMotionActive(false);
+            ResetTurn180Motion();
+        }
+
         private void LateUpdate()
         {
             if (!TryResolveReceiver())
@@ -69,6 +83,15 @@ namespace CombatEditor
             if (delta.sqrMagnitude > 0f)
             {
                 delta = MatchStartToLoopVelocity(delta);
+            }
+
+            delta = ProcessTurn180Translation(
+                delta,
+                deltaRotation,
+                receiver.CurrentTurn180Weight);
+
+            if (delta.sqrMagnitude > 0f)
+            {
                 delta = new Vector3(
                     delta.x * rootMotionTranslationScale,
                     delta.y,
@@ -82,6 +105,105 @@ namespace CombatEditor
             }
 
             lastAppliedFrame = sourceFrame;
+        }
+
+        private Vector3 ProcessTurn180Translation(
+            Vector3 animationDeltaPosition,
+            Quaternion processedDeltaRotation,
+            float animatorTurnWeight)
+        {
+            float deltaTime = Mathf.Max(Time.deltaTime, 0.0001f);
+            Vector3 rawPlanarDelta = new Vector3(
+                animationDeltaPosition.x,
+                0f,
+                animationDeltaPosition.z);
+            float rawPlanarSpeed = rawPlanarDelta.magnitude / deltaTime;
+            float targetTurnWeight = Mathf.Clamp01(animatorTurnWeight);
+            bool animatorUsesTurn180 = targetTurnWeight > 0.001f;
+
+            if (animatorUsesTurn180 && !applyingTurn180Motion)
+            {
+                turn180PlanarSpeed = lastStablePlanarSpeed > 0.01f
+                    ? lastStablePlanarSpeed
+                    : rawPlanarSpeed;
+                applyingTurn180Motion = true;
+            }
+
+            turn180BlendWeight = Mathf.SmoothDamp(
+                turn180BlendWeight,
+                targetTurnWeight,
+                ref turn180BlendVelocity,
+                turn180BlendSmoothTime,
+                Mathf.Infinity,
+                deltaTime);
+
+            if (!applyingTurn180Motion)
+            {
+                if (rawPlanarSpeed > 0.01f)
+                {
+                    lastStablePlanarSpeed = rawPlanarSpeed;
+                }
+
+                return animationDeltaPosition;
+            }
+
+            if (!animatorUsesTurn180 && turn180BlendWeight <= 0.001f)
+            {
+                ResetTurn180Motion();
+                if (rawPlanarSpeed > 0.01f)
+                {
+                    lastStablePlanarSpeed = rawPlanarSpeed;
+                }
+
+                return animationDeltaPosition;
+            }
+
+            if (turn180PlanarSpeed <= 0.01f)
+            {
+                return animationDeltaPosition;
+            }
+
+            float easedTurnWeight = SmoothStep01(turn180BlendWeight);
+            Quaternion nextWorldRotation = transform.rotation * processedDeltaRotation;
+            Vector3 turnDirection = nextWorldRotation * Vector3.forward;
+            turnDirection.y = 0f;
+            if (turnDirection.sqrMagnitude <= 0.0001f)
+            {
+                turnDirection = transform.forward;
+                turnDirection.y = 0f;
+            }
+            turnDirection.Normalize();
+
+            Vector3 rawDirection = rawPlanarDelta.sqrMagnitude > 0.0001f
+                ? rawPlanarDelta.normalized
+                : turnDirection;
+            Vector3 smoothedDirection = Vector3.Slerp(
+                rawDirection,
+                turnDirection,
+                easedTurnWeight);
+            smoothedDirection.y = 0f;
+            smoothedDirection.Normalize();
+
+            Vector3 maintainedPlanarDelta =
+                smoothedDirection * (turn180PlanarSpeed * deltaTime);
+            return new Vector3(
+                maintainedPlanarDelta.x,
+                animationDeltaPosition.y,
+                maintainedPlanarDelta.z);
+        }
+
+        private void ResetTurn180Motion()
+        {
+            turn180PlanarSpeed = 0f;
+            turn180BlendWeight = 0f;
+            turn180BlendVelocity = 0f;
+            applyingTurn180Motion = false;
+        }
+
+        private static float SmoothStep01(float value)
+        {
+            value = Mathf.Clamp01(value);
+            return value * value * (3f - 2f * value);
         }
 
         private Vector3 MatchStartToLoopVelocity(Vector3 delta)//处理start动画到loop中间速度不相同的平滑过渡
@@ -198,6 +320,7 @@ namespace CombatEditor
         {
             sourceAnimator = animator;
             receiver = sourceAnimator != null ? sourceAnimator.GetComponent<RootMotionReceiver>() : null;
+            ResetTurn180Motion();
         }
 
         public bool SetRootRotationProcessor(
@@ -210,6 +333,16 @@ namespace CombatEditor
 
             receiver.SetRootRotationProcessor(processor);
             return true;
+        }
+
+        public void SetTurn180RootMotionActive(bool active)
+        {
+            if (!TryResolveReceiver())
+            {
+                return;
+            }
+
+            receiver.SetTurn180RootMotionActive(active);
         }
 
         public void SetRootMotionTranslationScale(float scale)
