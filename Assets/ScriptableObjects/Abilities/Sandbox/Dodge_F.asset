@@ -18,7 +18,7 @@ MonoBehaviour:
   loopCount: 0
   events:
   - EventTime: 0
-    EventRange: {x: 0.3875, y: 0.9875}
+    EventRange: {x: 0.35, y: 0.9875}
     EventMultiRange:
     - 0.2
     - 0.4
@@ -35,15 +35,6 @@ MonoBehaviour:
     - 0.8
     Previewable: 0
     Obj: {fileID: 827121891598361177}
-  - EventTime: 0
-    EventRange: {x: 0, y: 0.3875}
-    EventMultiRange:
-    - 0.2
-    - 0.4
-    - 0.6
-    - 0.8
-    Previewable: 0
-    Obj: {fileID: 2125514041174050196}
 --- !u!114 &827121891598361177
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -60,46 +51,6 @@ MonoBehaviour:
   Priority: 0
   AllowControllerExit: 1
   ExitOnWindowEnter: 1
---- !u!114 &2125514041174050196
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8d163af58d060a2499564fdd02fa4d6f, type: 3}
-  m_Name: Motion
-  m_EditorClassIdentifier: 
-  IsActive: 1
-  target:
-    Offset: {x: 0, y: 0, z: 2}
-  MotionTime: 0.51666665
-  TimeToDis:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 2
-      outSlope: 2
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 1
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
 --- !u!114 &2250897245951367364
 MonoBehaviour:
   m_ObjectHideFlags: 0

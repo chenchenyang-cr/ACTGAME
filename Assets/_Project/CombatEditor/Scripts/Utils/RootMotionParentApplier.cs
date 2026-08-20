@@ -21,6 +21,7 @@ namespace CombatEditor
         private Vector3 planarVelocitySmoothDamp;
         private bool matchingLocomotionVelocity;
         private float velocityMatchElapsed;
+        private float rootMotionTranslationScale = 1f;
 
         private void Reset()
         {
@@ -68,6 +69,10 @@ namespace CombatEditor
             if (delta.sqrMagnitude > 0f)
             {
                 delta = MatchStartToLoopVelocity(delta);
+                delta = new Vector3(
+                    delta.x * rootMotionTranslationScale,
+                    delta.y,
+                    delta.z * rootMotionTranslationScale);
                 ApplyMotion(delta);
             }
 
@@ -205,6 +210,11 @@ namespace CombatEditor
 
             receiver.SetRootRotationProcessor(processor);
             return true;
+        }
+
+        public void SetRootMotionTranslationScale(float scale)
+        {
+            rootMotionTranslationScale = Mathf.Max(0f, scale);
         }
 
     }

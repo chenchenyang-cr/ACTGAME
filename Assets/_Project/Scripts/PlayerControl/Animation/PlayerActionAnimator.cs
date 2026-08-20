@@ -12,7 +12,9 @@ public sealed class PlayerActionAnimator
 
     private readonly Animator animator;
     private readonly int animatorLayer;
-    private readonly float blendDuration;
+    private readonly float actionBlendDuration;
+    private readonly float locomotionReturnBlendDuration;
+    private readonly float idleReturnBlendDuration;
     private readonly string idleStateName;
     private readonly string normalLocomotionLoopStateName;
     private readonly string combatLocomotionLoopStateName;
@@ -29,7 +31,9 @@ public sealed class PlayerActionAnimator
     public PlayerActionAnimator(
         Animator animator,
         int animatorLayer,
-        float blendDuration,
+        float actionBlendDuration,
+        float locomotionReturnBlendDuration,
+        float idleReturnBlendDuration,
         string idleStateName,
         string normalLocomotionLoopStateName,
         string combatLocomotionLoopStateName,
@@ -40,7 +44,9 @@ public sealed class PlayerActionAnimator
     {
         this.animator = animator;
         this.animatorLayer = animatorLayer;
-        this.blendDuration = blendDuration;
+        this.actionBlendDuration = actionBlendDuration;
+        this.locomotionReturnBlendDuration = locomotionReturnBlendDuration;
+        this.idleReturnBlendDuration = idleReturnBlendDuration;
         this.idleStateName = idleStateName;
         this.normalLocomotionLoopStateName = normalLocomotionLoopStateName;
         this.combatLocomotionLoopStateName = combatLocomotionLoopStateName;
@@ -126,7 +132,7 @@ public sealed class PlayerActionAnimator
 
     public void PlayIdle()
     {
-        TryCrossFade(idleStateName, out _);
+        TryCrossFade(idleStateName, idleReturnBlendDuration, out _);
     }
 
     public void PlayLocomotion()
@@ -134,7 +140,7 @@ public sealed class PlayerActionAnimator
         string stateName = IsCombatAnimationActive()
             ? combatLocomotionLoopStateName
             : normalLocomotionLoopStateName;
-        TryCrossFade(stateName, out _);
+        TryCrossFade(stateName, locomotionReturnBlendDuration, out _);
     }
 
     private bool TryGetDodgeAnimationState(out AnimatorStateInfo stateInfo)
@@ -182,7 +188,23 @@ public sealed class PlayerActionAnimator
             animator,
             animatorLayer,
             relativeStatePath,
-            blendDuration,
+            actionBlendDuration,
+            out stateHash,
+            normalizedTime,
+            logContext);
+    }
+
+    private bool TryCrossFade(
+        string relativeStatePath,
+        float duration,
+        out int stateHash,
+        float normalizedTime = 0f)
+    {
+        return PlayerAnimatorTransition.TryCrossFade(
+            animator,
+            animatorLayer,
+            relativeStatePath,
+            duration,
             out stateHash,
             normalizedTime,
             logContext);

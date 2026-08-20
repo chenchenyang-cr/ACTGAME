@@ -16,6 +16,7 @@ public sealed class DodgeState : PlayerState
         }
 
         Machine.Movement.SetRotationMode(PlayerRotationMode.Preserve);
+        Machine.Movement.SetRootMotionTranslationScale(Machine.DodgeRootMotionMultiplier);
         Machine.Combat?.BeginDodgeAbility();
         animationStarted = Machine.ActionAnimator != null &&
                            Machine.ActionAnimator.PlayDodge(Vector2.up);
@@ -53,6 +54,7 @@ public sealed class DodgeState : PlayerState
 
     public override void Exit()
     {
+        Machine.Movement.SetRootMotionTranslationScale(1f);
         Machine.Combat?.EndDodgeAbility();
         Machine.ActionAnimator?.StopTrackingDodge();
     }

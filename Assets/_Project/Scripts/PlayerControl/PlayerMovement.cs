@@ -118,7 +118,6 @@ public class PlayerMovement : MonoBehaviour
         }
         if (animator != null)
         {
-           
             rootMotionApplier = GetComponent<CombatEditor.RootMotionParentApplier>();
             if (rootMotionApplier == null)
             {
@@ -140,6 +139,7 @@ public class PlayerMovement : MonoBehaviour
     private void OnDisable()
     {
         rootMotionApplier?.SetRootRotationProcessor(null);
+        rootMotionApplier?.SetRootMotionTranslationScale(1f);
 
         isBlendingTurn180Rotation = false;
         isSettlingTurn180Rotation = false;
@@ -244,6 +244,11 @@ public class PlayerMovement : MonoBehaviour
     public void SetRotationMode(PlayerRotationMode mode)
     {
         rotationMode = mode;
+    }
+
+    public void SetRootMotionTranslationScale(float scale)
+    {
+        rootMotionApplier?.SetRootMotionTranslationScale(scale);
     }
 
     public void FaceWorldDirectionImmediately(Vector3 worldDirection)

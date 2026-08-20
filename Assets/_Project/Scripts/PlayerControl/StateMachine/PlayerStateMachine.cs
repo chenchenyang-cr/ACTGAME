@@ -25,6 +25,10 @@ public sealed class PlayerStateMachine : MonoBehaviour
     [SerializeField]
     [Min(0f)]
     private float animationBlendDuration = 0.12f;
+    [SerializeField, Min(0f)]
+    private float locomotionReturnBlendDuration = 0.2f;
+    [SerializeField, Min(0f)]
+    private float idleReturnBlendDuration = 0.15f;
     [SerializeField]
     private string idleStateName = "Idle";
     [SerializeField]
@@ -36,6 +40,8 @@ public sealed class PlayerStateMachine : MonoBehaviour
     private string dodgeNormalStateName = "DodgeNormal";
     [SerializeField]
     private string dodgeCombatStateName = "DodgeCombat";
+    [SerializeField, Min(0f)]
+    private float dodgeRootMotionMultiplier = 1.2f;
     [Header("Combat Stance")]
     [SerializeField]
     [Min(0f)]
@@ -74,6 +80,7 @@ public sealed class PlayerStateMachine : MonoBehaviour
 
     internal Vector2 LatestMoveInput => lastMoveInput;
     internal bool HasLatestMoveInput => lastHasMoveInput;
+    internal float DodgeRootMotionMultiplier => dodgeRootMotionMultiplier;
 
     private void Awake()
     {
@@ -106,6 +113,8 @@ public sealed class PlayerStateMachine : MonoBehaviour
             animator,
             abilityAnimatorLayer,
             animationBlendDuration,
+            locomotionReturnBlendDuration,
+            idleReturnBlendDuration,
             idleStateName,
             normalLocomotionLoopStateName,
             combatLocomotionLoopStateName,
@@ -190,13 +199,31 @@ public sealed class PlayerStateMachine : MonoBehaviour
 
     public void ReturnToControllableState()
     {
+        ReturnToControllableState(lastMoveInput, lastHasMoveInput);
+    }
+
+    internal bool ReturnToControllableState(Vector2 moveInput, bool hasMoveInput)
+    {
         if (!IsGrounded)
         {
             ChangeState(AirborneState);
-            return;
+            return true;
         }
 
-        ChangeState(lastHasMoveInput ? LocomotionState : IdleState);
+        Vector2 currentMoveInput = Vector2.ClampMagnitude(moveInput, 1f);
+        bool returnToLocomotion = hasMoveInput ||
+                                  currentMoveInput.sqrMagnitude > 0.0001f;
+        if (!returnToLocomotion)
+        {
+            ChangeState(IdleState);
+            ActionAnimator?.PlayIdle();
+            return true;
+        }
+
+        playerMovement.PrepareLocomotionAnimation(currentMoveInput);
+        ChangeState(LocomotionState);
+        ActionAnimator?.PlayLocomotion();
+        return true;
     }
 
     public void CompleteCurrentAction()
