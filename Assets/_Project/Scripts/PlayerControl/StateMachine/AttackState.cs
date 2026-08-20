@@ -2,14 +2,13 @@ using UnityEngine;
 
 public sealed class AttackState : PlayerState
 {
-    private PlayerCombatAdapter combatAdapter;
     private bool consumeLastHandledCommand = true;
 
     public AttackState(PlayerStateMachine machine) : base(machine) { }
 
     private void BeginAttack()
     {
-        combatAdapter = Machine.GetComponent<PlayerCombatAdapter>();
+        PlayerCombatAdapter combatAdapter = Machine.Combat;
         if (combatAdapter != null && combatAdapter.FirstLightAttack != null)
         {
             combatAdapter.BeginAbility(combatAdapter.FirstLightAttack);
@@ -24,9 +23,10 @@ public sealed class AttackState : PlayerState
 
     public override void Tick(Vector2 moveInput, bool hasMoveInput)
     {
+        PlayerCombatAdapter combatAdapter = Machine.Combat;
         if (hasMoveInput &&combatAdapter != null &&combatAdapter.CanInterruptWithMovement())
         {
-            Machine.CompleteAttack();
+            Complete();
             Machine.Movement.Tick(moveInput, true);
             return;
         }
@@ -36,6 +36,7 @@ public sealed class AttackState : PlayerState
 
     public override bool TryHandleCommand(PlayerActionCommand command)
     {
+        PlayerCombatAdapter combatAdapter = Machine.Combat;
         if (combatAdapter != null && combatAdapter.CurrentAbility != null)
         {
             if (combatAdapter.TryTransition(command, out bool consumeBufferedInput))
@@ -67,6 +68,23 @@ public sealed class AttackState : PlayerState
     public override bool ShouldConsumeHandledCommand(PlayerActionCommand command)
     {
         return consumeLastHandledCommand;
+    }
+
+    public override bool TryCompleteAction()
+    {
+        return Complete();
+    }
+
+    private bool Complete()
+    {
+        if (Machine.CurrentState != this)
+        {
+            return false;
+        }
+
+        return CompleteToControllableState(
+            Machine.LatestMoveInput,
+            Machine.HasLatestMoveInput);
     }
 
 }

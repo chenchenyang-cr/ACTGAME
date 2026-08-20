@@ -24,4 +24,33 @@ public abstract class PlayerState
     {
         return true;
     }
+
+    public virtual bool TryCompleteAction()
+    {
+        return false;
+    }
+
+    protected bool CompleteToControllableState(Vector2 moveInput, bool hasMoveInput)
+    {
+        if (!Machine.IsGrounded)
+        {
+            Machine.ChangeState(Machine.AirborneState);
+            return true;
+        }
+
+        Vector2 currentMoveInput = Vector2.ClampMagnitude(moveInput, 1f);
+        bool returnToLocomotion = hasMoveInput ||
+                                  currentMoveInput.sqrMagnitude > 0.0001f;
+        if (!returnToLocomotion)
+        {
+            Machine.ChangeState(Machine.IdleState);
+            Machine.ActionAnimator?.PlayIdle();
+            return true;
+        }
+
+        Machine.ChangeState(Machine.LocomotionState);
+        Machine.Movement.PrepareLocomotionAnimation(currentMoveInput);
+        Machine.ActionAnimator?.PlayLocomotion();
+        return true;
+    }
 }
