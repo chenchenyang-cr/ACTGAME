@@ -12,6 +12,9 @@ public static class CombatStanceAnimatorConfigurator
         "Assets/_Project/Animations/AvatarMasks/CombatUpperBody.mask";
     private const string ExitClipPath =
         "Assets/ThirdParty/SwordAnimationPack/Animation/Humanoid/01_Idle/Idle_Combat_To_Idle.anim";
+    private const string ArmsOnlyExitClipPath =
+        "Assets/_Project/Animations/Clips/Idle_Combat_To_Idle_ArmsOnly.anim";
+    private const string ArmsOnlyClipVersion = "arms-only-v2";
     private const string UpperBodyLayerName = "Combat Upper Body";
     private const string ExitStateName = "Idle_Combat_To_Idle";
 
@@ -32,20 +35,28 @@ public static class CombatStanceAnimatorConfigurator
         }
 
         AvatarMask upperBodyMask = GetOrCreateUpperBodyMask(out bool maskChanged);
-        AnimationClip exitClip = AssetDatabase.LoadAllAssetsAtPath(ExitClipPath)
+        AnimationClip sourceExitClip = AssetDatabase.LoadAllAssetsAtPath(ExitClipPath)
             .OfType<AnimationClip>()
             .FirstOrDefault(clip => !clip.name.StartsWith("__preview__"));
 
-        if (exitClip == null)
+        if (sourceExitClip == null)
         {
             Debug.LogError($"Combat stance exit clip was not found at {ExitClipPath}.");
+            return;
+        }
+
+        AnimationClip exitClip = GetOrCreateArmsOnlyExitClip(
+            sourceExitClip,
+            out bool clipChanged);
+        if (exitClip == null)
+        {
             return;
         }
 
         AnimatorControllerLayer layer = controller.layers
             .FirstOrDefault(candidate => candidate.name == UpperBodyLayerName);
 
-        bool changed = maskChanged;
+        bool changed = maskChanged || clipChanged;
         if (layer == null)
         {
             var stateMachine = new AnimatorStateMachine
@@ -131,9 +142,7 @@ public static class CombatStanceAnimatorConfigurator
              part < AvatarMaskBodyPart.LastBodyPart;
              part++)
         {
-            bool shouldBeActive = part == AvatarMaskBodyPart.Body ||
-                                  part == AvatarMaskBodyPart.Head ||
-                                  part == AvatarMaskBodyPart.LeftArm ||
+            bool shouldBeActive = part == AvatarMaskBodyPart.LeftArm ||
                                   part == AvatarMaskBodyPart.RightArm ||
                                   part == AvatarMaskBodyPart.LeftFingers ||
                                   part == AvatarMaskBodyPart.RightFingers;
@@ -146,5 +155,139 @@ public static class CombatStanceAnimatorConfigurator
             changed = true;
         }
         return mask;
+    }
+
+    private static AnimationClip GetOrCreateArmsOnlyExitClip(
+        AnimationClip sourceClip,
+        out bool changed)
+    {
+        string sourceSignature =
+            $"{ArmsOnlyClipVersion}:{AssetDatabase.GetAssetDependencyHash(ExitClipPath)}";
+        AnimationClip armsOnlyClip =
+            AssetDatabase.LoadAssetAtPath<AnimationClip>(ArmsOnlyExitClipPath);
+        AssetImporter importer = armsOnlyClip != null
+            ? AssetImporter.GetAtPath(ArmsOnlyExitClipPath)
+            : null;
+
+        if (armsOnlyClip != null && importer != null &&
+            importer.userData == sourceSignature)
+        {
+            changed = false;
+            return armsOnlyClip;
+        }
+
+        bool created = armsOnlyClip == null;
+        if (created)
+        {
+            armsOnlyClip = new AnimationClip
+            {
+                name = "Idle_Combat_To_Idle_ArmsOnly"
+            };
+            AssetDatabase.CreateAsset(armsOnlyClip, ArmsOnlyExitClipPath);
+        }
+        else
+        {
+            ClearClipCurves(armsOnlyClip);
+        }
+
+        armsOnlyClip.frameRate = sourceClip.frameRate;
+        armsOnlyClip.wrapMode = sourceClip.wrapMode;
+        AnimationClipSettings clipSettings =
+            AnimationUtility.GetAnimationClipSettings(sourceClip);
+        clipSettings.loopTime = false;
+        clipSettings.loopBlend = false;
+        AnimationUtility.SetAnimationClipSettings(armsOnlyClip, clipSettings);
+
+        foreach (EditorCurveBinding binding in
+                 AnimationUtility.GetCurveBindings(sourceClip))
+        {
+            if (!IsArmCurve(binding))
+            {
+                continue;
+            }
+
+            AnimationUtility.SetEditorCurve(
+                armsOnlyClip,
+                binding,
+                AnimationUtility.GetEditorCurve(sourceClip, binding));
+        }
+
+        foreach (EditorCurveBinding binding in
+                 AnimationUtility.GetObjectReferenceCurveBindings(sourceClip))
+        {
+            if (!IsArmCurve(binding))
+            {
+                continue;
+            }
+
+            AnimationUtility.SetObjectReferenceCurve(
+                armsOnlyClip,
+                binding,
+                AnimationUtility.GetObjectReferenceCurve(sourceClip, binding));
+        }
+
+        AnimationUtility.SetAnimationEvents(
+            armsOnlyClip,
+            AnimationUtility.GetAnimationEvents(sourceClip));
+        armsOnlyClip.EnsureQuaternionContinuity();
+        EditorUtility.SetDirty(armsOnlyClip);
+        AssetDatabase.SaveAssets();
+
+        importer = AssetImporter.GetAtPath(ArmsOnlyExitClipPath);
+        if (importer != null)
+        {
+            importer.userData = sourceSignature;
+            EditorUtility.SetDirty(importer);
+            AssetDatabase.WriteImportSettingsIfDirty(ArmsOnlyExitClipPath);
+        }
+
+        changed = true;
+        return armsOnlyClip;
+    }
+
+    private static void ClearClipCurves(AnimationClip clip)
+    {
+        foreach (EditorCurveBinding binding in AnimationUtility.GetCurveBindings(clip))
+        {
+            AnimationUtility.SetEditorCurve(clip, binding, null);
+        }
+
+        foreach (EditorCurveBinding binding in
+                 AnimationUtility.GetObjectReferenceCurveBindings(clip))
+        {
+            AnimationUtility.SetObjectReferenceCurve(clip, binding, null);
+        }
+    }
+
+    private static bool IsArmCurve(EditorCurveBinding binding)
+    {
+        string propertyName = binding.propertyName;
+        if (propertyName.StartsWith("Left Shoulder ") ||
+            propertyName.StartsWith("Right Shoulder ") ||
+            propertyName.StartsWith("Left Arm ") ||
+            propertyName.StartsWith("Right Arm ") ||
+            propertyName.StartsWith("Left Forearm ") ||
+            propertyName.StartsWith("Right Forearm ") ||
+            propertyName.StartsWith("Left Hand ") ||
+            propertyName.StartsWith("Right Hand ") ||
+            propertyName.StartsWith("LeftHand.") ||
+            propertyName.StartsWith("RightHand.") ||
+            propertyName.StartsWith("LeftHandT.") ||
+            propertyName.StartsWith("RightHandT.") ||
+            propertyName.StartsWith("LeftHandQ.") ||
+            propertyName.StartsWith("RightHandQ."))
+        {
+            return true;
+        }
+
+        string path = binding.path.ToLowerInvariant();
+        return path.Contains("clavicle_l") ||
+               path.Contains("clavicle_r") ||
+               path.Contains("upperarm_l") ||
+               path.Contains("upperarm_r") ||
+               path.Contains("lowerarm_l") ||
+               path.Contains("lowerarm_r") ||
+               path.Contains("hand_l") ||
+               path.Contains("hand_r");
     }
 }

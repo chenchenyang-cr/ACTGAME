@@ -192,9 +192,22 @@ public sealed class PlayerStateMachine : MonoBehaviour
             return;
         }
 
+        if (ShouldInterruptCombatExitAnimation(nextState))
+        {
+            combatStanceAnimator?.InterruptExitAnimation();
+        }
+
         CurrentState?.Exit();
         CurrentState = nextState;
         CurrentState.Enter();
+    }
+
+    private bool ShouldInterruptCombatExitAnimation(PlayerState nextState)
+    {
+        return nextState == AttackState ||
+               nextState == DodgeState ||
+               nextState == AirborneState ||
+               nextState == HitState;
     }
 
     public void ReturnToControllableState()

@@ -17,9 +17,12 @@ public sealed class PlayerCombatStanceAnimator
 
     private float lastCombatActivityTime;
     private float exitAnimationStartTime;
+    private float exitLayerFadeStartTime;
+    private float exitLayerFadeStartWeight;
     private int exitAnimationStartFrame;
     private bool combatStanceActive;
     private bool exitAnimationPlaying;
+    private bool exitLayerFadingOut;
 
     public PlayerCombatStanceAnimator(
         Animator animator,
@@ -54,7 +57,6 @@ public sealed class PlayerCombatStanceAnimator
     {
         lastCombatActivityTime = Time.time;
         combatStanceActive = true;
-        exitAnimationPlaying = false;
 
         if (animator == null)
         {
@@ -66,10 +68,7 @@ public sealed class PlayerCombatStanceAnimator
             animator.SetFloat(combatWeightHash, 1f);
         }
 
-        if (exitLayer >= 0)
-        {
-            animator.SetLayerWeight(exitLayer, 0f);
-        }
+        InterruptExitAnimation();
     }
 
     public void Tick(bool canLeaveCombatStance)
@@ -87,6 +86,23 @@ public sealed class PlayerCombatStanceAnimator
         }
 
         UpdateExitAnimation();
+        UpdateExitLayerFadeOut();
+    }
+
+    public void InterruptExitAnimation()
+    {
+        if (animator == null || exitLayer < 0)
+        {
+            return;
+        }
+
+        exitAnimationPlaying = false;
+        if (exitLayerFadingOut || animator.GetLayerWeight(exitLayer) <= 0f)
+        {
+            return;
+        }
+
+        BeginExitLayerFadeOut();
     }
 
     private void BeginExit()
@@ -103,6 +119,7 @@ public sealed class PlayerCombatStanceAnimator
             return;
         }
 
+        exitLayerFadingOut = false;
         animator.SetLayerWeight(exitLayer, exitBlendDuration > 0f ? 0f : 1f);
         if (!PlayerAnimatorTransition.TryCrossFade(
                 animator,
@@ -143,14 +160,65 @@ public sealed class PlayerCombatStanceAnimator
             ? animator.GetNextAnimatorStateInfo(exitLayer)
             : animator.GetCurrentAnimatorStateInfo(exitLayer);
 
-        if (stateInfo.shortNameHash != exitStateShortHash ||
-            stateInfo.normalizedTime < 1f)
+        if (stateInfo.shortNameHash != exitStateShortHash)
+        {
+            return;
+        }
+
+        float stateDuration = Mathf.Max(stateInfo.length, 0.0001f);
+        float fadeStartNormalizedTime = exitBlendDuration > 0f
+            ? Mathf.Clamp01(1f - exitBlendDuration / stateDuration)
+            : 1f;
+        if (stateInfo.normalizedTime < fadeStartNormalizedTime)
+        {
+            return;
+        }
+
+        exitAnimationPlaying = false;
+        BeginExitLayerFadeOut();
+    }
+
+    private void BeginExitLayerFadeOut()
+    {
+        exitLayerFadeStartWeight = animator.GetLayerWeight(exitLayer);
+        if (exitLayerFadeStartWeight <= 0f)
+        {
+            animator.SetLayerWeight(exitLayer, 0f);
+            exitLayerFadingOut = false;
+            return;
+        }
+
+        if (exitBlendDuration <= 0f)
+        {
+            animator.SetLayerWeight(exitLayer, 0f);
+            exitLayerFadingOut = false;
+            return;
+        }
+
+        exitLayerFadeStartTime = Time.time;
+        exitLayerFadingOut = true;
+    }
+
+    private void UpdateExitLayerFadeOut()
+    {
+        if (!exitLayerFadingOut || exitLayer < 0)
+        {
+            return;
+        }
+
+        float progress = Mathf.Clamp01(
+            (Time.time - exitLayerFadeStartTime) / exitBlendDuration);
+        animator.SetLayerWeight(
+            exitLayer,
+            Mathf.SmoothStep(exitLayerFadeStartWeight, 0f, progress));
+
+        if (progress < 1f)
         {
             return;
         }
 
         animator.SetLayerWeight(exitLayer, 0f);
-        exitAnimationPlaying = false;
+        exitLayerFadingOut = false;
     }
 
     private bool HasFloatParameter(int parameterHash)

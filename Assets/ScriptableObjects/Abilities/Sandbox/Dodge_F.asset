@@ -1,5 +1,83 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-8044044017121509286
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28e2dd982f5c43b48b940242e405acc4, type: 3}
+  m_Name: AnimSpeed
+  m_EditorClassIdentifier: 
+  IsActive: 1
+  Mode: 1
+  Speed: 2
+  SpeedCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 2
+      inSlope: -2.0087779
+      outSlope: -2.0087779
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.06944445
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+--- !u!114 &-531098384384024760
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28e2dd982f5c43b48b940242e405acc4, type: 3}
+  m_Name: AnimSpeed
+  m_EditorClassIdentifier: 
+  IsActive: 1
+  Mode: 1
+  Speed: 2
+  SpeedCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0.0027770996
+      value: 2
+      inSlope: -0.6771124
+      outSlope: -0.6771124
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.13927636
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -18,7 +96,7 @@ MonoBehaviour:
   loopCount: 0
   events:
   - EventTime: 0
-    EventRange: {x: 0.3375, y: 0.9875}
+    EventRange: {x: 0.3875, y: 0.9875}
     EventMultiRange:
     - 0.2
     - 0.4
@@ -35,6 +113,24 @@ MonoBehaviour:
     - 0.8
     Previewable: 0
     Obj: {fileID: 827121891598361177}
+  - EventTime: 0
+    EventRange: {x: 0, y: 0.0875}
+    EventMultiRange:
+    - 0.2
+    - 0.4
+    - 0.6
+    - 0.8
+    Previewable: 0
+    Obj: {fileID: -8044044017121509286}
+  - EventTime: 0
+    EventRange: {x: 0.3375, y: 0.45}
+    EventMultiRange:
+    - 0.2
+    - 0.4
+    - 0.6
+    - 0.8
+    Previewable: 0
+    Obj: {fileID: -531098384384024760}
 --- !u!114 &827121891598361177
 MonoBehaviour:
   m_ObjectHideFlags: 0

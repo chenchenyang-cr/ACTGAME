@@ -49,8 +49,13 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField, Min(1f)]
     private float maximumFallSpeed = 35f;
     [Header("Rotation")]
-    [SerializeField]
+    [SerializeField, Min(0f)]
+    [Tooltip("Maximum movement-facing angular speed in degrees per second.")]
     private float rotationSpeed = 720;
+    [SerializeField]
+    [Tooltip("X is the current-to-target angle normalized from 0 to 180 degrees; Y is the rotation-speed multiplier.")]
+    private AnimationCurve rotationSpeedByAngle =
+        AnimationCurve.Linear(0f, 0.15f, 1f, 1f);
     [SerializeField, Range(90f, 180f)]
     private float turn180Threshold = 135f;
     [Header("Animation")]
@@ -373,10 +378,19 @@ public class PlayerMovement : MonoBehaviour
 
         Quaternion currentRotation = transform.rotation;
         Quaternion targetRotation = Quaternion.LookRotation(worldMoveDirection);
+        float angleToTarget = Quaternion.Angle(currentRotation, targetRotation);
+        float normalizedAngle = Mathf.Clamp01(angleToTarget / 180f);
+        float speedMultiplier = rotationSpeedByAngle != null
+            ? Mathf.Max(0f, rotationSpeedByAngle.Evaluate(normalizedAngle))
+            : 1f;
+        float angularSpeed = IsTurn180AnimationActive()
+            ? rotationSpeed
+            : rotationSpeed * speedMultiplier;
+
         Quaternion nextRotation = Quaternion.RotateTowards(
             currentRotation,
             targetRotation,
-            rotationSpeed * Time.deltaTime);
+            angularSpeed * Time.deltaTime);
         return Quaternion.Inverse(currentRotation) * nextRotation;
     }
 
