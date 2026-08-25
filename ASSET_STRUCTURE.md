@@ -6,6 +6,8 @@
 - `Assets/ThirdParty`：外部导入的完整资源包，尽量不要拆散包内结构。
 - `Assets/TextMesh Pro`：Unity 生成的 TextMesh Pro 资源，保留默认位置。
 
+`Assets` 根目录只保留以上三个一级目录，避免项目资源和第三方资源散落。
+
 ## 常用存放位置
 
 - 人物模型：`Assets/_Project/Art/Characters/Models`
@@ -19,6 +21,9 @@
 - 场景：`Assets/_Project/Scenes`
 - 代码：`Assets/_Project/Scripts`
 - 渲染与项目资源设置：`Assets/_Project/Settings`
+- 战斗编辑器能力配置：`Assets/_Project/CombatEditor/ScriptableObjects`
+- Master Stylized FX：`Assets/ThirdParty/MasterStylizedFX`
+- Red Clue 刀光特效：`Assets/ThirdParty/Red_clue`
 
 环境、道具、UI、音频和特效分别放入 `Art/Environment`、`Art/Props`、`UI`、`Audio` 和 `VFX`。
 

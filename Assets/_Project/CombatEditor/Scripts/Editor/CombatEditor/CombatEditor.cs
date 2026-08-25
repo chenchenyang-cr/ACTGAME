@@ -34,8 +34,8 @@ namespace CombatEditor
 	
 	public partial class CombatEditor : EditorWindow
 	{
-	    public static string SandBoxPath = "Assets/ScriptableObjects/Abilities/Sandbox/";
-	    public static string TemplatesPath = "Assets/ScriptableObjects/Abilities/Templates/";
+	    public static string SandBoxPath = "Assets/_Project/CombatEditor/ScriptableObjects/Abilities/Sandbox/";
+	    public static string TemplatesPath = "Assets/_Project/CombatEditor/ScriptableObjects/Abilities/Templates/";
 	
 	    public static float Height_Top = 40;
 	    public static float LineHeight = 25;

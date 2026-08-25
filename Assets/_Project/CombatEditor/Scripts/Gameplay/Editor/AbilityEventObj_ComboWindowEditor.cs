@@ -126,7 +126,7 @@ namespace CombatEditor
 
     internal readonly struct AbilityAssetEntry
     {
-        private const string AbilityRoot = "Assets/ScriptableObjects/Abilities/";
+        private const string AbilityRoot = "Assets/_Project/CombatEditor/ScriptableObjects/Abilities/";
 
         public AbilityScriptableObject Ability { get; }
         public string AssetPath { get; }
