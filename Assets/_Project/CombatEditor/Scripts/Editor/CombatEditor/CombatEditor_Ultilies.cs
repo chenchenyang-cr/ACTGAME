@@ -195,12 +195,40 @@ using UnityEngine;
 	    {
 	        EditorGUI.DrawRect(new Rect(p1.x - Width / 2, p1.y, Width, (p2 - p1).y), color);
 	    }
+	    public void SaveAbilityAsset(AbilityScriptableObject ability)
+	    {
+	        if (ability == null)
+	        {
+	            return;
+	        }
+
+	        EditorUtility.SetDirty(ability);
+	        AssetDatabase.SaveAssets();
+	    }
+
+	    public void SaveEventAsset(AbilityScriptableObject ability, AbilityEventObj eventObj)
+	    {
+	        if (eventObj != null)
+	        {
+	            EditorUtility.SetDirty(eventObj);
+	        }
+
+	        SaveAbilityAsset(ability);
+	    }
+
 	    public void UpdateAsset(Object obj)
 	    {
-	
-	        EditorUtility.SetDirty(SelectedAbilityObj);
+	        if (obj != null)
+	        {
+	            EditorUtility.SetDirty(obj);
+	        }
+
+	        if (SelectedAbilityObj != null && SelectedAbilityObj != obj)
+	        {
+	            EditorUtility.SetDirty(SelectedAbilityObj);
+	        }
+
 	        AssetDatabase.SaveAssets();
-	        //AssetDatabase.Refresh();
 	    }
 	    
 	
@@ -225,8 +253,7 @@ using UnityEngine;
 	            }
                 if (removedInvalidEvent)
                 {
-                    EditorUtility.SetDirty(SelectedAbilityObj);
-                    AssetDatabase.SaveAssets();
+                    SaveAbilityAsset(SelectedAbilityObj);
                 }
 	            if (SelectedAbilityObj.Clip != null)
 	            {

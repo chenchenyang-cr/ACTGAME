@@ -5,13 +5,24 @@
 	[CreateAssetMenu(menuName = "AbilityEvents / DynamicTrail")]
 	public class AbilityEventObj_DynamicTrail : AbilityEventObj
 	{
-	    public CharacterNode.NodeType BaseNode;
-	    public CharacterNode.NodeType TipNode;
+	    public CharacterNode.NodeType BaseNode = CharacterNode.NodeType.WeaponBase;
+	    public CharacterNode.NodeType TipNode = CharacterNode.NodeType.WeaponTip;
 	    public Material TrailMat;
-	    public int MaxFrame = 50;
+	    [Header("Trail Shape")]
+	    [Min(3)] public int MaxFrame = 14;
 	    public int StopMultiplier = 4;
 	    [Range(2,8)]
 	    public int TrailSubs = 2;
+
+	    [Header("Trail Appearance")]
+	    [ColorUsage(true, true)] public Color TrailColor = new Color(0.55f, 0.85f, 1f, 0.5f);
+	    [Min(0f)] public float Brightness = 1.5f;
+	    public Texture2D TrailTexture;
+	    public Vector2 TextureTiling = Vector2.one;
+	    public float TextureScrollSpeed = 0.8f;
+	    [Range(0.01f, 1f)] public float TailFade = 0.25f;
+	    [UnityEngine.Serialization.FormerlySerializedAs("Alpha")]
+	    [Range(0f, 1f)] public float Opacity = 0.72f;
 	    [HideInInspector]
 	    public int NUM_VERTICES = 12;
 	
@@ -54,7 +65,7 @@
 	        {
 	            return;
 	        }
-	        trail = new DynamicTrailGenerator(_base, _tip, EventObj.MaxFrame, EventObj.TrailSubs, EventObj.StopMultiplier, EventObj.TrailMat, AbilityEventObj_DynamicTrail.TrailBehavior.FlowUV);
+	        trail = new DynamicTrailGenerator(_base, _tip, EventObj, AbilityEventObj_DynamicTrail.TrailBehavior.FlowUV);
 	        trail.InitTrailMesh();
 	        executor = trail._trailMeshObj.AddComponent<DynamicTrailExecutor>();
 	        executor.trail = trail;

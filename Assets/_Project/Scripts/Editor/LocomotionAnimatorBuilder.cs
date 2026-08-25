@@ -231,15 +231,17 @@ public static class LocomotionAnimatorBuilder
 
         AnimatorState normalStart = CreateState(normalMachine, "Start", CreateLocomotionTree(controller, "Normal_Start", false, "Start", StartX, StartY, MoveSpeed), new Vector3(80f, 120f));
         AnimatorState normalLoop = CreateState(normalMachine, "Loop", CreateLocomotionTree(controller, "Normal_Loop", false, "Loop", MoveX, MoveY, MoveSpeed), new Vector3(280f, 120f));
-        AnimatorState normalTurn180 = CreateState(normalMachine, "Turn180", CreateTurn180Tree(controller), new Vector3(480f, 40f));
+        AnimatorState normalTurn180 = CreateState(normalMachine, "Turn180", CreateTurn180Tree(controller, false), new Vector3(480f, 40f));
         AnimatorState normalStop = CreateState(normalMachine, "End", CreateLocomotionTree(controller, "Normal_Stop", false, "Stop", StopX, StopY, MoveSpeed), new Vector3(680f, 120f));
         AnimatorState combatStart = CreateState(combatMachine, "Start", CreateLocomotionTree(controller, "Combat_Start", true, "Start", StartX, StartY, MoveSpeed), new Vector3(80f, 120f));
         AnimatorState combatLoop = CreateState(combatMachine, "Loop", CreateLocomotionTree(controller, "Combat_Loop", true, "Loop", MoveX, MoveY, MoveSpeed), new Vector3(280f, 120f));
-        AnimatorState combatStop = CreateState(combatMachine, "End", CreateLocomotionTree(controller, "Combat_Stop", true, "Stop", StopX, StopY, MoveSpeed), new Vector3(480f, 120f));
+        AnimatorState combatTurn180 = CreateState(combatMachine, "Turn180", CreateTurn180Tree(controller, true), new Vector3(480f, 40f));
+        AnimatorState combatStop = CreateState(combatMachine, "End", CreateLocomotionTree(controller, "Combat_Stop", true, "Stop", StopX, StopY, MoveSpeed), new Vector3(680f, 120f));
 
         SetLocomotionTags(normalStart, normalLoop, normalStop);
         SetLocomotionTags(combatStart, combatLoop, combatStop);
         normalTurn180.tag = LocomotionTurn180Tag;
+        combatTurn180.tag = LocomotionTurn180Tag;
 
         root.defaultState = idle;
         normalMachine.defaultState = normalStart;
@@ -267,6 +269,21 @@ public static class LocomotionAnimatorBuilder
             Condition(AnimatorConditionMode.IfNot, IsMoving));
         turn180ToStop.duration = 0.1f;
 
+        AnimatorStateTransition combatTurn180ToLoop = AddTransition(
+            combatTurn180,
+            combatLoop,
+            true,
+            0.75f,
+            Condition(AnimatorConditionMode.If, IsMoving));
+        combatTurn180ToLoop.duration = 0.1f;
+        AnimatorStateTransition combatTurn180ToStop = AddTransition(
+            combatTurn180,
+            combatStop,
+            true,
+            0.75f,
+            Condition(AnimatorConditionMode.IfNot, IsMoving));
+        combatTurn180ToStop.duration = 0.1f;
+
         ConfigureLocomotionChain(normalStart, normalLoop, normalStop, idle, NormalTransitionConfig);
         ConfigureLocomotionChain(combatStart, combatLoop, combatStop, idle, CombatTransitionConfig);
 
@@ -279,7 +296,6 @@ public static class LocomotionAnimatorBuilder
 
         CombatStanceAnimatorConfigurator.EnsureConfigured();
         DodgeAnimatorConfigurator.EnsureConfigured(controller);
-
     }
 
     private static AnimatorStateMachine GetOrCreateRootStateMachine(AnimatorController controller)
@@ -387,17 +403,23 @@ public static class LocomotionAnimatorBuilder
         return tree;
     }
 
-    private static BlendTree CreateTurn180Tree(AnimatorController controller)
+    private static BlendTree CreateTurn180Tree(
+        AnimatorController controller,
+        bool combat)
     {
         BlendTree tree = CreateTree(
             controller,
-            "Generated_Normal_Turn180",
+            combat ? "Generated_Combat_Turn180" : "Generated_Normal_Turn180",
             BlendTreeType.Simple1D,
             TurnDirection,
             TurnDirection);
         tree.useAutomaticThresholds = false;
-        tree.AddChild(RequireClip("Run_Fast_Turn_L_RM"), -1f);
-        tree.AddChild(RequireClip("Run_Fast_Turn_R_RM"), 1f);
+        tree.AddChild(RequireClip(combat
+            ? "Run_Fast_Combat_Turn_L_RM"
+            : "Run_Fast_Turn_L_RM"), -1f);
+        tree.AddChild(RequireClip(combat
+            ? "Run_Fast_Combat_Turn_R_RM"
+            : "Run_Fast_Turn_R_RM"), 1f);
         return tree;
     }
 
@@ -743,22 +765,49 @@ internal static class CombatLocomotionTransitionConfigurator
 
         AnimatorState normalStart = FindState(normal, "Start");
         AnimatorState normalLoop = FindState(normal, "Loop");
+        AnimatorState normalTurn180 = FindState(normal, "Turn180");
         AnimatorState normalEnd = FindState(normal, "End");
         AnimatorState combatStart = FindState(combat, "Start");
         AnimatorState combatLoop = FindState(combat, "Loop");
+        AnimatorState combatTurn180 = FindState(combat, "Turn180");
         AnimatorState combatEnd = FindState(combat, "End");
-        if (normalStart == null || normalLoop == null || normalEnd == null ||
+        if (normalStart == null || normalLoop == null || normalTurn180 == null ||
+            normalEnd == null ||
             combatStart == null || combatLoop == null || combatEnd == null)
         {
             return;
         }
 
         bool changed = false;
+        if (combatTurn180 == null)
+        {
+            combatTurn180 = combat.AddState("Turn180", new Vector3(480f, 40f));
+            changed = true;
+        }
+
+        if (combatTurn180.tag != "LocomotionTurn180")
+        {
+            combatTurn180.tag = "LocomotionTurn180";
+            EditorUtility.SetDirty(combatTurn180);
+            changed = true;
+        }
+
+        changed |= EnsureCombatTurn180Tree(controller, combatTurn180);
         changed |= CopyTransition(normalStart, normalLoop, combatStart, combatLoop);
         changed |= CopyTransition(normalStart, normalEnd, combatStart, combatEnd);
         changed |= CopyTransition(normalLoop, normalEnd, combatLoop, combatEnd);
         changed |= CopyTransition(normalEnd, normalStart, combatEnd, combatStart);
         changed |= CopyTransition(normalEnd, idle, combatEnd, idle);
+        changed |= CopyTransition(
+            normalTurn180,
+            normalLoop,
+            combatTurn180,
+            combatLoop);
+        changed |= CopyTransition(
+            normalTurn180,
+            normalEnd,
+            combatTurn180,
+            combatEnd);
 
         if (!changed)
         {
@@ -780,13 +829,19 @@ internal static class CombatLocomotionTransitionConfigurator
             .FirstOrDefault(transition => transition.destinationState == sourceDestination);
         AnimatorStateTransition target = targetState.transitions
             .FirstOrDefault(transition => transition.destinationState == targetDestination);
-        if (source == null || target == null)
+        if (source == null)
         {
             return false;
         }
 
-        bool changed = source.hasExitTime != target.hasExitTime ||
-                       !Mathf.Approximately(source.exitTime, target.exitTime) ||
+        bool changed = target == null;
+        if (target == null)
+        {
+            target = targetState.AddTransition(targetDestination);
+        }
+
+        changed |= source.hasExitTime != target.hasExitTime ||
+                        !Mathf.Approximately(source.exitTime, target.exitTime) ||
                        source.hasFixedDuration != target.hasFixedDuration ||
                        !Mathf.Approximately(source.duration, target.duration) ||
                        !Mathf.Approximately(source.offset, target.offset) ||
@@ -812,6 +867,66 @@ internal static class CombatLocomotionTransitionConfigurator
         target.conditions = source.conditions;
         EditorUtility.SetDirty(target);
         return true;
+    }
+
+    private static bool EnsureCombatTurn180Tree(
+        AnimatorController controller,
+        AnimatorState combatTurn180)
+    {
+        AnimationClip leftClip = FindClip("Run_Fast_Combat_Turn_L_RM");
+        AnimationClip rightClip = FindClip("Run_Fast_Combat_Turn_R_RM");
+        if (leftClip == null || rightClip == null)
+        {
+            Debug.LogError("Combat Turn180 animation clips were not found.", controller);
+            return false;
+        }
+
+        if (combatTurn180.motion is BlendTree currentTree &&
+            currentTree.blendType == BlendTreeType.Simple1D &&
+            currentTree.blendParameter == "TurnDirection" &&
+            currentTree.children.Length == 2 &&
+            currentTree.children.Any(child =>
+                child.motion == leftClip && Mathf.Approximately(child.threshold, -1f)) &&
+            currentTree.children.Any(child =>
+                child.motion == rightClip && Mathf.Approximately(child.threshold, 1f)))
+        {
+            return false;
+        }
+
+        var tree = new BlendTree
+        {
+            name = "Generated_Combat_Turn180",
+            blendType = BlendTreeType.Simple1D,
+            blendParameter = "TurnDirection",
+            blendParameterY = "TurnDirection",
+            useAutomaticThresholds = false,
+            hideFlags = HideFlags.HideInHierarchy
+        };
+        AssetDatabase.AddObjectToAsset(tree, controller);
+        tree.AddChild(leftClip, -1f);
+        tree.AddChild(rightClip, 1f);
+        combatTurn180.motion = tree;
+        EditorUtility.SetDirty(tree);
+        EditorUtility.SetDirty(combatTurn180);
+        return true;
+    }
+
+    private static AnimationClip FindClip(string clipName)
+    {
+        string[] guids = AssetDatabase.FindAssets(
+            $"{clipName} t:AnimationClip",
+            new[] { "Assets/ThirdParty/SwordAnimationPack/Animation/Humanoid" });
+        foreach (string guid in guids)
+        {
+            string path = AssetDatabase.GUIDToAssetPath(guid);
+            AnimationClip clip = AssetDatabase.LoadAssetAtPath<AnimationClip>(path);
+            if (clip != null && clip.name == clipName)
+            {
+                return clip;
+            }
+        }
+
+        return null;
     }
 
     private static bool ConditionsMatch(

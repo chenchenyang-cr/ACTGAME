@@ -14,12 +14,6 @@ public sealed class IdleState : GroundedState
     {
         Machine.Movement.Tick(moveInput, hasMoveInput);
 
-        if (!Machine.IsGrounded)
-        {
-            Machine.ChangeState(Machine.AirborneState);
-            return;
-        }
-
         if (hasMoveInput)
         {
             Machine.ChangeState(Machine.LocomotionState);

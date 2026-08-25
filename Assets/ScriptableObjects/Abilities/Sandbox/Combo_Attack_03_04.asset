@@ -39,41 +39,6 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!114 &-4674212911373735547
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1357334210a34768871b684cf97e142c, type: 3}
-  m_Name: ComboWindow
-  m_EditorClassIdentifier: 
-  IsActive: 1
-  Priority: 0
-  CommandId: LightAttack
-  NextAbility: {fileID: 11400000, guid: c2e28c6312c3ae34c902ae692de56a1e, type: 2}
-  ConsumeBufferedInput: 1
---- !u!114 &-2433634800532668120
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f589d20422384f75962aaf6a2b81617a, type: 3}
-  m_Name: InterruptWindow
-  m_EditorClassIdentifier: 
-  IsActive: 1
-  Priority: 0
-  AllowedCommandIds: Dodge
-  AllowMovement: 1
-  MinimumPriority: 0
-  AllowHitReaction: 1
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -100,46 +65,3 @@ MonoBehaviour:
     - 0.8
     Previewable: 0
     Obj: {fileID: -8285111893159522655}
-  - EventTime: 0
-    EventRange: {x: 0.5645161, y: 1}
-    EventMultiRange:
-    - 0.2
-    - 0.4
-    - 0.6
-    - 0.8
-    Previewable: 0
-    Obj: {fileID: -4674212911373735547}
-  - EventTime: 0
-    EventRange: {x: 0.8064516, y: 1}
-    EventMultiRange:
-    - 0.2
-    - 0.4
-    - 0.6
-    - 0.8
-    Previewable: 0
-    Obj: {fileID: 81986135456887252}
-  - EventTime: 0
-    EventRange: {x: 0.5645161, y: 1}
-    EventMultiRange:
-    - 0.2
-    - 0.4
-    - 0.6
-    - 0.8
-    Previewable: 0
-    Obj: {fileID: -2433634800532668120}
---- !u!114 &81986135456887252
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 231a8a44ef9b48a1814fd95d84637a40, type: 3}
-  m_Name: ExitWindow
-  m_EditorClassIdentifier: 
-  IsActive: 1
-  Priority: 0
-  AllowControllerExit: 1
-  ExitOnWindowEnter: 1

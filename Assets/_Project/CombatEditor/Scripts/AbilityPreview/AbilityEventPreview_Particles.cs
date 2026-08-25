@@ -30,7 +30,6 @@ using UnityEngine;
 	        base.InitPreview();
 	        if (InstantiatedObj != null)
 	        {
-	            InstantiatedObj.transform.localScale = Vector3.one;
 	            ParticleSizeUtility.ApplySize(InstantiatedObj, Obj.SizeMultiplier);
 	            ParticleCenterOffsetUtility.ApplyOffset(InstantiatedObj, Obj.CenterOffset);
 	        }
@@ -46,8 +45,8 @@ using UnityEngine;
 	                particleInitSpeeds = new float[particles.Length];
 	                for (int i = 0; i < particles.Length; i++)
 	                {
-	                    particles[i].Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
-	                    particles[i].Clear(true);
+	                    particles[i].Stop(false, ParticleSystemStopBehavior.StopEmittingAndClear);
+	                    particles[i].Clear(false);
 	                    particles[i].useAutoRandomSeed = false;
 	                    particleInitSpeeds[i] = particles[i].main.simulationSpeed;
 	                }
@@ -64,9 +63,9 @@ using UnityEngine;
 
 	        for (int i = 0; i < particles.Length; i++)
 	        {
-	            particles[i].Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
-	            particles[i].Clear(true);
-	            particles[i].Simulate(0f, true, true);
+	            particles[i].Stop(false, ParticleSystemStopBehavior.StopEmittingAndClear);
+	            particles[i].Clear(false);
+	            particles[i].Simulate(0f, false, true);
 	        }
 	        SceneView.RepaintAll();
 	    }
@@ -116,9 +115,9 @@ using UnityEngine;
 	    {
 	        for (int i = 0; i < particles.Length; i++)
 	        {
-	            particles[i].Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
-	            particles[i].Clear(true);
-	            particles[i].Simulate(time, true, true);
+	            particles[i].Stop(false, ParticleSystemStopBehavior.StopEmittingAndClear);
+	            particles[i].Clear(false);
+	            particles[i].Simulate(time, false, true);
 	        }
 	    }
 
@@ -129,7 +128,7 @@ using UnityEngine;
 	            return;
 	        }
 
-	        float speedMultiplier = Obj.PlaySpeed;
+	        float speedMultiplier = Mathf.Max(0.01f, Obj.PlaySpeed);
 	        for (int i = 0; i < particles.Length; i++)
 	        {
 	            var main = particles[i].main;

@@ -144,8 +144,18 @@ using UnityEngine;
 	            {
 	                if (SelectedTrackIndex - 1 < CurrentAbilityObj.events.Count && SelectedTrackIndex - 1 >= 0 && CurrentAbilityObj.events.Count > 0)
 	                {
-	                    string name = CurrentAbilityObj.events[SelectedTrackIndex - 1].Obj.name;
-	                    CurrentAbilityObj.events[SelectedTrackIndex - 1].Obj.name = EditorGUILayout.TextField("Name", name);
+	                    AbilityEventObj eventObj = CurrentAbilityObj.events[SelectedTrackIndex - 1].Obj;
+	                    if (eventObj != null)
+	                    {
+	                        EditorGUI.BeginChangeCheck();
+	                        string newName = EditorGUILayout.DelayedTextField("Name", eventObj.name);
+	                        if (EditorGUI.EndChangeCheck())
+	                        {
+	                            Undo.RecordObject(eventObj, "Rename Ability Event");
+	                            eventObj.name = newName;
+	                            combatEditor.SaveEventAsset(CurrentAbilityObj, eventObj);
+	                        }
+	                    }
 	                }
 	                if (InspectedEditor != null)
 	                {
@@ -279,19 +289,24 @@ using UnityEngine;
 	    {
 	        var editor = CombatEditorUtility.GetCurrentEditor();
 	        AbilityScriptableObject CurrentObj = editor.SelectedAbilityObj;
+	        AbilityScriptableObject template = obj as AbilityScriptableObject;
+	        if (CurrentObj == null || template == null)
+	        {
+	            return;
+	        }
+
+	        Undo.RecordObject(CurrentObj, "Copy Ability Events From Template");
 	        for(int i =0;i<CurrentObj.events.Count;i++)
 	        {
-	            string path = AssetDatabase.GetAssetPath(CurrentObj.events[i].Obj);
 	            var EveObj = CurrentObj.events[i].Obj;
-	            AssetDatabase.RemoveObjectFromAsset(EveObj);
-	            DestroyImmediate( EveObj, true);
+	            if (EveObj != null && AssetDatabase.GetAssetPath(EveObj) == AssetDatabase.GetAssetPath(CurrentObj))
+	            {
+	                Undo.DestroyObjectImmediate(EveObj);
+	            }
 	        }
 	        CurrentObj.events = new List<AbilityEvent>();
-	        
-	
-	
-	        List<AbilityEvent> TargetEves = new List<AbilityEvent>();
-	        TargetEves = (obj as AbilityScriptableObject).events;
+
+	        List<AbilityEvent> TargetEves = template.events;
 	
 	        for (int i = 0; i < TargetEves.Count; i++)
 	        {
@@ -301,11 +316,13 @@ using UnityEngine;
 	            eve.Obj = EveObj;
 	            string path = AssetDatabase.GetAssetPath(editor.SelectedAbilityObj);
 	            eve.Obj.name = eve.Obj.name.Replace("(Clone)","");
+	            Undo.RegisterCreatedObjectUndo(EveObj, "Copy Ability Event");
 	            AssetDatabase.AddObjectToAsset(EveObj, path);
 	            CurrentObj.events.Add(eve);
+	            EditorUtility.SetDirty(EveObj);
 	        }
 	
-	        AssetDatabase.SaveAssets();
+	        editor.SaveAbilityAsset(CurrentObj);
 	        AssetDatabase.Refresh();
 	
 	        editor.LoadL3();

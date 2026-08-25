@@ -39,7 +39,15 @@ using UnityEngine.SceneManagement;
 	        {
 	            return;
 	        }
-	        if(!_preview.eve.Previewable)
+	        bool isEditingTransform =
+	            CombatEditorTransformEditState.IsEditing(
+	                _preview._EventObj,
+	                CombatEditorTransformEditState.EditMode.Position) ||
+	            CombatEditorTransformEditState.IsEditing(
+	                _preview._EventObj,
+	                CombatEditorTransformEditState.EditMode.Rotation);
+
+	        if (!_preview.eve.Previewable && !isEditingTransform)
 	        {
 	            UpdateHiddenHandle();
 	            return;

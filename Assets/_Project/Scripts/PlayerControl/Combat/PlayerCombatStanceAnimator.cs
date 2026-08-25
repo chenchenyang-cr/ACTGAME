@@ -26,29 +26,26 @@ public sealed class PlayerCombatStanceAnimator
 
     public PlayerCombatStanceAnimator(
         Animator animator,
-        float timeout,
-        string combatWeightParameter,
-        string exitLayerName,
-        string exitStateName,
-        float exitBlendDuration)
+        PlayerAnimationProfile profile)
     {
         this.animator = animator;
-        this.timeout = Mathf.Max(0f, timeout);
-        this.exitBlendDuration = Mathf.Max(0f, exitBlendDuration);
+        timeout = Mathf.Max(0f, profile.CombatStanceTimeout);
+        exitBlendDuration = Mathf.Max(0f, profile.CombatExitBlendDuration);
 
         if (animator == null)
         {
             return;
         }
 
-        combatWeightHash = Animator.StringToHash(combatWeightParameter);
+        combatWeightHash = Animator.StringToHash(profile.CombatWeightParameter);
         hasCombatWeightParameter = HasFloatParameter(combatWeightHash);
-        exitLayer = animator.GetLayerIndex(exitLayerName);
-        exitStateShortHash = Animator.StringToHash(exitStateName);
+        exitLayer = animator.GetLayerIndex(profile.CombatExitLayerName);
+        exitStateShortHash = Animator.StringToHash(profile.CombatExitStateName);
 
         if (exitLayer >= 0)
         {
-            exitStateHash = Animator.StringToHash($"{exitLayerName}.{exitStateName}");
+            exitStateHash = Animator.StringToHash(
+                $"{profile.CombatExitLayerName}.{profile.CombatExitStateName}");
             animator.SetLayerWeight(exitLayer, 0f);
         }
     }

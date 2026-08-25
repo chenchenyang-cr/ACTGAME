@@ -19,47 +19,14 @@ public sealed class PlayerStateMachine : MonoBehaviour
     [SerializeField]
     private Animator animator;
     [SerializeField]
-    [Min(0)]
-    private int abilityAnimatorLayer;
-    [Header("Animation Transitions")]
-    [SerializeField]
-    [Min(0f)]
-    private float animationBlendDuration = 0.12f;
-    [SerializeField, Min(0f)]
-    private float locomotionReturnBlendDuration = 0.2f;
-    [SerializeField, Min(0f)]
-    private float idleReturnBlendDuration = 0.15f;
-    [SerializeField]
-    private string idleStateName = "Idle";
-    [SerializeField]
-    private string normalLocomotionLoopStateName = "NormalLocomotion.Loop";
-    [SerializeField]
-    private string combatLocomotionLoopStateName = "CombatLocomotion.Loop";
-    [Header("Dodge Animation")]
-    [SerializeField]
-    private string dodgeNormalStateName = "DodgeNormal";
-    [SerializeField]
-    private string dodgeCombatStateName = "DodgeCombat";
+    private PlayerAnimationProfile animationProfile;
+    [Header("Dodge Movement")]
     [SerializeField, Min(0f)]
     private float dodgeRootMotionMultiplier = 1.2f;
-    [Header("Combat Stance")]
-    [SerializeField]
-    [Min(0f)]
-    private float combatStanceTimeout = 4f;
-    [SerializeField]
-    private string combatWeightParameter = "CombatWeight";
-    [SerializeField]
-    private string combatExitLayerName = "Combat Upper Body";
-    [SerializeField]
-    private string combatExitStateName = "Idle_Combat_To_Idle";
-    [SerializeField]
-    [Min(0f)]
-    private float combatExitBlendDuration = 0.1f;
 
     public PlayerState CurrentState { get; private set; }
     public IdleState IdleState { get; private set; }
     public LocomotionState LocomotionState { get; private set; }
-    public AirborneState AirborneState { get; private set; }
     public AttackState AttackState { get; private set; }
     public DodgeState DodgeState { get; private set; }
     public HitState HitState { get; private set; }
@@ -71,7 +38,6 @@ public sealed class PlayerStateMachine : MonoBehaviour
         ? playerMovement.IsGrounded
         : characterController != null && characterController.isGrounded;
 
-    public event Action JumpRequested;
     public event Action HitStateEntered;
 
     private Vector2 lastMoveInput;
@@ -108,53 +74,29 @@ public sealed class PlayerStateMachine : MonoBehaviour
         {
             animator = GetComponentInChildren<Animator>();
         }
+        if (animationProfile == null)
+        {
+            Debug.LogError("Player Animation Profile is not configured.", this);
+            enabled = false;
+            return;
+        }
 
         ActionAnimator = new PlayerActionAnimator(
             animator,
-            abilityAnimatorLayer,
-            animationBlendDuration,
-            locomotionReturnBlendDuration,
-            idleReturnBlendDuration,
-            idleStateName,
-            normalLocomotionLoopStateName,
-            combatLocomotionLoopStateName,
-            dodgeNormalStateName,
-            dodgeCombatStateName,
-            combatWeightParameter,
+            animationProfile,
             this);
 
         combatStanceAnimator = new PlayerCombatStanceAnimator(
             animator,
-            combatStanceTimeout,
-            combatWeightParameter,
-            combatExitLayerName,
-            combatExitStateName,
-            combatExitBlendDuration);
+            animationProfile);
 
         IdleState = new IdleState(this);
         LocomotionState = new LocomotionState(this);
-        AirborneState = new AirborneState(this);
         AttackState = new AttackState(this);
         DodgeState = new DodgeState(this);
         HitState = new HitState(this);
 
         ChangeState(IdleState);
-    }
-
-    private void OnEnable()
-    {
-        if (combatAdapter != null)
-        {
-            combatAdapter.AbilityRequested += OnAbilityRequested;
-        }
-    }
-
-    private void OnDisable()
-    {
-        if (combatAdapter != null)
-        {
-            combatAdapter.AbilityRequested -= OnAbilityRequested;
-        }
     }
 
     private void Update()
@@ -206,7 +148,6 @@ public sealed class PlayerStateMachine : MonoBehaviour
     {
         return nextState == AttackState ||
                nextState == DodgeState ||
-               nextState == AirborneState ||
                nextState == HitState;
     }
 
@@ -217,12 +158,6 @@ public sealed class PlayerStateMachine : MonoBehaviour
 
     internal bool ReturnToControllableState(Vector2 moveInput, bool hasMoveInput)
     {
-        if (!IsGrounded)
-        {
-            ChangeState(AirborneState);
-            return true;
-        }
-
         Vector2 currentMoveInput = Vector2.ClampMagnitude(moveInput, 1f);
         bool returnToLocomotion = hasMoveInput ||
                                   currentMoveInput.sqrMagnitude > 0.0001f;
@@ -244,12 +179,6 @@ public sealed class PlayerStateMachine : MonoBehaviour
 
     internal bool EnterFastLocomotionLoop(Vector2 moveInput)
     {
-        if (!IsGrounded)
-        {
-            ChangeState(AirborneState);
-            return true;
-        }
-
         Vector2 currentMoveInput = Vector2.ClampMagnitude(moveInput, 1f);
         if (currentMoveInput.sqrMagnitude <= 0.0001f)
         {
@@ -270,6 +199,19 @@ public sealed class PlayerStateMachine : MonoBehaviour
         CurrentState?.TryCompleteAction();
     }
 
+    internal bool BeginAttackAbility(AbilityScriptableObject ability)
+    {
+        if (ability == null || combatAdapter == null)
+        {
+            return false;
+        }
+
+        combatAdapter.BeginAbility(ability);
+        combatStanceAnimator?.NotifyCombatActivity();
+        ActionAnimator?.PlayAbility(ability);
+        return true;
+    }
+
     public void EnterHitState()
     {
         ChangeState(HitState);
@@ -281,17 +223,6 @@ public sealed class PlayerStateMachine : MonoBehaviour
         {
             ReturnToControllableState();
         }
-    }
-
-    internal void RaiseJumpRequested()
-    {
-        JumpRequested?.Invoke();
-    }
-
-    private void OnAbilityRequested(AbilityScriptableObject ability)
-    {
-        combatStanceAnimator?.NotifyCombatActivity();
-        ActionAnimator?.PlayAbility(ability);
     }
 
     internal void RaiseHitStateEntered()

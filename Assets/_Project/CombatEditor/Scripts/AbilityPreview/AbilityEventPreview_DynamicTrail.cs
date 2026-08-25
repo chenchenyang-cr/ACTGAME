@@ -44,7 +44,7 @@ using UnityEngine;
 	        {
 	            return;
 	        }
-	        trail = new DynamicTrailGenerator(_base,_tip,EventObj.MaxFrame,EventObj.TrailSubs,EventObj.StopMultiplier,EventObj.TrailMat , AbilityEventObj_DynamicTrail.TrailBehavior.FlowUV);
+	        trail = new DynamicTrailGenerator(_base, _tip, EventObj, AbilityEventObj_DynamicTrail.TrailBehavior.FlowUV);
 	        _trailMeshObj = trail.InitTrailMesh();
 	        _trailMeshObj.transform.SetParent(GameObject.Find(CombatGlobalEditorValue.PreviewGroupName).transform);
 	    }

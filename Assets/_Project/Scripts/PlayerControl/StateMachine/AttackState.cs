@@ -11,7 +11,7 @@ public sealed class AttackState : PlayerState
         PlayerCombatAdapter combatAdapter = Machine.Combat;
         if (combatAdapter != null && combatAdapter.FirstLightAttack != null)
         {
-            combatAdapter.BeginAbility(combatAdapter.FirstLightAttack);
+            Machine.BeginAttackAbility(combatAdapter.FirstLightAttack);
         }
     }
 
@@ -24,6 +24,12 @@ public sealed class AttackState : PlayerState
     public override void Tick(Vector2 moveInput, bool hasMoveInput)
     {
         PlayerCombatAdapter combatAdapter = Machine.Combat;
+        if (combatAdapter != null && combatAdapter.ConsumeExitRequest())
+        {
+            Complete();
+            return;
+        }
+
         if (hasMoveInput &&combatAdapter != null &&combatAdapter.CanInterruptWithMovement())
         {
             Complete();
@@ -39,7 +45,11 @@ public sealed class AttackState : PlayerState
         PlayerCombatAdapter combatAdapter = Machine.Combat;
         if (combatAdapter != null && combatAdapter.CurrentAbility != null)
         {
-            if (combatAdapter.TryTransition(command, out bool consumeBufferedInput))
+            if (combatAdapter.TryGetTransition(
+                    command,
+                    out CombatEditor.AbilityScriptableObject nextAbility,
+                    out bool consumeBufferedInput) &&
+                Machine.BeginAttackAbility(nextAbility))
             {
                 consumeLastHandledCommand = consumeBufferedInput;
                 return true;
@@ -52,10 +62,6 @@ public sealed class AttackState : PlayerState
             {
                 case PlayerActionCommand.Dodge:
                     Machine.ChangeState(Machine.DodgeState);
-                    return true;
-                case PlayerActionCommand.Jump when Machine.IsGrounded && Machine.Movement.TryJump():
-                    Machine.ChangeState(Machine.AirborneState);
-                    Machine.RaiseJumpRequested();
                     return true;
                 default:
                     return false;
@@ -73,6 +79,11 @@ public sealed class AttackState : PlayerState
     public override bool TryCompleteAction()
     {
         return Complete();
+    }
+
+    public override void Exit()
+    {
+        Machine.Combat?.EndAbility();
     }
 
     private bool Complete()

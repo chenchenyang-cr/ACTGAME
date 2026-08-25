@@ -7,19 +7,10 @@ using UnityEngine;
 /// </summary>
 public sealed class PlayerActionAnimator
 {
-    private static readonly int DodgeXHash = Animator.StringToHash("DodgeX");
-    private static readonly int DodgeYHash = Animator.StringToHash("DodgeY");
-
     private readonly Animator animator;
-    private readonly int animatorLayer;
-    private readonly float actionBlendDuration;
-    private readonly float locomotionReturnBlendDuration;
-    private readonly float idleReturnBlendDuration;
-    private readonly string idleStateName;
-    private readonly string normalLocomotionLoopStateName;
-    private readonly string combatLocomotionLoopStateName;
-    private readonly string dodgeNormalStateName;
-    private readonly string dodgeCombatStateName;
+    private readonly PlayerAnimationProfile profile;
+    private readonly int dodgeXHash;
+    private readonly int dodgeYHash;
     private readonly int combatWeightHash;
     private readonly Object logContext;
 
@@ -30,30 +21,16 @@ public sealed class PlayerActionAnimator
 
     public PlayerActionAnimator(
         Animator animator,
-        int animatorLayer,
-        float actionBlendDuration,
-        float locomotionReturnBlendDuration,
-        float idleReturnBlendDuration,
-        string idleStateName,
-        string normalLocomotionLoopStateName,
-        string combatLocomotionLoopStateName,
-        string dodgeNormalStateName,
-        string dodgeCombatStateName,
-        string combatWeightParameter,
+        PlayerAnimationProfile profile,
         Object logContext)
     {
         this.animator = animator;
-        this.animatorLayer = animatorLayer;
-        this.actionBlendDuration = actionBlendDuration;
-        this.locomotionReturnBlendDuration = locomotionReturnBlendDuration;
-        this.idleReturnBlendDuration = idleReturnBlendDuration;
-        this.idleStateName = idleStateName;
-        this.normalLocomotionLoopStateName = normalLocomotionLoopStateName;
-        this.combatLocomotionLoopStateName = combatLocomotionLoopStateName;
-        this.dodgeNormalStateName = dodgeNormalStateName;
-        this.dodgeCombatStateName = dodgeCombatStateName;
-        combatWeightHash = Animator.StringToHash(combatWeightParameter);
+        this.profile = profile;
         this.logContext = logContext;
+
+        dodgeXHash = Animator.StringToHash(profile.DodgeXParameter);
+        dodgeYHash = Animator.StringToHash(profile.DodgeYParameter);
+        combatWeightHash = Animator.StringToHash(profile.CombatWeightParameter);
     }
 
     public void PlayAbility(AbilityScriptableObject ability)
@@ -74,12 +51,12 @@ public sealed class PlayerActionAnimator
         }
 
         Vector2 direction = PlayerMovement.QuantizeEightWayDirection(localDirection);
-        animator.SetFloat(DodgeXHash, direction.x);
-        animator.SetFloat(DodgeYHash, direction.y);
+        animator.SetFloat(dodgeXHash, direction.x);
+        animator.SetFloat(dodgeYHash, direction.y);
 
         string stateName = IsCombatAnimationActive()
-            ? dodgeCombatStateName
-            : dodgeNormalStateName;
+            ? profile.DodgeCombatStateName
+            : profile.DodgeNormalStateName;
         if (!TryCrossFade(stateName, out int stateHash))
         {
             return false;
@@ -132,15 +109,15 @@ public sealed class PlayerActionAnimator
 
     public void PlayIdle()
     {
-        TryCrossFade(idleStateName, idleReturnBlendDuration, out _);
+        TryCrossFade(profile.IdleStateName, profile.IdleReturnBlendDuration, out _);
     }
 
     public void PlayLocomotionLoop()
     {
         string stateName = IsCombatAnimationActive()
-            ? combatLocomotionLoopStateName
-            : normalLocomotionLoopStateName;
-        TryCrossFade(stateName, locomotionReturnBlendDuration, out _);
+            ? profile.CombatLocomotionLoopStateName
+            : profile.NormalLocomotionLoopStateName;
+        TryCrossFade(stateName, profile.LocomotionReturnBlendDuration, out _);
     }
 
     private bool TryGetDodgeAnimationState(out AnimatorStateInfo stateInfo)
@@ -151,9 +128,9 @@ public sealed class PlayerActionAnimator
             return false;
         }
 
-        if (animator.IsInTransition(animatorLayer))
+        if (animator.IsInTransition(profile.AnimatorLayer))
         {
-            AnimatorStateInfo nextState = animator.GetNextAnimatorStateInfo(animatorLayer);
+            AnimatorStateInfo nextState = animator.GetNextAnimatorStateInfo(profile.AnimatorLayer);
             if (nextState.fullPathHash == dodgeAnimationStateHash)
             {
                 hasEnteredDodgeAnimation = true;
@@ -162,7 +139,7 @@ public sealed class PlayerActionAnimator
             }
         }
 
-        AnimatorStateInfo currentState = animator.GetCurrentAnimatorStateInfo(animatorLayer);
+        AnimatorStateInfo currentState = animator.GetCurrentAnimatorStateInfo(profile.AnimatorLayer);
         if (currentState.fullPathHash == dodgeAnimationStateHash)
         {
             hasEnteredDodgeAnimation = true;
@@ -186,9 +163,9 @@ public sealed class PlayerActionAnimator
     {
         return PlayerAnimatorTransition.TryCrossFade(
             animator,
-            animatorLayer,
+            profile.AnimatorLayer,
             relativeStatePath,
-            actionBlendDuration,
+            profile.ActionBlendDuration,
             out stateHash,
             normalizedTime,
             logContext);
@@ -202,7 +179,7 @@ public sealed class PlayerActionAnimator
     {
         return PlayerAnimatorTransition.TryCrossFade(
             animator,
-            animatorLayer,
+            profile.AnimatorLayer,
             relativeStatePath,
             duration,
             out stateHash,
@@ -213,13 +190,13 @@ public sealed class PlayerActionAnimator
     private bool ValidateAnimatorLayer()
     {
         if (animator != null &&
-            animatorLayer >= 0 &&
-            animatorLayer < animator.layerCount)
+            profile.AnimatorLayer >= 0 &&
+            profile.AnimatorLayer < animator.layerCount)
         {
             return true;
         }
 
-        Debug.LogError($"Animator layer {animatorLayer} does not exist.", logContext);
+        Debug.LogError($"Animator layer {profile.AnimatorLayer} does not exist.", logContext);
         return false;
     }
 }

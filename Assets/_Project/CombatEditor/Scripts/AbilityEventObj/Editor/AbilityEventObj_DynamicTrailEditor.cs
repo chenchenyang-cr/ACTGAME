@@ -23,6 +23,14 @@ using UnityEngine.UIElements;
 	        EditorGUILayout.PropertyField(serializedObject.FindProperty("TrailSubs"));
 	        //EditorGUILayout.PropertyField(serializedObject.FindProperty("uvMethod"));
 	        EditorGUILayout.PropertyField(serializedObject.FindProperty("StopMultiplier"));
+	        EditorGUILayout.Space(6f);
+	        EditorGUILayout.PropertyField(serializedObject.FindProperty("TrailColor"));
+	        EditorGUILayout.PropertyField(serializedObject.FindProperty("Brightness"));
+	        EditorGUILayout.PropertyField(serializedObject.FindProperty("TrailTexture"));
+	        EditorGUILayout.PropertyField(serializedObject.FindProperty("TextureTiling"));
+	        EditorGUILayout.PropertyField(serializedObject.FindProperty("TextureScrollSpeed"));
+	        EditorGUILayout.PropertyField(serializedObject.FindProperty("TailFade"));
+	        EditorGUILayout.PropertyField(serializedObject.FindProperty("Opacity"), new GUIContent("Opacity（透明度）"));
 
             if (EditorGUI.EndChangeCheck())
             {

@@ -208,7 +208,7 @@ namespace CombatEditor
         {
             var CurrentTimeInScale = ScaledPercentage * AnimObj.Clip.length * 60;
 
-            if (ScaledPercentage > StartTimeScaledPercentage && ScaledPercentage < EndTimeScaledPercentage)
+            if (ScaledPercentage >= StartTimeScaledPercentage && ScaledPercentage < EndTimeScaledPercentage)
             {
                 CurrentInScaledRange = true;
             }

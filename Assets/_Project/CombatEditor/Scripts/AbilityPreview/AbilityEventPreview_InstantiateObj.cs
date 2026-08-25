@@ -82,7 +82,7 @@ using UnityEditor;
 	    //If the object is static, it requires datas at start frame.
 	    public override bool NeedStartFrameValue()
 	    {
-	        return true;
+	        return EventObj.ObjData != null && !EventObj.ObjData.FollowNode;
 	    }
 	    // If the object is static, give the handle the position and rot at start frame.
 	    public override void GetStartFrameDataBeforePreview()

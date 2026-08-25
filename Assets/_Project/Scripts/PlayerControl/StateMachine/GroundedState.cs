@@ -11,16 +11,6 @@ public abstract class GroundedState : PlayerState
     {
         switch (command)
         {
-            case PlayerActionCommand.Jump:
-                if (!Machine.IsGrounded || !Machine.Movement.TryJump())
-                {
-                    return false;
-                }
-
-                Machine.ChangeState(Machine.AirborneState);
-                Machine.RaiseJumpRequested();
-                return true;
-
             case PlayerActionCommand.Dodge:
                 Machine.ChangeState(Machine.DodgeState);
                 return true;

@@ -108,6 +108,33 @@ MonoBehaviour:
     - 0.8
     Previewable: 0
     Obj: {fileID: 2594471202637083137}
+  - EventTime: 0
+    EventRange: {x: 0.28448275, y: 0.5086207}
+    EventMultiRange:
+    - 0.2
+    - 0.4
+    - 0.6
+    - 0.8
+    Previewable: 1
+    Obj: {fileID: 4783053765217556951}
+  - EventTime: 0
+    EventRange: {x: 0.1724138, y: 0.28448275}
+    EventMultiRange:
+    - 0.2
+    - 0.4
+    - 0.6
+    - 0.8
+    Previewable: 0
+    Obj: {fileID: 8682450419773059488}
+  - EventTime: 0
+    EventRange: {x: 0.28448275, y: 0.5086207}
+    EventMultiRange:
+    - 0.2
+    - 0.4
+    - 0.6
+    - 0.8
+    Previewable: 0
+    Obj: {fileID: 5489802024850899662}
 --- !u!114 &2594471202637083137
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -126,6 +153,81 @@ MonoBehaviour:
   AllowMovement: 1
   MinimumPriority: 0
   AllowHitReaction: 1
+--- !u!114 &4783053765217556951
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b781d06c00f873041aca107545370fa8, type: 3}
+  m_Name: Combo_Attack_03_03_WeaponTrail
+  m_EditorClassIdentifier: 
+  IsActive: 1
+  BaseNode: 12
+  TipNode: 13
+  TrailMat: {fileID: 2100000, guid: 251ee0fe7b4be434aaed6dc07137b117, type: 2}
+  MaxFrame: 14
+  StopMultiplier: 4
+  TrailSubs: 2
+  TrailColor: {r: 1, g: 1, b: 1, a: 0.5}
+  Brightness: 3
+  TrailTexture: {fileID: 2800000, guid: ea8e72668430339468bc508a1e6b3d39, type: 3}
+  TextureTiling: {x: 1, y: 1}
+  TextureScrollSpeed: 0.8
+  TailFade: 0.25
+  Opacity: 0.72
+  NUM_VERTICES: 12
+--- !u!114 &5489802024850899662
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28e2dd982f5c43b48b940242e405acc4, type: 3}
+  m_Name: AnimSpeed
+  m_EditorClassIdentifier: 
+  IsActive: 1
+  Mode: 1
+  Speed: 1.5
+  SpeedCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: -0.16047847
+      outSlope: -0.16047847
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.1705674
+    - serializedVersion: 3
+      time: 0.6812765
+      value: 0.8340197
+      inSlope: -0.4781139
+      outSlope: -0.4781139
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33415082
+    - serializedVersion: 3
+      time: 0.9966736
+      value: 0.5
+      inSlope: -1.9879925
+      outSlope: -1.9879925
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.036796004
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!114 &7834813309201651391
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -141,5 +243,44 @@ MonoBehaviour:
   IsActive: 1
   Priority: 0
   CommandId: LightAttack
-  NextAbility: {fileID: 11400000, guid: 3996a2156a4d8674eafce0147160b1a7, type: 2}
+  NextAbility: {fileID: 11400000, guid: c2e28c6312c3ae34c902ae692de56a1e, type: 2}
   ConsumeBufferedInput: 1
+--- !u!114 &8682450419773059488
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28e2dd982f5c43b48b940242e405acc4, type: 3}
+  m_Name: AnimSpeed
+  m_EditorClassIdentifier: 
+  IsActive: 1
+  Mode: 1
+  Speed: 0.6
+  SpeedCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1.2
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4

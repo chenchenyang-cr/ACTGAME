@@ -10,7 +10,6 @@ public class PlayerInputReader : MonoBehaviour//输入系统与Unity Input Syste
     public PlayerInputState State { get; private set; }
 
     
-    public event Action JumpPressed;
     public event Action DodgePressed;
     public event Action LightAttackPressed;
 
@@ -44,7 +43,6 @@ public class PlayerInputReader : MonoBehaviour//输入系统与Unity Input Syste
         _gameInput.GamePlay.Move.canceled += OnMoveCanceled;
         _gameInput.GamePlay.Look.performed += OnLookPreformed;
         _gameInput.GamePlay.Look.canceled += OnLookCanceled;
-        _gameInput.GamePlay.Jump.performed += OnJumpPreformed;
         _gameInput.GamePlay.Dodge.performed += OnDodgePreformed;
         _gameInput.GamePlay.LightAttack.performed += OnLightAttackPreformed;
 
@@ -55,7 +53,6 @@ public class PlayerInputReader : MonoBehaviour//输入系统与Unity Input Syste
         _gameInput.GamePlay.Move.canceled -= OnMoveCanceled;
         _gameInput.GamePlay.Look.performed -= OnLookPreformed;
         _gameInput.GamePlay.Look.canceled -= OnLookCanceled;
-        _gameInput.GamePlay.Jump.performed -= OnJumpPreformed;
         _gameInput.GamePlay.Dodge.performed -= OnDodgePreformed;
         _gameInput.GamePlay.LightAttack.performed -= OnLightAttackPreformed;
 
@@ -75,10 +72,6 @@ public class PlayerInputReader : MonoBehaviour//输入系统与Unity Input Syste
     void OnLookPreformed(UnityEngine.InputSystem.InputAction.CallbackContext context)
     {
         State.SetLookInput(context.ReadValue<Vector2>());
-    }
-    void OnJumpPreformed(UnityEngine.InputSystem.InputAction.CallbackContext context)
-    {
-        JumpPressed?.Invoke();
     }
     void OnDodgePreformed(UnityEngine.InputSystem.InputAction.CallbackContext context)
     {

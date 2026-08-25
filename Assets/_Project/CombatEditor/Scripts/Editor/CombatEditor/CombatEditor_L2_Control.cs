@@ -29,7 +29,17 @@ namespace CombatEditor
         }
         public void OnSwapAnimEvents(int indexBefore, int indexAfter)
         {
+            if (SelectedAbilityObj == null ||
+                indexBefore < 0 || indexBefore >= SelectedAbilityObj.events.Count ||
+                indexAfter < 0 || indexAfter > SelectedAbilityObj.events.Count ||
+                indexBefore == indexAfter)
+            {
+                return;
+            }
+
+            Undo.RecordObject(SelectedAbilityObj, "Reorder Ability Event");
             SelectedAbilityObj.events = SwapList<AbilityEvent>(SelectedAbilityObj.events, indexBefore, indexAfter);
+            SaveAbilityAsset(SelectedAbilityObj);
 
             if (indexBefore < indexAfter)
             {
@@ -80,7 +90,14 @@ namespace CombatEditor
 
         public void OnClickToggleActive(AbilityEventObj obj)
         {
+            if (obj == null)
+            {
+                return;
+            }
+
+            Undo.RecordObject(obj, "Toggle Ability Event");
             obj.IsActive = !obj.IsActive;
+            SaveEventAsset(SelectedAbilityObj, obj);
             if (IsPlaying || IsLooping)
             {
                 OnStopPlayAnimation();
@@ -99,7 +116,14 @@ namespace CombatEditor
         /// <param name="eve"></param>
         public void OnTogglePreview(AbilityEvent eve)
         {
+            if (eve == null || SelectedAbilityObj == null)
+            {
+                return;
+            }
+
+            Undo.RecordObject(SelectedAbilityObj, "Toggle Ability Event Preview");
             eve.Previewable = !eve.Previewable;
+            SaveAbilityAsset(SelectedAbilityObj);
             SceneView.RepaintAll();
             if (IsPlaying || IsLooping)
             {
@@ -122,19 +146,26 @@ namespace CombatEditor
             provider.OnSetIndexCallBack = (type) =>
             {
                 AbilityEventObj obj = ScriptableObject.CreateInstance(type) as AbilityEventObj;
+                if (obj == null || SelectedAbilityObj == null)
+                {
+                    DestroyImmediate(provider);
+                    return;
+                }
+
                 obj.name = type.Name.Replace("AbilityEventObj_", "");
                 AbilityEvent e = new AbilityEvent();
                 e.Obj = obj;
-                AssetDatabase.AddObjectToAsset(obj, SelectedAbilityObj);
-                AssetDatabase.SaveAssets();
-                AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath(SelectedAbilityObj));
 
+                Undo.RegisterCreatedObjectUndo(obj, "Add Ability Event");
+                Undo.RecordObject(SelectedAbilityObj, "Add Ability Event");
+                AssetDatabase.AddObjectToAsset(obj, SelectedAbilityObj);
                 SelectedAbilityObj.events.Add(e);
 
-                EditorUtility.SetDirty(SelectedAbilityObj);
+                SaveEventAsset(SelectedAbilityObj, obj);
+                AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath(SelectedAbilityObj));
                 OnAnimEventChanges();
 
-            DestroyImmediate(provider);
+                DestroyImmediate(provider);
             };
             SearchWindow.Open(new SearchWindowContext(GUIUtility.GUIToScreenPoint(Event.current.mousePosition + new Vector2(200, 0))), provider);
         }
@@ -369,6 +400,7 @@ namespace CombatEditor
         public void DisableTransformEditing()
         {
             CombatEditorTransformEditState.Clear();
+            Tools.hidden = false;
             SceneView.RepaintAll();
         }
 

@@ -21,6 +21,12 @@ using UnityEngine.SceneManagement;
 	
 	    public void SetPreviewTarget(CombatController combatController, AbilityScriptableObject animObj)
 	    {
+	        if (_combatController != combatController)
+	        {
+	            RestoreControllerPosition();
+	            hasRecordedStartPosition = false;
+	        }
+
 	        _combatController = combatController;
 	    }
 	
@@ -43,6 +49,7 @@ using UnityEngine.SceneManagement;
 	   }
 	
 	    public Vector3 StartControllerPosition;
+	    bool hasRecordedStartPosition;
 	
 	    public GameObject PreviewGroupObj;
 	    public void ResetPreviewGroup()
@@ -79,6 +86,7 @@ using UnityEngine.SceneManagement;
 	        {
 	            AnimationMode.StopAnimationMode();
 	        }
+	        RestoreControllerPosition();
 	    }
 	
 	    //Calls when click the stopbutton.
@@ -93,7 +101,19 @@ using UnityEngine.SceneManagement;
 	    public void RecordPositionBeforeStart()
 	    {
 	        StartControllerPosition = _combatController.transform.position;
+	        hasRecordedStartPosition = true;
 	        CombatGlobalEditorValue.CharacterTransPosBeforePreview = _combatController.transform.position; ;
+	    }
+
+	    void RestoreControllerPosition()
+	    {
+	        if (!hasRecordedStartPosition || _combatController == null)
+	        {
+	            return;
+	        }
+
+	        _combatController.transform.position = StartControllerPosition;
+	        CombatGlobalEditorValue.CharacterRootCenterAtCurrentFrame = StartControllerPosition;
 	    }
 	
 	
@@ -245,21 +265,31 @@ using UnityEngine.SceneManagement;
 	    public void GetCurrentRootMotion(float timePercentage)
 	    {
 	        var bindings = AnimationUtility.GetCurveBindings(AbilityObj.Clip);
-	        //var targetBinding;
+	        Vector3 currentRootPosition = Vector3.zero;
+	        Vector3 startRootPosition = Vector3.zero;
+	        CurrentRootQ = Vector3.zero;
+	        CurrentMotionT = Vector3.zero;
+	        CurrentMotionQ = Vector3.zero;
 	
 	        for (int i = 0; i < bindings.Length; i++)
 	        {
-	            var CurrentTime = timePercentage * AbilityObj.Clip.length;
 	            var curve = AnimationUtility.GetEditorCurve(AbilityObj.Clip, bindings[i]);
-	            var value = curve.Evaluate(timePercentage * AbilityObj.Clip.length);
+	            float value = curve.Evaluate(timePercentage * AbilityObj.Clip.length);
+	            float startValue = curve.Evaluate(0f);
 	            switch (bindings[i].propertyName)
 	            {
 	                case "RootT.x":
-	                    CurrentRootT.x = value; break;
+	                    currentRootPosition.x = value;
+	                    startRootPosition.x = startValue;
+	                    break;
 	                case "RootT.y":
-	                    CurrentRootT.y = value; break;
+	                    currentRootPosition.y = value;
+	                    startRootPosition.y = startValue;
+	                    break;
 	                case "RootT.z":
-	                    CurrentRootT.z = value; break;
+	                    currentRootPosition.z = value;
+	                    startRootPosition.z = startValue;
+	                    break;
 	                case "RootQ.x":
 	                    CurrentRootQ.x = value; break;
 	                case "RootQ.y":
@@ -274,6 +304,8 @@ using UnityEngine.SceneManagement;
 	                    CurrentMotionT.z = value; break;
 	            }
 	        }
+
+	        CurrentRootT = currentRootPosition - startRootPosition;
 	        CombatGlobalEditorValue.CurrentMotionTAtGround = new Vector3(CurrentRootT.x, 0, CurrentRootT.z);
 	
 	        //Debug.Log(timePercentage + ":" + new Vector3(CurrentRootT.x, CurrentRootT.y, CurrentRootT.z));
@@ -287,12 +319,25 @@ using UnityEngine.SceneManagement;
 	    public void InitAllPreviews()
 	    {
 	        previews = new List<AbilityEventPreview>();
-	
+	        bool removedInvalidEvent = false;
+
 	        if (AbilityObj != null)
+	        {
 	            for (int i = 0; i < AbilityObj.events.Count; i++)
 	            {
 	                var abilityEvent = AbilityObj.events[i];
-                    if (abilityEvent.Obj == null) { AbilityObj.events.RemoveAt(i); i--; continue; }
+	                if (abilityEvent == null || abilityEvent.Obj == null)
+	                {
+	                    if (!removedInvalidEvent)
+	                    {
+	                        Undo.RecordObject(AbilityObj, "Remove Missing Ability Event");
+	                    }
+
+	                    AbilityObj.events.RemoveAt(i);
+	                    i--;
+	                    removedInvalidEvent = true;
+	                    continue;
+	                }
 	                if (abilityEvent.Obj.IsActive)
 	                {
 	                    if (abilityEvent.Obj != null)
@@ -310,6 +355,14 @@ using UnityEngine.SceneManagement;
 	                    }
 	                }
 	            }
+	        }
+
+	        if (removedInvalidEvent)
+	        {
+	            EditorUtility.SetDirty(AbilityObj);
+	            AssetDatabase.SaveAssets();
+	        }
+
 	        foreach (var preview in previews)
 	        {
 	            preview.InitPreview();

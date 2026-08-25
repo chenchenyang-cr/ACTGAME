@@ -25,6 +25,12 @@ using UnityEngine;
 	    Quaternion StartAnimatorRot;
 	
 	    public bool Previewable = false;
+
+	    public override void SelfDestroy()
+	    {
+	        Tools.hidden = false;
+	        base.SelfDestroy();
+	    }
 	
 	    public void SetStartFramePos(Vector3 pos, Quaternion rot , Quaternion AnimatorRot)
 	    {

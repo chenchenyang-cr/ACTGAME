@@ -58,6 +58,14 @@ using UnityEngine;
 	
 	
 	        var editor = CombatEditorUtility.GetCurrentEditor();
+	        if (editor == null || editor.SelectedController == null)
+	        {
+	            EditorGUIUtility.labelWidth = labelWidth;
+	            EditorGUI.EndProperty();
+	            GUILayout.EndVertical();
+	            return;
+	        }
+
 	        List<string> NodeTypesInController = new List<string>();
 	        var nodes = editor.SelectedController.Nodes;
 	

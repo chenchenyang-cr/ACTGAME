@@ -22,21 +22,14 @@ public sealed class PlayerCommandInputAdapter : MonoBehaviour
 
     private void OnEnable()
     {
-        inputReader.JumpPressed += BufferJump;
         inputReader.DodgePressed += BufferDodge;
         inputReader.LightAttackPressed += BufferLightAttack;
     }
 
     private void OnDisable()
     {
-        inputReader.JumpPressed -= BufferJump;
         inputReader.DodgePressed -= BufferDodge;
         inputReader.LightAttackPressed -= BufferLightAttack;
-    }
-
-    private void BufferJump()
-    {
-        inputBuffer.AddInput(PlayerActionCommand.Jump);
     }
 
     private void BufferDodge()

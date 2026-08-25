@@ -25,7 +25,6 @@ namespace CombatEditor
             if (changed && CombatEditorUtility.EditorExist())
             {
                 CombatEditor editor = CombatEditorUtility.GetCurrentEditor();
-                editor.RequirePreviewReload();
                 editor.HardResetPreviewToCurrentFrame();
             }
         }

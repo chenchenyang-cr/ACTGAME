@@ -25,15 +25,6 @@
                     "initialStateCheck": true
                 },
                 {
-                    "name": "Jump",
-                    "type": "Button",
-                    "id": "4f174f74-d08d-4a3f-a012-cda038ada697",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
                     "name": "Dodge",
                     "type": "Button",
                     "id": "acfec610-43ee-441e-9de1-257ee9d1710d",
@@ -53,28 +44,6 @@
                 }
             ],
             "bindings": [
-                {
-                    "name": "",
-                    "id": "01bd448a-26eb-45a3-bd48-8257f4a54eda",
-                    "path": "<Keyboard>/space",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Jump",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "0305ec7a-18fe-4c51-bfa2-199b6bdf18d7",
-                    "path": "<Gamepad>/buttonSouth",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Jump",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
                 {
                     "name": "",
                     "id": "d918eed7-52d6-440d-aa30-a46c897c4ce1",

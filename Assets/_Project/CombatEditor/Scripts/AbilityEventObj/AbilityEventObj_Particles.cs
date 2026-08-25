@@ -1,6 +1,5 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using UnityEditor;
 using UnityEngine;
 
  namespace CombatEditor
@@ -11,7 +10,7 @@ using UnityEngine;
 	    public GameObject TargetObj;
 	    public PreviewTransformHandle.ControlTypeEnum controlType;
 	    public Vector3 Offset;
-	    public Quaternion Rot;
+	    public Quaternion Rot = Quaternion.identity;
 	    public Vector3 Scale = Vector3.one;
 	    public CharacterNode.NodeType TargetNode;
 	    public bool FollowNode = true;
@@ -55,13 +54,29 @@ using UnityEngine;
 	{
 	    //public InsedObject ParticleData = new InsedObject();
 	    public EventTimeType TimeType = EventTimeType.EventTime;
-	    public float PlaySpeed = 1f;
-	    public float SizeMultiplier = 1f;
+	    [Min(0.01f)] public float PlaySpeed = 1f;
+	    [Min(0f)] public float SizeMultiplier = 1f;
 	    public Vector3 CenterOffset = Vector3.zero;
 	    public override EventTimeType GetEventTimeType()
 	    {
-	        return TimeType;
+	        return TimeType == EventTimeType.EventRange
+	            ? EventTimeType.EventRange
+	            : EventTimeType.EventTime;
 	    }
+
+#if UNITY_EDITOR
+	    private void OnValidate()
+	    {
+	        if (TimeType != EventTimeType.EventTime &&
+	            TimeType != EventTimeType.EventRange)
+	        {
+	            TimeType = EventTimeType.EventTime;
+	        }
+
+	        PlaySpeed = Mathf.Max(0.01f, PlaySpeed);
+	        SizeMultiplier = Mathf.Max(0f, SizeMultiplier);
+	    }
+#endif
 	
 	    public override AbilityEventEffect Initialize()
 	    {
@@ -91,22 +106,16 @@ using UnityEngine;
 	    public override void EndEffect()
 	    {
 	        base.EndEffect();
-	        if (Obj.GetEventTimeType() == AbilityEventObj.EventTimeType.EventRange)
+	        if (InsedParticle != null)
 	        {
-	            if (InsedParticle != null)
-	            {
-	                Object.Destroy(InsedParticle);
-	            }
+	            Object.Destroy(InsedParticle);
+	            InsedParticle = null;
 	        }
 	    }
 	    public override void StartEffect()
 	    {
 	        base.StartEffect();
 	        InsedParticle = Obj.ObjData.CreateObject(_combatController);
-	        if (InsedParticle != null)
-	        {
-	            InsedParticle.transform.localScale = Vector3.one;
-	        }
 	        ParticleSizeUtility.ApplySize(InsedParticle, Obj.SizeMultiplier);
 	        ParticleCenterOffsetUtility.ApplyOffset(InsedParticle, Obj.CenterOffset);
 	        ParticlePlaybackSpeedUtility.ApplySpeed(InsedParticle, Obj.PlaySpeed);
@@ -123,13 +132,15 @@ using UnityEngine;
 	            return;
 	        }
 
+	        Vector3 worldOffset = target.transform.TransformVector(centerOffset);
 	        ParticleSystem[] particleSystems = target.GetComponentsInChildren<ParticleSystem>(true);
 	        for (int i = 0; i < particleSystems.Length; i++)
 	        {
 	            var shape = particleSystems[i].shape;
 	            if (shape.enabled)
 	            {
-	                shape.position += centerOffset;
+	                Vector3 localOffset = particleSystems[i].transform.InverseTransformVector(worldOffset);
+	                shape.position += localOffset;
 	            }
 	        }
 	    }
@@ -144,6 +155,7 @@ using UnityEngine;
 	            return;
 	        }
 
+	        sizeMultiplier = Mathf.Max(0f, sizeMultiplier);
 	        ParticleSystem[] particleSystems = target.GetComponentsInChildren<ParticleSystem>(true);
 	        for (int i = 0; i < particleSystems.Length; i++)
 	        {
@@ -169,8 +181,6 @@ using UnityEngine;
 	        if (shape.enabled)
 	        {
 	            shape.scale *= sizeMultiplier;
-	            shape.radius *= sizeMultiplier;
-	            shape.length *= sizeMultiplier;
 	        }
 	    }
 	}
@@ -184,6 +194,7 @@ using UnityEngine;
 	            return;
 	        }
 
+	        speedMultiplier = Mathf.Max(0.01f, speedMultiplier);
 	        ParticleSystem[] particleSystems = target.GetComponentsInChildren<ParticleSystem>(true);
 	        for (int i = 0; i < particleSystems.Length; i++)
 	        {

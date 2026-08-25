@@ -30,6 +30,8 @@ using UnityEngine;
 	    public Material _trailMat;
 	    public int QuadCount = 0;
 	    int _trailSubs;
+	    AbilityEventObj_DynamicTrail _settings;
+	    MeshRenderer _renderer;
 	
 	    static int StaticUVScale = 3;
 	    AbilityEventObj_DynamicTrail.TrailBehavior _uvMethod;
@@ -51,22 +53,56 @@ using UnityEngine;
 	        EmmitedQuadIndex = 0;
 	        _uvMethod = uvMethod;
 	    }
+
+	    public DynamicTrailGenerator(Transform baseTransform, Transform tipTransform,
+	        AbilityEventObj_DynamicTrail settings, AbilityEventObj_DynamicTrail.TrailBehavior uvMethod)
+	        : this(baseTransform, tipTransform, settings.MaxFrame, settings.TrailSubs,
+	            settings.StopMultiplier, settings.TrailMat, uvMethod)
+	    {
+	        _settings = settings;
+	    }
 	
 	    public GameObject InitTrailMesh()
 	    {
 	        _trailMeshObj = new GameObject("MeshTrail");
 	        var _filter = _trailMeshObj.AddComponent<MeshFilter>();
-	        var _renderer = _trailMeshObj.AddComponent<MeshRenderer>();
+	        _renderer = _trailMeshObj.AddComponent<MeshRenderer>();
 	
 	        _renderer.receiveShadows = false;
 	        _renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
 	        _mesh = new Mesh();
 	        _trailMeshObj.GetComponent<MeshFilter>().mesh = _mesh;
-	        _trailMeshObj.GetComponent<Renderer>().material = _trailMat;
+	        if (_trailMat != null)
+	        {
+	            _renderer.sharedMaterial = _trailMat;
+	        }
+	        ApplyAppearance();
 	        trianglesQueue = new Queue<int>();
 	        BaseQueue = new Queue<Vector3>();
 	        TipQueue = new Queue<Vector3>();
 	        return _trailMeshObj;
+	    }
+
+	    void ApplyAppearance()
+	    {
+	        if (_renderer == null || _settings == null)
+	        {
+	            return;
+	        }
+
+	        var properties = new MaterialPropertyBlock();
+	        properties.SetColor("_TintColor", _settings.TrailColor);
+	        properties.SetFloat("_Intensity", Mathf.Max(0f, _settings.Brightness));
+	        properties.SetVector("_UVTiling", new Vector4(
+	            _settings.TextureTiling.x, _settings.TextureTiling.y, 0f, 0f));
+	        properties.SetFloat("_UVScrollSpeed", _settings.TextureScrollSpeed);
+	        properties.SetFloat("_TailFade", Mathf.Max(0.01f, _settings.TailFade));
+	        properties.SetFloat("_Alpha", Mathf.Clamp01(_settings.Opacity));
+	        if (_settings.TrailTexture != null)
+	        {
+	            properties.SetTexture("_MainTex", _settings.TrailTexture);
+	        }
+	        _renderer.SetPropertyBlock(properties);
 	    }
 	    public void SetTrail()
 	    {
@@ -168,6 +204,7 @@ using UnityEngine;
 	        _mesh.vertices = SpineVertices;
 	        _mesh.triangles = _triangles;
 	        _mesh.uv = _uvs;
+	        _mesh.RecalculateBounds();
 	    }
 	
 	

@@ -9,7 +9,6 @@ using UnityEngine;
 /// </summary>
 public sealed class PlayerCombatAdapter : MonoBehaviour, ICombatGameplayWindowListener
 {
-    [SerializeField] private PlayerStateMachine stateMachine;
     [SerializeField] private PlayerMovement movement;
     [SerializeField] private AbilityScriptableObject firstLightAttack;
     [SerializeField] private AbilityScriptableObject dodgeAbility;
@@ -21,17 +20,15 @@ public sealed class PlayerCombatAdapter : MonoBehaviour, ICombatGameplayWindowLi
     private IPlayerCombatTargetAssist targetAssist;
     private CombatController combatController;
     private GameplayWindowAbilityRunner dodgeWindowRunner;
+    private bool exitRequested;
 
     public AbilityScriptableObject CurrentAbility { get; private set; }
     public AbilityScriptableObject FirstLightAttack => firstLightAttack;
     public AbilityScriptableObject DodgeAbility => dodgeAbility;
     public bool CanExitAttack => exitWindows.Count > 0;
 
-    public event Action<AbilityScriptableObject> AbilityRequested;
-
     private void Awake()
     {
-        if (stateMachine == null) stateMachine = GetComponent<PlayerStateMachine>();
         if (movement == null) movement = GetComponent<PlayerMovement>();
         combatController = GetComponent<CombatController>();
         if (combatController == null) combatController = GetComponentInChildren<CombatController>();
@@ -50,7 +47,12 @@ public sealed class PlayerCombatAdapter : MonoBehaviour, ICombatGameplayWindowLi
         dodgeWindowRunner?.End();
         ClearWindows();
         CurrentAbility = ability;
-        AbilityRequested?.Invoke(ability);
+    }
+
+    public void EndAbility()
+    {
+        ClearWindows();
+        CurrentAbility = null;
     }
 
     public bool BeginDodgeAbility()
@@ -81,7 +83,10 @@ public sealed class PlayerCombatAdapter : MonoBehaviour, ICombatGameplayWindowLi
         }
     }
 
-    public bool TryTransition(PlayerActionCommand command, out bool consumeBufferedInput)
+    public bool TryGetTransition(
+        PlayerActionCommand command,
+        out AbilityScriptableObject nextAbility,
+        out bool consumeBufferedInput)
     {
         string commandId = command.ToString();
         AbilityEventObj_ComboWindow selected = null;
@@ -102,13 +107,25 @@ public sealed class PlayerCombatAdapter : MonoBehaviour, ICombatGameplayWindowLi
 
         if (selected != null)
         {
+            nextAbility = selected.NextAbility;
             consumeBufferedInput = selected.ConsumeBufferedInput;
-            BeginAbility(selected.NextAbility);
             return true;
         }
 
+        nextAbility = null;
         consumeBufferedInput = true;
         return false;
+    }
+
+    public bool ConsumeExitRequest()
+    {
+        if (!exitRequested)
+        {
+            return false;
+        }
+
+        exitRequested = false;
+        return true;
     }
 
     public bool CanInterrupt(PlayerActionCommand command)
@@ -142,7 +159,7 @@ public sealed class PlayerCombatAdapter : MonoBehaviour, ICombatGameplayWindowLi
                 break;
             case AbilityEventObj_ExitWindow exit:
                 if (exit.AllowControllerExit) exitWindows.Add(context.Handle);
-                if (exit.ExitOnWindowEnter) stateMachine?.CompleteCurrentAction();
+                if (exit.ExitOnWindowEnter) exitRequested = true;
                 break;
         }
     }
@@ -191,11 +208,6 @@ public sealed class PlayerCombatAdapter : MonoBehaviour, ICombatGameplayWindowLi
 
         if (selected == null)
         {
-            if (stateMachine != null && stateMachine.CurrentState != stateMachine.AttackState)
-            {
-                return;
-            }
-
             movement.SetRotationMode(PlayerRotationMode.Preserve);
             return;
         }
@@ -221,6 +233,7 @@ public sealed class PlayerCombatAdapter : MonoBehaviour, ICombatGameplayWindowLi
         comboWindows.Clear();
         interruptWindows.Clear();
         exitWindows.Clear();
+        exitRequested = false;
     }
 
     private sealed class GameplayWindowAbilityRunner

@@ -44,8 +44,6 @@ public class PlayerMovement : MonoBehaviour
     private float gravity = -25f;
     [SerializeField]
     private float groundedVerticalSpeed = -2f;
-    [SerializeField, Min(0.1f)]
-    private float jumpHeight = 1.5f;
     [SerializeField, Min(1f)]
     private float maximumFallSpeed = 35f;
     [Header("Rotation")]
@@ -75,6 +73,8 @@ public class PlayerMovement : MonoBehaviour
     private static readonly int TurnDirectionHash = Animator.StringToHash("TurnDirection");
     private static readonly int Turn180StateHash =
         Animator.StringToHash("Base Layer.NormalLocomotion.Turn180");
+    private static readonly int CombatTurn180StateHash =
+        Animator.StringToHash("Base Layer.CombatLocomotion.Turn180");
     private const float MoveInputThreshold = 0.01f;
     private const float CombatModeThreshold = 0.5f;
     private const float WalkGaitSample = 0.35f;
@@ -187,18 +187,6 @@ public class PlayerMovement : MonoBehaviour
             hasDirection);
     }
 
-    public bool TryJump()
-    {
-        if (!IsGrounded || gravity >= 0f)
-        {
-            return false;
-        }
-
-        verticalVelocity = Mathf.Sqrt(jumpHeight * -2f * gravity);
-        IsGrounded = false;
-        return true;
-    }
-
     private void UpdateVerticalMotion()
     {
         if (characterController == null || !characterController.enabled)
@@ -305,7 +293,10 @@ public class PlayerMovement : MonoBehaviour
             Vector3.up);
         float directionSign = signedAngle < 0f ? -1f : 1f;
         animator.SetFloat(TurnDirectionHash, directionSign);
-        PlayerAnimatorTransition.TryCrossFade(animator, 0, Turn180StateHash, 0.08f);
+        int turnStateHash = isCombatMovement
+            ? CombatTurn180StateHash
+            : Turn180StateHash;
+        PlayerAnimatorTransition.TryCrossFade(animator, 0, turnStateHash, 0.08f);
         return true;
     }
 

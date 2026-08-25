@@ -158,9 +158,10 @@ namespace CombatEditor
             {
                 if (eves[i].Obj == null)
                 {
+                    Undo.RecordObject(SelectedAbilityObj, "Remove Missing Ability Event");
                     eves.RemoveAt(i);
-                    i = 0;
-                    AssetDatabase.SaveAssets();
+                    i--;
+                    SaveAbilityAsset(SelectedAbilityObj);
                     continue;
                 }
 
@@ -176,7 +177,17 @@ namespace CombatEditor
                 {
                     if (e.keyCode == KeyCode.F2 && LabelRect.Contains(e.mousePosition))
                     {
-                        StartPaintRenameField(LabelRect, obj.name, () => { obj.name = NameOfRename; AssetDatabase.SaveAssets(); });
+                        StartPaintRenameField(LabelRect, obj.name, () =>
+                        {
+                            if (obj.name == NameOfRename)
+                            {
+                                return;
+                            }
+
+                            Undo.RecordObject(obj, "Rename Ability Event");
+                            obj.name = NameOfRename;
+                            SaveEventAsset(SelectedAbilityObj, obj);
+                        });
                         Debug.Log("UseEvent?");
                         e.Use();
                     }
@@ -272,16 +283,21 @@ namespace CombatEditor
                 #endregion
                 if (GUI.Button(DeleteRect, "-", MyDeleteButtonStyle))
                 {
+                    AbilityEventObj eventObj = SelectedAbilityObj.events[i].Obj;
                     Object[] assets = AssetDatabase.LoadAllAssetsAtPath(AssetDatabase.GetAssetPath(SelectedAbilityObj));
-                    if (assets.Contains(SelectedAbilityObj.events[i].Obj))
-                    {
-                        Undo.DestroyObjectImmediate(SelectedAbilityObj.events[i].Obj);
-                        AssetDatabase.SaveAssets();
-                    }
+
+                    Undo.RecordObject(SelectedAbilityObj, "Delete Ability Event");
                     SelectedAbilityObj.events.RemoveAt(i);
 
-                    OnAnimEventChanges();
+                    if (eventObj != null && assets.Contains(eventObj))
+                    {
+                        Undo.DestroyObjectImmediate(eventObj);
+                    }
 
+                    SaveAbilityAsset(SelectedAbilityObj);
+
+                    OnAnimEventChanges();
+                    break;
                 }
             }
 

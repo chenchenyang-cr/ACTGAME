@@ -1,7 +1,6 @@
 public enum PlayerActionCommand
 {
-    Jump,
-    Dodge,
-    LightAttack,
-    HeavyAttack,
+    Dodge = 1,
+    LightAttack = 2,
+    HeavyAttack = 3,
 }
