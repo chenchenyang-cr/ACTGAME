@@ -316,7 +316,7 @@ MonoBehaviour:
     FollowNode: 1
     RotateByNode: 0
   TimeType: 1
-  PlaySpeed: 2
+  PlaySpeed: 3
   SizeMultiplier: 0.24
   CenterOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &5539396830412640129

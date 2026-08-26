@@ -163,6 +163,15 @@ MonoBehaviour:
     - 0.8
     Previewable: 0
     Obj: {fileID: 1375879449278129519}
+  - EventTime: 0.07058824
+    EventRange: {x: 0, y: 1}
+    EventMultiRange:
+    - 0.2
+    - 0.4
+    - 0.6
+    - 0.8
+    Previewable: 0
+    Obj: {fileID: 5648854903174409105}
 --- !u!114 &912789051312936458
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -254,6 +263,32 @@ MonoBehaviour:
   Priority: 0
   AllowControllerExit: 1
   ExitOnWindowEnter: 1
+--- !u!114 &5648854903174409105
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca2229d21ed65194bac74b8298b11290, type: 3}
+  m_Name: Particles
+  m_EditorClassIdentifier: 
+  IsActive: 1
+  ObjData:
+    TargetObj: {fileID: 7212047850060897593, guid: 1bddde0101aa1e744bfa819371e6aa4f, type: 3}
+    controlType: 0
+    Offset: {x: 0.33234787, y: 0.88519514, z: 2.1743927}
+    Rot: {x: 0, y: 0.90069777, z: 0, w: 0.43444622}
+    Scale: {x: 1, y: 1, z: 1}
+    TargetNode: 0
+    FollowNode: 0
+    RotateByNode: 0
+  TimeType: 1
+  PlaySpeed: 3
+  SizeMultiplier: 0.25
+  CenterOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &6287532827348611513
 MonoBehaviour:
   m_ObjectHideFlags: 0
