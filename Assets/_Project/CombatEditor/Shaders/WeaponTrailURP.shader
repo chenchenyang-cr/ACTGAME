@@ -5,7 +5,8 @@ Shader "CombatEditor/AirBlurWeaponTrailURP"
         _MainTex ("Distortion Mask", 2D) = "white" {}
         [HDR] _TintColor ("Air Edge Tint", Color) = (0.55, 0.85, 1, 0.5)
         _Intensity ("Edge Brightness", Range(0, 12)) = 1.5
-        _BlurRadius ("Blur Radius (Pixels)", Range(0, 12)) = 3
+        _BlurRadius ("Blur Radius (Pixels)", Range(0, 32)) = 8
+        _BlurStrength ("Blur Strength", Range(0, 2)) = 1
         _DistortionStrength ("Distortion (Pixels)", Range(0, 30)) = 8
         _NoiseFrequency ("Air Wave Frequency", Range(0.1, 30)) = 9
         _UVTiling ("Mask Tiling", Vector) = (1, 1, 0, 0)
@@ -60,6 +61,7 @@ Shader "CombatEditor/AirBlurWeaponTrailURP"
                 float _Intensity;
                 float _Alpha;
                 float _BlurRadius;
+                float _BlurStrength;
                 float _DistortionStrength;
                 float _NoiseFrequency;
             CBUFFER_END
@@ -91,15 +93,35 @@ Shader "CombatEditor/AirBlurWeaponTrailURP"
                 float2 blurStep = texel * _BlurRadius;
                 float2 sampleUV = saturate(screenUV + distortion);
 
-                half3 sceneColor = SampleSceneColor(sampleUV) * 0.28h;
-                sceneColor += SampleSceneColor(saturate(sampleUV + float2( blurStep.x, 0))) * 0.12h;
-                sceneColor += SampleSceneColor(saturate(sampleUV + float2(-blurStep.x, 0))) * 0.12h;
-                sceneColor += SampleSceneColor(saturate(sampleUV + float2(0,  blurStep.y))) * 0.12h;
-                sceneColor += SampleSceneColor(saturate(sampleUV + float2(0, -blurStep.y))) * 0.12h;
-                sceneColor += SampleSceneColor(saturate(sampleUV + blurStep)) * 0.06h;
-                sceneColor += SampleSceneColor(saturate(sampleUV - blurStep)) * 0.06h;
-                sceneColor += SampleSceneColor(saturate(sampleUV + float2(blurStep.x, -blurStep.y))) * 0.06h;
-                sceneColor += SampleSceneColor(saturate(sampleUV + float2(-blurStep.x, blurStep.y))) * 0.06h;
+                half3 sourceColor = SampleSceneColor(sampleUV);
+                half3 blurredColor = sourceColor * 0.08h;
+                blurredColor += SampleSceneColor(saturate(sampleUV + float2( blurStep.x, 0))) * 0.06h;
+                blurredColor += SampleSceneColor(saturate(sampleUV + float2(-blurStep.x, 0))) * 0.06h;
+                blurredColor += SampleSceneColor(saturate(sampleUV + float2(0,  blurStep.y))) * 0.06h;
+                blurredColor += SampleSceneColor(saturate(sampleUV + float2(0, -blurStep.y))) * 0.06h;
+                blurredColor += SampleSceneColor(saturate(sampleUV + blurStep)) * 0.04h;
+                blurredColor += SampleSceneColor(saturate(sampleUV - blurStep)) * 0.04h;
+                blurredColor += SampleSceneColor(saturate(sampleUV + float2(blurStep.x, -blurStep.y))) * 0.04h;
+                blurredColor += SampleSceneColor(saturate(sampleUV + float2(-blurStep.x, blurStep.y))) * 0.04h;
+
+                float2 outerBlurStep = blurStep * 2.0;
+                blurredColor += SampleSceneColor(saturate(sampleUV + float2( outerBlurStep.x, 0))) * 0.06h;
+                blurredColor += SampleSceneColor(saturate(sampleUV + float2(-outerBlurStep.x, 0))) * 0.06h;
+                blurredColor += SampleSceneColor(saturate(sampleUV + float2(0,  outerBlurStep.y))) * 0.06h;
+                blurredColor += SampleSceneColor(saturate(sampleUV + float2(0, -outerBlurStep.y))) * 0.06h;
+                blurredColor += SampleSceneColor(saturate(sampleUV + outerBlurStep)) * 0.035h;
+                blurredColor += SampleSceneColor(saturate(sampleUV - outerBlurStep)) * 0.035h;
+                blurredColor += SampleSceneColor(saturate(sampleUV + float2(outerBlurStep.x, -outerBlurStep.y))) * 0.035h;
+                blurredColor += SampleSceneColor(saturate(sampleUV + float2(-outerBlurStep.x, outerBlurStep.y))) * 0.035h;
+
+                float2 farBlurStep = blurStep * 3.0;
+                blurredColor += SampleSceneColor(saturate(sampleUV + float2( farBlurStep.x, 0))) * 0.035h;
+                blurredColor += SampleSceneColor(saturate(sampleUV + float2(-farBlurStep.x, 0))) * 0.035h;
+                blurredColor += SampleSceneColor(saturate(sampleUV + float2(0,  farBlurStep.y))) * 0.035h;
+                blurredColor += SampleSceneColor(saturate(sampleUV + float2(0, -farBlurStep.y))) * 0.035h;
+
+                half3 sceneColor = saturate(
+                    sourceColor + (blurredColor - sourceColor) * _BlurStrength);
 
                 half edge = saturate(1.0h - sideFade) * sideFade + abs(waveA - waveB) * 0.035h;
                 half3 edgeColor = _TintColor.rgb * (_Intensity * 0.12h) * edge;

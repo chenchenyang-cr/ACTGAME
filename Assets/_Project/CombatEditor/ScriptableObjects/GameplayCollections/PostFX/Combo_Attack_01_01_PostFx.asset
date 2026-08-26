@@ -1,0 +1,166 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 67880606e4eb41a6a92b37964db7e91f, type: 3}
+  m_Name: Combo_Attack_01_01_PostFx
+  m_EditorClassIdentifier:
+  radialBlur:
+    enabled: 1
+    timeRange: {x: 0, y: 1}
+    intensity: 0.086
+    curve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.23999757
+        value: 0.89703524
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    sampleDistance: 1
+  chromaticAberration:
+    enabled: 0
+    timeRange: {x: 0, y: 1}
+    intensity: 0
+    spread: 1
+  vignette:
+    enabled: 1
+    timeRange: {x: 0, y: 1}
+    intensity: 0.007
+    curve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.23999757
+        value: 0.89703524
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    innerRadius: 0.22
+    outerRadius: 0.82
+    color: {r: 0, g: 0, b: 0, a: 1}
+  flash:
+    enabled: 0
+    timeRange: {x: 0, y: 1}
+    intensity: 0
+    color: {r: 1, g: 0.9, b: 0.72, a: 1}
+  color:
+    enabled: 0
+    timeRange: {x: 0, y: 1}
+    intensity: 0
+    desaturation: 1
+    tintStrength: 0
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  glitch:
+    enabled: 0
+    timeRange: {x: 0, y: 1}
+    intensity: 0
+    speed: 28
+    rowDensity: 150
+    displacement: 0.055
+    channelSplit: 0.006
+  speedLines:
+    enabled: 0
+    timeRange: {x: 0, y: 1}
+    intensity: 0
+    density: 34
+    sharpness: 18
+    innerRadius: 0.12
+    outerRadius: 0.72
+    rotationSpeed: 0
+    color: {r: 1, g: 1, b: 1, a: 1}
+  filmGrain:
+    enabled: 1
+    timeRange: {x: 0, y: 1}
+    intensity: 0.311
+    curve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.23999757
+        value: 0.89703524
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    scale: 1
+    speed: 24

@@ -16,14 +16,19 @@ using UnityEngine;
 	        List<SearchTreeEntry> searchList = new List<SearchTreeEntry>();
 	        searchList.Add(new SearchTreeGroupEntry(new GUIContent("List"), 0));
 
-	        Type[] normalTypes = types
-	            .Where(type => !typeof(AbilityEventObj_GameplayWindow).IsAssignableFrom(type))
+        Type[] normalTypes = types
+            .Where(type => !typeof(AbilityEventObj_GameplayWindow).IsAssignableFrom(type) &&
+                           !typeof(AbilityEventObj_PostFxTrack).IsAssignableFrom(type))
 	            .OrderBy(type => type.Name)
 	            .ToArray();
-	        Type[] gameplayTypes = types
+        Type[] gameplayTypes = types
 	            .Where(type => typeof(AbilityEventObj_GameplayWindow).IsAssignableFrom(type) && !type.IsAbstract)
 	            .OrderBy(type => type.Name)
-	            .ToArray();
+            .ToArray();
+        Type[] postFxTypes = types
+            .Where(type => typeof(AbilityEventObj_PostFxTrack).IsAssignableFrom(type) && !type.IsAbstract)
+            .OrderBy(type => type.Name)
+            .ToArray();
 
 	        for (int i = 0; i < normalTypes.Length; i++)
 	        {
@@ -34,19 +39,34 @@ using UnityEngine;
 	            searchList.Add(entry);
 	        }
 
-	        if (gameplayTypes.Length > 0)
+        if (gameplayTypes.Length > 0)
 	        {
 	            searchList.Add(new SearchTreeGroupEntry(new GUIContent("Gameplay"), 1));
-	            for (int i = 0; i < gameplayTypes.Length; i++)
+            for (int i = 0; i < gameplayTypes.Length; i++)
 	            {
 	                SearchTreeEntry entry = new SearchTreeEntry(
 	                    new GUIContent(ObjectNames.NicifyVariableName(
 	                        gameplayTypes[i].Name.Replace("AbilityEventObj_", ""))));
 	                entry.level = 2;
 	                entry.userData = gameplayTypes[i];
-	                searchList.Add(entry);
-	            }
-	        }
+                searchList.Add(entry);
+            }
+
+        }
+
+        if (postFxTypes.Length > 0)
+        {
+            searchList.Add(new SearchTreeGroupEntry(new GUIContent("Post FX"), 1));
+            for (int i = 0; i < postFxTypes.Length; i++)
+            {
+                string label = postFxTypes[i].Name.Replace("AbilityEventObj_PostFx", string.Empty);
+                SearchTreeEntry entry = new SearchTreeEntry(
+                    new GUIContent(ObjectNames.NicifyVariableName(label)));
+                entry.level = 2;
+                entry.userData = postFxTypes[i];
+                searchList.Add(entry);
+            }
+        }
 	        return searchList;
 	    }
 	

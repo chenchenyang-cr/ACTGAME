@@ -30,7 +30,8 @@ Material:
     m_Ints: []
     m_Floats:
     - _Alpha: 1
-    - _BlurRadius: 8.76
+    - _BlurRadius: 22
+    - _BlurStrength: 1.6
     - _DistortionStrength: 30
     - _Intensity: 12
     - _NoiseFrequency: 6.1
