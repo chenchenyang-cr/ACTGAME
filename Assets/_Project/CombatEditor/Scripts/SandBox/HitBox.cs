@@ -7,6 +7,8 @@ using UnityEngine;
 	public class HitBox : MonoBehaviour
 	{
         public CombatController Owner;
+        public AbilityScriptableObject SourceAbility { get; private set; }
+        public AbilityEventObj_CreateHitBox SourceEvent { get; private set; }
 
         [Header("Filtering")]
         public LayerMask hitTargetLayers = ~0;
@@ -25,9 +27,12 @@ using UnityEngine;
         private Vector3 lastMotionDirection = Vector3.forward;
         private bool hasLastSampledPosition;
   
-        public  void Init(CombatController _controller)
+        public void Init(CombatController controller, AbilityScriptableObject sourceAbility = null,
+            AbilityEventObj_CreateHitBox sourceEvent = null)
         {
-            Owner = _controller;
+            Owner = controller;
+            SourceAbility = sourceAbility;
+            SourceEvent = sourceEvent;
             hitTargets.Clear();
             nextHitTimes.Clear();
             hitCounts.Clear();
@@ -130,8 +135,21 @@ using UnityEngine;
                 EvaluateScale(repeatedHitCameraShakeMultiplier, previousHitCount),
                 EvaluateScale(repeatedHitStopMultiplier, previousHitCount));
 
-            if (hitSource.TryHandleHit(this, other, hitPoint, hitContext))
+            if (hitSource.TryHandleHit(this, other, hitPoint, hitContext,
+                    out CombatHitResolution resolution) && resolution.IsAccepted)
             {
+                CombatHitEventBus.Publish(new CombatHitConfirmedEvent(
+                    Owner,
+                    SourceAbility,
+                    SourceEvent,
+                    this,
+                    other,
+                    otherRoot.gameObject,
+                    hitPoint,
+                    CurrentMotionDirection,
+                    hitContext,
+                    resolution));
+
                 hitCounts[targetId] = hitSequenceIndex;
                 if (allowMultiHit)
                 {

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   IsActive: 1
   Mode: 0
-  Speed: 1.4
+  Speed: 1.6
   SpeedCurve:
     serializedVersion: 2
     m_Curve:
@@ -39,6 +39,55 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &-8115454637510427920
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f0f89d835ad546d6b481017177f509f9, type: 3}
+  m_Name: PostFxChromaticAberration
+  m_EditorClassIdentifier: 
+  IsActive: 1
+  Intensity: 1
+  IntensityCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 2.169866
+      outSlope: 2.169866
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.46074757
+      value: 0.9997605
+      inSlope: 0.15041544
+      outSlope: 0.15041544
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.44367427
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: -0.031357836
+      outSlope: -0.031357836
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.50069326
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  Spread: 3
+  FocusPoint: {x: 0.5, y: 0.5}
 --- !u!114 &-7419629033571097320
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -202,6 +251,15 @@ MonoBehaviour:
     - 0.8
     Previewable: 0
     Obj: {fileID: -7419629033571097320}
+  - EventTime: 0
+    EventRange: {x: 0.11111111, y: 0.37777779}
+    EventMultiRange:
+    - 0.2
+    - 0.4
+    - 0.6
+    - 0.8
+    Previewable: 0
+    Obj: {fileID: -8115454637510427920}
 --- !u!114 &1653761415681740489
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -42,7 +42,7 @@ using UnityEngine;
 	        CurrentHitBox = Obj.GetComponent<HitBox>();
             if(CurrentHitBox!=null)
             {
-                CurrentHitBox.Init(_combatController);
+                CurrentHitBox.Init(_combatController, AnimObj, TargetObj);
             }
 
 	        BoxCollider boxCollider = Obj.GetComponent<BoxCollider>();
