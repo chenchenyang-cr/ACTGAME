@@ -23,6 +23,7 @@
 	    [Range(0.01f, 1f)] public float TailFade = 0.25f;
 	    [UnityEngine.Serialization.FormerlySerializedAs("Alpha")]
 	    [Range(0f, 1f)] public float Opacity = 0.72f;
+        [Range(0f, 1f)] public float AirTintStrength = 0.35f;
 	    [HideInInspector]
 	    public int NUM_VERTICES = 12;
 	

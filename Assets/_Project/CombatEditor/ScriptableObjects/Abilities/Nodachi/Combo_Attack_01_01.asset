@@ -18,6 +18,34 @@ MonoBehaviour:
   AllowMovement: 1
   MinimumPriority: 0
   AllowHitReaction: 1
+--- !u!114 &-3655251904635478690
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b781d06c00f873041aca107545370fa8, type: 3}
+  m_Name: DynamicTrail
+  m_EditorClassIdentifier: 
+  IsActive: 1
+  BaseNode: 12
+  TipNode: 13
+  TrailMat: {fileID: 2100000, guid: 251ee0fe7b4be434aaed6dc07137b117, type: 2}
+  MaxFrame: 14
+  StopMultiplier: 4
+  TrailSubs: 2
+  TrailColor: {r: 1, g: 0.038993325, b: 0, a: 0.5}
+  Brightness: 1.5
+  TrailTexture: {fileID: 0}
+  TextureTiling: {x: 1, y: 1}
+  TextureScrollSpeed: 0.8
+  TailFade: 1
+  Opacity: 0.72
+  AirTintStrength: 0.35
+  NUM_VERTICES: 12
 --- !u!114 &-3070975137496316347
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -30,7 +58,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ca2229d21ed65194bac74b8298b11290, type: 3}
   m_Name: Particles
   m_EditorClassIdentifier: 
-  IsActive: 1
+  IsActive: 0
   ObjData:
     TargetObj: {fileID: 7212047850060897593, guid: 1bddde0101aa1e744bfa819371e6aa4f, type: 3}
     controlType: 0
@@ -134,7 +162,7 @@ MonoBehaviour:
     Previewable: 0
     Obj: {fileID: 7259081199048779137}
   - EventTime: 0
-    EventRange: {x: 0.15454546, y: 0.36363637}
+    EventRange: {x: 0.15454546, y: 0.37272727}
     EventMultiRange:
     - 0.2
     - 0.4
@@ -142,6 +170,15 @@ MonoBehaviour:
     - 0.8
     Previewable: 0
     Obj: {fileID: 184225983890267808}
+  - EventTime: 0
+    EventRange: {x: 0.15454546, y: 0.36363637}
+    EventMultiRange:
+    - 0.2
+    - 0.4
+    - 0.6
+    - 0.8
+    Previewable: 0
+    Obj: {fileID: -3655251904635478690}
 --- !u!114 &184225983890267808
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -214,7 +251,7 @@ MonoBehaviour:
       m_RotationOrder: 4
     RotationSeed: 251
     EnableFov: 1
-    FovAmplitude: -2
+    FovAmplitude: -1
     FovCurve:
       serializedVersion: 2
       m_Curve:

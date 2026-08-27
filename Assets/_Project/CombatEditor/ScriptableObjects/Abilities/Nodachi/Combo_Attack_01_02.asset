@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ca2229d21ed65194bac74b8298b11290, type: 3}
   m_Name: Particles
   m_EditorClassIdentifier: 
-  IsActive: 1
+  IsActive: 0
   ObjData:
     TargetObj: {fileID: 7212047850060897593, guid: 1bddde0101aa1e744bfa819371e6aa4f, type: 3}
     controlType: 0
@@ -26,6 +26,34 @@ MonoBehaviour:
   PlaySpeed: 2
   SizeMultiplier: 0.19
   CenterOffset: {x: 0, y: 0, z: 0}
+--- !u!114 &-5140003473789306864
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b781d06c00f873041aca107545370fa8, type: 3}
+  m_Name: DynamicTrail
+  m_EditorClassIdentifier: 
+  IsActive: 1
+  BaseNode: 12
+  TipNode: 13
+  TrailMat: {fileID: 2100000, guid: 251ee0fe7b4be434aaed6dc07137b117, type: 2}
+  MaxFrame: 14
+  StopMultiplier: 4
+  TrailSubs: 2
+  TrailColor: {r: 1, g: 0, b: 0.045158386, a: 0.5}
+  Brightness: 1.5
+  TrailTexture: {fileID: 0}
+  TextureTiling: {x: 1, y: 1}
+  TextureScrollSpeed: 0.8
+  TailFade: 1
+  Opacity: 0.72
+  AirTintStrength: 0.35
+  NUM_VERTICES: 12
 --- !u!114 &-4347109537209376424
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -244,6 +272,24 @@ MonoBehaviour:
     - 0.8
     Previewable: 0
     Obj: {fileID: 140461098647744109}
+  - EventTime: 0
+    EventRange: {x: 0.14444445, y: 0.43333334}
+    EventMultiRange:
+    - 0.2
+    - 0.4
+    - 0.6
+    - 0.8
+    Previewable: 0
+    Obj: {fileID: 7728783125163918282}
+  - EventTime: 0
+    EventRange: {x: 0.14444445, y: 0.4}
+    EventMultiRange:
+    - 0.2
+    - 0.4
+    - 0.6
+    - 0.8
+    Previewable: 0
+    Obj: {fileID: -5140003473789306864}
 --- !u!114 &140461098647744109
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -332,3 +378,119 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &7728783125163918282
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2c77cc69ff374f62b9c82cf1d60c7465, type: 3}
+  m_Name: CameraShake
+  m_EditorClassIdentifier: 
+  IsActive: 1
+  TriggerMode: 0
+  Settings:
+    EnablePosition: 0
+    PositionAmplitude: {x: 0.08, y: 0.05, z: 0.03}
+    PositionFrequency: 24
+    PositionCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    PositionSeed: 137
+    EnableRotation: 0
+    RotationAmplitude: {x: 1.2, y: 0.8, z: 0.5}
+    RotationFrequency: 20
+    RotationCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    RotationSeed: 251
+    EnableFov: 1
+    FovAmplitude: -1
+    FovCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.2
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: -3.3215175
+        outSlope: -3.3215175
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.054166615
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+  HitShakeDuration: 0.16
+  UseUnscaledTime: 1
+  HitBoxFilter: 0
+  SpecificHitBox: {fileID: 0}
+  TriggerPolicy: 0
+  AcceptedResults: 3
+  MaximumTriggerCount: 1
+  TriggerCooldown: 0
+  PreviewHitTime: 0.5
+  PreviewHitIntensityScale: 1

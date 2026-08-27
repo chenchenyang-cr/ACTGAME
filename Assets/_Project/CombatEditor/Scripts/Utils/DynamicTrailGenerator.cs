@@ -16,6 +16,7 @@ using UnityEngine;
 	    int[] _triangles;
 	    int _frameCount;
 	    Vector2[] _uvs;
+	    Vector4[] _tangents;
 	    Mesh _mesh;
 	    public GameObject _trailMeshObj;
 	    int FrameCount;
@@ -98,6 +99,7 @@ using UnityEngine;
 	        properties.SetFloat("_UVScrollSpeed", _settings.TextureScrollSpeed);
 	        properties.SetFloat("_TailFade", Mathf.Max(0.01f, _settings.TailFade));
 	        properties.SetFloat("_Alpha", Mathf.Clamp01(_settings.Opacity));
+            properties.SetFloat("_TintStrength", Mathf.Clamp01(_settings.AirTintStrength));
 	        if (_settings.TrailTexture != null)
 	        {
 	            properties.SetTexture("_MainTex", _settings.TrailTexture);
@@ -202,6 +204,7 @@ using UnityEngine;
 	
 	        _mesh.Clear();
 	        _mesh.vertices = SpineVertices;
+	        _mesh.tangents = _tangents;
 	        _mesh.triangles = _triangles;
 	        _mesh.uv = _uvs;
 	        _mesh.RecalculateBounds();
@@ -312,6 +315,7 @@ using UnityEngine;
 	
 	
 	            SpineVertices = new Vector3[NUM_VERTICES * QuadCount];
+	            _tangents = new Vector4[NUM_VERTICES * QuadCount];
 	            for (int i = 0; i < QuadCount; i++)
 	            {
 	                var StartIndex = i * NUM_VERTICES;
@@ -320,6 +324,21 @@ using UnityEngine;
 	                var tipPos = TipSpine.GetPoints()[i + 1].position;
 	                var lastBasePos = BaseSpine.GetPoints()[i].position;
 	                var lastTipPos = TipSpine.GetPoints()[i].position;
+
+                    Vector3 currentCenter = (basePos + tipPos) * 0.5f;
+                    Vector3 lastCenter = (lastBasePos + lastTipPos) * 0.5f;
+                    Vector3 swingDirection = currentCenter - lastCenter;
+                    if (swingDirection.sqrMagnitude <= 0.000001f)
+                    {
+                        swingDirection = tipPos - basePos;
+                    }
+                    if (swingDirection.sqrMagnitude <= 0.000001f)
+                    {
+                        swingDirection = Vector3.forward;
+                    }
+                    swingDirection.Normalize();
+                    Vector4 tangent = new Vector4(swingDirection.x, swingDirection.y,
+                        swingDirection.z, 1f);
 	
 	                SpineVertices[StartIndex] = basePos;
 	                SpineVertices[StartIndex + 1] = tipPos;
@@ -336,11 +355,18 @@ using UnityEngine;
 	                SpineVertices[StartIndex + 9] = lastTipPos;
 	                SpineVertices[StartIndex + 10] = lastBasePos;
 	                SpineVertices[StartIndex + 11] = basePos;
+
+                    for (int vertexIndex = 0; vertexIndex < NUM_VERTICES; vertexIndex++)
+                    {
+                        _tangents[StartIndex + vertexIndex] = tangent;
+                    }
 	            }
 	        }
 	        else
 	        {
 	            QuadCount = 0;
+	            SpineVertices = new Vector3[0];
+                _tangents = new Vector4[0];
 	        }
 	    }
 	    public void UpdateBaseandTipQueue()

@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: DefaultWeaponTrail
-  m_Shader: {fileID: 4800000, guid: de636706fa30a6f46972181418fceacc, type: 3}
+  m_Name: TransparentGlowDynamicTrail
+  m_Shader: {fileID: 4800000, guid: 35a3b5965ef0499e83b440ff532f9097, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -29,18 +29,15 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _Alpha: 0.785
-    - _BlurRadius: 10.5
-    - _BlurStrength: 1.6
-    - _CrossDistortion: 1
-    - _DirectionalInfluence: 1
-    - _DistortionStrength: 30
-    - _Intensity: 12
-    - _NoiseFrequency: 1.7
+    - _Alpha: 0.127
+    - _CoreStrength: 0
+    - _CoreWidth: 0.22
+    - _EdgeSoftness: 0.18
+    - _FlowContrast: 4
+    - _Intensity: 2.87
     - _TailFade: 1
-    - _TintStrength: 0.437
     - _UVScrollSpeed: 0.8
     m_Colors:
-    - _TintColor: {r: 1.319508, g: 1.319508, b: 1.319508, a: 0.5}
+    - _TintColor: {r: 0.25, g: 1.2, b: 3, a: 0.55}
     - _UVTiling: {r: 1, g: 1, b: 0, a: 0}
   m_BuildTextureStacks: []
