@@ -29,14 +29,6 @@ namespace CombatPostFX
         [Range(10f, 400f)] public float glitchDensity;
         [Range(0f, 0.2f)] public float glitchDisplacement;
         [Range(0f, 0.05f)] public float glitchChannelSplit;
-        [Header("Speed Lines")]
-        [Range(0f, 1f)] public float speedLines;
-        [Range(4f, 100f)] public float speedLineDensity;
-        [Range(1f, 40f)] public float speedLineSharpness;
-        [Range(0f, 1f)] public float speedLineInnerRadius;
-        [Range(0f, 1.5f)] public float speedLineOuterRadius;
-        [Range(-10f, 10f)] public float speedLineRotationSpeed;
-        public Color speedLineColor;
         [Header("Film Grain")]
         [Range(0f, 1f)] public float filmGrain;
         [Range(0.25f, 8f)] public float filmGrainScale;
@@ -47,7 +39,7 @@ namespace CombatPostFX
         public bool IsVisible => radialBlur > 0.0001f || chromaticAberration > 0.0001f ||
                                  vignette > 0.0001f || flash > 0.0001f ||
                                  desaturation > 0.0001f || tintStrength > 0.0001f ||
-                                 glitch > 0.0001f || speedLines > 0.0001f || filmGrain > 0.0001f;
+                                 glitch > 0.0001f || filmGrain > 0.0001f;
 
         public static CombatPostFxSettings Default
         {
@@ -65,11 +57,6 @@ namespace CombatPostFX
                 value.glitchDensity = 150f;
                 value.glitchDisplacement = 0.055f;
                 value.glitchChannelSplit = 0.006f;
-                value.speedLineDensity = 34f;
-                value.speedLineSharpness = 18f;
-                value.speedLineInnerRadius = 0.12f;
-                value.speedLineOuterRadius = 0.72f;
-                value.speedLineColor = Color.white;
                 value.filmGrainScale = 1f;
                 value.filmGrainSpeed = 24f;
                 value.center = new Vector2(0.5f, 0.5f);
@@ -88,7 +75,6 @@ namespace CombatPostFX
                 value.flash = 0.22f;
                 value.flashColor = new Color(1f, 0.9f, 0.72f, 1f);
                 value.desaturation = 0.08f;
-                value.speedLines = 0.32f;
                 value.filmGrain = 0.06f;
                 return value;
             }
@@ -105,7 +91,6 @@ namespace CombatPostFX
                 value.flash = 0.38f;
                 value.desaturation = 0.65f;
                 value.glitch = 0.18f;
-                value.speedLines = 0.5f;
                 value.filmGrain = 0.12f;
                 return value;
             }

@@ -8,7 +8,6 @@
 - 闪白/彩色闪光
 - 去饱和
 - 横向故障撕裂
-- 程序化速度线
 - 胶片颗粒
 
 ## 推荐工作流：独立 Post FX 轨道
@@ -25,7 +24,6 @@
 - Flash
 - Color
 - Glitch
-- Speed Lines
 - Film Grain
 
 每条轨道单独拥有：
@@ -67,4 +65,4 @@ CombatPostFX.CombatPostFxRuntime.Pulse(settings, 0.16f);
 编辑器首次导入时会把 `Combat Post FX` Renderer Feature 安装到项目各档 URP Renderer。
 如更换或新增 Renderer，可执行 `Tools > Combat Post FX > Install Renderer Feature`。
 
-效果默认在 URP 内置后处理之前执行，因此闪光和速度线可以继续参与现有 Bloom 与 Tonemapping。
+效果默认在 URP 内置后处理之前执行，因此闪光可以继续参与现有 Bloom 与 Tonemapping。

@@ -60,17 +60,6 @@ namespace CombatPostFX
     }
 
     [Serializable]
-    public sealed class SpeedLinesTrack : CombatPostFxTrack
-    {
-        [Range(4f, 100f)] public float density = 34f;
-        [Range(1f, 40f)] public float sharpness = 18f;
-        [Range(0f, 1f)] public float innerRadius = 0.12f;
-        [Range(0f, 1.5f)] public float outerRadius = 0.72f;
-        [Range(-10f, 10f)] public float rotationSpeed;
-        public Color color = Color.white;
-    }
-
-    [Serializable]
     public sealed class FilmGrainTrack : CombatPostFxTrack
     {
         [Range(0.25f, 8f)] public float scale = 1f;
@@ -87,7 +76,6 @@ namespace CombatPostFX
         public FlashTrack flash = new FlashTrack { enabled = true, intensity = 0.18f };
         public ColorTrack color = new ColorTrack();
         public GlitchTrack glitch = new GlitchTrack();
-        public SpeedLinesTrack speedLines = new SpeedLinesTrack();
         public FilmGrainTrack filmGrain = new FilmGrainTrack();
 
         public void ApplyImpactPreset()
@@ -100,7 +88,6 @@ namespace CombatPostFX
                 color = new Color(1f, 0.9f, 0.72f, 1f) };
             color = new ColorTrack();
             glitch = new GlitchTrack();
-            speedLines = new SpeedLinesTrack { enabled = true, intensity = 0.22f };
             filmGrain = new FilmGrainTrack();
         }
 
@@ -113,8 +100,6 @@ namespace CombatPostFX
             flash = new FlashTrack { enabled = true, intensity = 0.38f };
             color = new ColorTrack { enabled = true, intensity = 0.65f, desaturation = 1f };
             glitch = new GlitchTrack { enabled = true, intensity = 0.16f };
-            speedLines = new SpeedLinesTrack { enabled = true, intensity = 0.5f,
-                rotationSpeed = 0.25f };
             filmGrain = new FilmGrainTrack { enabled = true, intensity = 0.12f };
         }
 
@@ -142,13 +127,6 @@ namespace CombatPostFX
             result.glitchDensity = glitch.rowDensity;
             result.glitchDisplacement = glitch.displacement;
             result.glitchChannelSplit = glitch.channelSplit;
-            result.speedLines = speedLines.Evaluate(normalizedTime);
-            result.speedLineDensity = speedLines.density;
-            result.speedLineSharpness = speedLines.sharpness;
-            result.speedLineInnerRadius = speedLines.innerRadius;
-            result.speedLineOuterRadius = Mathf.Max(speedLines.innerRadius + 0.001f, speedLines.outerRadius);
-            result.speedLineRotationSpeed = speedLines.rotationSpeed;
-            result.speedLineColor = speedLines.color;
             result.filmGrain = filmGrain.Evaluate(normalizedTime);
             result.filmGrainScale = filmGrain.scale;
             result.filmGrainSpeed = filmGrain.speed;
@@ -163,7 +141,6 @@ namespace CombatPostFX
             ValidateTrack(flash);
             ValidateTrack(color);
             ValidateTrack(glitch);
-            ValidateTrack(speedLines);
             ValidateTrack(filmGrain);
         }
 

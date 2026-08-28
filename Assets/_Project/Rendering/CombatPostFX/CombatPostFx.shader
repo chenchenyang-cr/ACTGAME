@@ -23,13 +23,11 @@ Shader "Hidden/Combat/PostFX"
             float4 _CombatFxVignette;
             float4 _CombatFxStyle;
             float4 _CombatFxGlitch;
-            float4 _CombatFxSpeedLines;
-            float4 _CombatFxSpeedRangeGrain;
+            float4 _CombatFxGrain;
             float _CombatFxGrainSpeed;
             float4 _CombatFxFlashColor;
             float4 _CombatFxVignetteColor;
             float4 _CombatFxTintColor;
-            float4 _CombatFxSpeedLineColor;
             float2 _CombatFxCenter;
 
             float Hash21(float2 value)
@@ -63,8 +61,8 @@ Shader "Hidden/Combat/PostFX"
                 // Six taps are enough for a short combat impulse and keep the pass mobile-friendly.
                 float2 radialStep = (center - uv) *
                                     (0.018 * _CombatFxLens0.x * _CombatFxLens0.y);
-                half3 color = 0;
-                color += SampleScene(uv);
+                half3 sceneColor = SampleScene(uv);
+                half3 color = sceneColor;
                 color += SampleScene(uv + radialStep);
                 color += SampleScene(uv + radialStep * 2.0);
                 color += SampleScene(uv + radialStep * 3.0);
@@ -77,8 +75,10 @@ Shader "Hidden/Combat/PostFX"
                 float chromaAmount = (0.0015 + radius * 0.006) *
                                      _CombatFxLens0.z * _CombatFxLens0.w;
                 float glitchSplit = _CombatFxGlitch.w * _CombatFxStyle.w * glitchGate;
-                color.r = SampleScene(uv + chromaDirection * chromaAmount + float2(glitchSplit, 0)).r;
-                color.b = SampleScene(uv - chromaDirection * chromaAmount - float2(glitchSplit, 0)).b;
+                color.r += SampleScene(uv + chromaDirection * chromaAmount +
+                                       float2(glitchSplit, 0)).r - sceneColor.r;
+                color.b += SampleScene(uv - chromaDirection * chromaAmount -
+                                       float2(glitchSplit, 0)).b - sceneColor.b;
 
                 half luminance = dot(color, half3(0.2126, 0.7152, 0.0722));
                 color = lerp(color, luminance.xxx, _CombatFxStyle.y);
@@ -88,23 +88,9 @@ Shader "Hidden/Combat/PostFX"
                                      _CombatFxVignette.x;
                 color = lerp(color, _CombatFxVignetteColor.rgb, saturate(vignetteMask));
 
-                // Procedural anime speed lines, concentrated away from the focal point.
-                float angle = atan2(aspectOffset.y, aspectOffset.x) * _CombatFxSpeedLines.y +
-                              _Time.y * _CombatFxSpeedLines.w;
-                float lineNoise = Hash21(float2(floor(angle), floor(_Time.y * 18.0)));
-                float lineShape = pow(saturate(sin(angle * 3.14159265) * 0.5 + 0.5),
-                                      _CombatFxSpeedLines.z);
-                float lineMask = lineShape * step(0.38, lineNoise) *
-                                 smoothstep(_CombatFxSpeedRangeGrain.x,
-                                            _CombatFxSpeedRangeGrain.x + 0.12, radius) *
-                                 (1.0 - smoothstep(_CombatFxSpeedRangeGrain.y * 0.72,
-                                                   _CombatFxSpeedRangeGrain.y, radius));
-                color += lineMask * _CombatFxSpeedLines.x *
-                         _CombatFxSpeedLineColor.rgb * (0.7 + color) * 0.65;
-
-                float grain = Hash21(input.positionCS.xy / max(_CombatFxSpeedRangeGrain.w, 0.01) +
+                float grain = Hash21(input.positionCS.xy / max(_CombatFxGrain.y, 0.01) +
                                      floor(_Time.y * _CombatFxGrainSpeed) * 17.0) - 0.5;
-                color += grain * (0.12 * _CombatFxSpeedRangeGrain.z + 0.08 * _CombatFxStyle.w);
+                color += grain * (0.12 * _CombatFxGrain.x + 0.08 * _CombatFxStyle.w);
 
                 color = lerp(color, _CombatFxFlashColor.rgb, saturate(_CombatFxStyle.x));
                 return half4(color, 1.0);

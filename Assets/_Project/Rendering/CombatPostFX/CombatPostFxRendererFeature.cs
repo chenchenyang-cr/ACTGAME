@@ -66,13 +66,11 @@ namespace CombatPostFX
             private static readonly int VignetteId = Shader.PropertyToID("_CombatFxVignette");
             private static readonly int StyleId = Shader.PropertyToID("_CombatFxStyle");
             private static readonly int GlitchId = Shader.PropertyToID("_CombatFxGlitch");
-            private static readonly int SpeedLinesId = Shader.PropertyToID("_CombatFxSpeedLines");
-            private static readonly int SpeedRangeGrainId = Shader.PropertyToID("_CombatFxSpeedRangeGrain");
+            private static readonly int GrainId = Shader.PropertyToID("_CombatFxGrain");
             private static readonly int GrainSpeedId = Shader.PropertyToID("_CombatFxGrainSpeed");
             private static readonly int FlashColorId = Shader.PropertyToID("_CombatFxFlashColor");
             private static readonly int VignetteColorId = Shader.PropertyToID("_CombatFxVignetteColor");
             private static readonly int TintColorId = Shader.PropertyToID("_CombatFxTintColor");
-            private static readonly int SpeedLineColorId = Shader.PropertyToID("_CombatFxSpeedLineColor");
             private static readonly int CenterId = Shader.PropertyToID("_CombatFxCenter");
 
             private readonly Material _material;
@@ -112,15 +110,11 @@ namespace CombatPostFX
                     fx.tintStrength, fx.glitch));
                 _material.SetVector(GlitchId, new Vector4(fx.glitchSpeed, fx.glitchDensity,
                     fx.glitchDisplacement, fx.glitchChannelSplit));
-                _material.SetVector(SpeedLinesId, new Vector4(fx.speedLines, fx.speedLineDensity,
-                    fx.speedLineSharpness, fx.speedLineRotationSpeed));
-                _material.SetVector(SpeedRangeGrainId, new Vector4(fx.speedLineInnerRadius,
-                    fx.speedLineOuterRadius, fx.filmGrain, fx.filmGrainScale));
+                _material.SetVector(GrainId, new Vector4(fx.filmGrain, fx.filmGrainScale, 0f, 0f));
                 _material.SetFloat(GrainSpeedId, fx.filmGrainSpeed);
                 _material.SetColor(FlashColorId, fx.flashColor);
                 _material.SetColor(VignetteColorId, fx.vignetteColor);
                 _material.SetColor(TintColorId, fx.tintColor);
-                _material.SetColor(SpeedLineColorId, fx.speedLineColor);
                 _material.SetVector(CenterId, fx.center);
 
                 CommandBuffer cmd = CommandBufferPool.Get();

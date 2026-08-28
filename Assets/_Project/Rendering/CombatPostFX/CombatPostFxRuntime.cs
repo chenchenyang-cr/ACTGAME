@@ -178,18 +178,6 @@ namespace CombatPostFX
                     result.glitchChannelSplit = value.glitchChannelSplit;
                 }
 
-                strength = value.speedLines * weight;
-                if (strength > result.speedLines)
-                {
-                    result.speedLines = strength;
-                    result.speedLineDensity = value.speedLineDensity;
-                    result.speedLineSharpness = value.speedLineSharpness;
-                    result.speedLineInnerRadius = value.speedLineInnerRadius;
-                    result.speedLineOuterRadius = value.speedLineOuterRadius;
-                    result.speedLineRotationSpeed = value.speedLineRotationSpeed;
-                    result.speedLineColor = value.speedLineColor;
-                }
-
                 strength = value.filmGrain * weight;
                 if (strength > result.filmGrain)
                 {

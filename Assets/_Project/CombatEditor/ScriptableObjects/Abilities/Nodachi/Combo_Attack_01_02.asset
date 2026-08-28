@@ -1,31 +1,5 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-6271182353690300249
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ca2229d21ed65194bac74b8298b11290, type: 3}
-  m_Name: Particles
-  m_EditorClassIdentifier: 
-  IsActive: 0
-  ObjData:
-    TargetObj: {fileID: 7212047850060897593, guid: 1bddde0101aa1e744bfa819371e6aa4f, type: 3}
-    controlType: 0
-    Offset: {x: -0.43179, y: 1.4566336, z: -0.6350255}
-    Rot: {x: 0.95049286, y: -0.30636942, z: 0.0327318, w: 0.040370937}
-    Scale: {x: 1, y: 1, z: 1}
-    TargetNode: 0
-    FollowNode: 1
-    RotateByNode: 0
-  TimeType: 1
-  PlaySpeed: 2
-  SizeMultiplier: 0.19
-  CenterOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &-5140003473789306864
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -123,7 +97,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   IsActive: 1
   Mode: 1
-  Speed: 0.7
+  Speed: 0.5
   SpeedCurve:
     serializedVersion: 2
     m_Curve:
@@ -237,7 +211,7 @@ MonoBehaviour:
     Previewable: 0
     Obj: {fileID: -2399235481202970989}
   - EventTime: 0
-    EventRange: {x: 0.055555556, y: 0.14444445}
+    EventRange: {x: 0.011111111, y: 0.14444445}
     EventMultiRange:
     - 0.2
     - 0.4
@@ -254,24 +228,6 @@ MonoBehaviour:
     - 0.8
     Previewable: 0
     Obj: {fileID: 3931622027713726647}
-  - EventTime: 0.14444445
-    EventRange: {x: 0, y: 1}
-    EventMultiRange:
-    - 0.2
-    - 0.4
-    - 0.6
-    - 0.8
-    Previewable: 0
-    Obj: {fileID: -6271182353690300249}
-  - EventTime: 0
-    EventRange: {x: 0.14444445, y: 0.42222223}
-    EventMultiRange:
-    - 0.2
-    - 0.4
-    - 0.6
-    - 0.8
-    Previewable: 0
-    Obj: {fileID: 140461098647744109}
   - EventTime: 0
     EventRange: {x: 0.14444445, y: 0.43333334}
     EventMultiRange:
@@ -290,7 +246,16 @@ MonoBehaviour:
     - 0.8
     Previewable: 0
     Obj: {fileID: -5140003473789306864}
---- !u!114 &140461098647744109
+  - EventTime: 0
+    EventRange: {x: 0.14444445, y: 0.4}
+    EventMultiRange:
+    - 0.2
+    - 0.4
+    - 0.6
+    - 0.8
+    Previewable: 0
+    Obj: {fileID: 4161944851256672177}
+--- !u!114 &3931622027713726647
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -299,8 +264,47 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f0f89d835ad546d6b481017177f509f9, type: 3}
-  m_Name: PostFxChromaticAberration
+  m_Script: {fileID: 11500000, guid: 28e2dd982f5c43b48b940242e405acc4, type: 3}
+  m_Name: AnimSpeed
+  m_EditorClassIdentifier: 
+  IsActive: 1
+  Mode: 1
+  Speed: 1.4
+  SpeedCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1.2
+      inSlope: -0.57341605
+      outSlope: -0.57341605
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.044761688
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+--- !u!114 &4161944851256672177
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 962496911cda4ad3ac90c50693573c5a, type: 3}
+  m_Name: PostFxRadialBlur
   m_EditorClassIdentifier: 
   IsActive: 1
   Intensity: 1
@@ -337,47 +341,8 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  Spread: 3
+  SampleDistance: 0.4
   FocusPoint: {x: 0.5, y: 0.5}
---- !u!114 &3931622027713726647
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 28e2dd982f5c43b48b940242e405acc4, type: 3}
-  m_Name: AnimSpeed
-  m_EditorClassIdentifier: 
-  IsActive: 1
-  Mode: 1
-  Speed: 1.6
-  SpeedCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 1.2
-      inSlope: -0.57341605
-      outSlope: -0.57341605
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0.044761688
-    - serializedVersion: 3
-      time: 1
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
 --- !u!114 &7728783125163918282
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -390,7 +355,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2c77cc69ff374f62b9c82cf1d60c7465, type: 3}
   m_Name: CameraShake
   m_EditorClassIdentifier: 
-  IsActive: 1
+  IsActive: 0
   TriggerMode: 0
   Settings:
     EnablePosition: 0

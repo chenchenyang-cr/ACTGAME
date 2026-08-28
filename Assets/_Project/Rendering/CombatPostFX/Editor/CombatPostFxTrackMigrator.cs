@@ -202,17 +202,6 @@ namespace CombatPostFX.Editor
                 track.ChannelSplit = source.glitch.channelSplit;
                 result.Add(track);
             }
-            if (source.speedLines.enabled)
-            {
-                var track = Create<AbilityEventObj_PostFxSpeedLines>(source.speedLines);
-                track.Density = source.speedLines.density;
-                track.Sharpness = source.speedLines.sharpness;
-                track.InnerRadius = source.speedLines.innerRadius;
-                track.OuterRadius = source.speedLines.outerRadius;
-                track.RotationSpeed = source.speedLines.rotationSpeed;
-                track.Color = source.speedLines.color;
-                result.Add(track);
-            }
             if (source.filmGrain.enabled)
             {
                 var track = Create<AbilityEventObj_PostFxFilmGrain>(source.filmGrain);
