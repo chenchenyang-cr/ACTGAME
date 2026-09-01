@@ -129,7 +129,7 @@ MonoBehaviour:
       m_RotationOrder: 4
     RotationSeed: 251
     EnableFov: 1
-    FovAmplitude: -4
+    FovAmplitude: -3
     FovCurve:
       serializedVersion: 2
       m_Curve:
@@ -457,5 +457,5 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  SampleDistance: 0.4
+  SampleDistance: 0.39
   FocusPoint: {x: 0.5, y: 0.5}

@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
 
+using UnityEngine.AI;
+
 namespace CombatEditor
 {
     [DisallowMultipleComponent]
@@ -8,6 +10,7 @@ namespace CombatEditor
         [SerializeField] private RootMotionReceiver receiver;
         [SerializeField] private Animator sourceAnimator;
         [SerializeField] private CharacterController characterController;
+        [SerializeField] private NavMeshAgent navMeshAgent;
         [SerializeField] private bool autoFindOnChildren = true;
 
         [Header("Locomotion Velocity Matching")]
@@ -48,7 +51,18 @@ namespace CombatEditor
         private void Awake()
         {
             ResolveCharacterController();
+            ResolveNavMeshAgent();
             TryResolveReceiver();
+        }
+
+        private void OnEnable()
+        {
+            ResolveNavMeshAgent();
+            if (navMeshAgent != null)
+            {
+                navMeshAgent.updatePosition = false;
+                navMeshAgent.updateRotation = false;
+            }
         }
 
         private void OnDisable()
@@ -202,6 +216,7 @@ namespace CombatEditor
             }
 
             transform.position += delta;
+            SyncNavMeshAgentToTransform();
         }
 
         private void ResolveCharacterController()
@@ -210,6 +225,26 @@ namespace CombatEditor
             {
                 characterController = GetComponent<CharacterController>();
             }
+        }
+
+        private void ResolveNavMeshAgent()
+        {
+            if (navMeshAgent == null)
+            {
+                navMeshAgent = GetComponent<NavMeshAgent>();
+            }
+        }
+
+        private void SyncNavMeshAgentToTransform()
+        {
+            ResolveNavMeshAgent();
+            if (navMeshAgent == null || !navMeshAgent.enabled || !navMeshAgent.isOnNavMesh)
+            {
+                return;
+            }
+
+            // Agent 只计算路径与期望速度，动画根运动拥有最终的位置写入权。
+            navMeshAgent.nextPosition = transform.position;
         }
 
         public void SetSourceAnimator(Animator animator)

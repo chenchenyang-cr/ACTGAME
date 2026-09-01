@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d58b693025680d547be27a11fbdc6646, type: 3}
+  m_Name: SwordEnemyConfig
+  m_EditorClassIdentifier: 
+  detectionDistance: 8
+  loseTargetDistance: 12
+  alertDuration: 0.45
+  chaseSpeed: 3.5
+  combatSpeed: 2.2
+  rotationSpeed: 540
+  arrivalTolerance: 0.3
+  combatEnterDistance: 4
+  chaseResumeDistance: 5
+  decisionInterval: 0.25
+  attackApproachAllowance: 2
+  postAttackRecovery: 0.8
+  defaultStaggerDuration: 0.45
+  attacks:
+  - displayName: "\u57FA\u7840\u65A9\u51FB"
+    ability: {fileID: 11400000, guid: d6dffb344daa61244a34f0853a5062ae, type: 2}
+    minimumRange: 0.8
+    maximumRange: 2.25
+    cooldown: 1.15
+    priority: 1
+    facingTolerance: 18
+    entryTolerance: 0.3
+  idleState: Idle
+  alertState: Alert
+  locomotionState: Locomotion
+  staggerState: Hit
+  deathState: Death
+  moveSpeedParameter: MoveSpeed
+  animationBlendDuration: 0.12

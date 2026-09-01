@@ -97,7 +97,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   IsActive: 1
   Mode: 1
-  Speed: 0.5
+  Speed: 1
   SpeedCurve:
     serializedVersion: 2
     m_Curve:

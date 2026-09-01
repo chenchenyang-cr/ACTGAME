@@ -63,7 +63,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   IsActive: 1
   Mode: 0
-  Speed: 1.6
+  Speed: 1.2
   SpeedCurve:
     serializedVersion: 2
     m_Curve:
@@ -120,7 +120,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   IsActive: 1
   Mode: 1
-  Speed: 0.5
+  Speed: 0.7
   SpeedCurve:
     serializedVersion: 2
     m_Curve:
@@ -434,7 +434,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   IsActive: 1
   Mode: 1
-  Speed: 1.1
+  Speed: 1
   SpeedCurve:
     serializedVersion: 2
     m_Curve:
@@ -449,7 +449,7 @@ MonoBehaviour:
       outWeight: 0.044761688
     - serializedVersion: 3
       time: 1
-      value: 1
+      value: 0.5
       inSlope: 0
       outSlope: 0
       tangentMode: 0
