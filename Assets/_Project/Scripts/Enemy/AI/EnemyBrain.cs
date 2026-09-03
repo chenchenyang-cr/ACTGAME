@@ -16,7 +16,10 @@ namespace UnityLearning.EnemySystem
             nextDecisionTime = 0f;
         }
 
-        public bool TrySelectAttack(float distanceToTarget, out EnemyAttackConfig selected)
+        public bool TrySelectAttack(
+            float distanceToTarget,
+            out EnemyAttackConfig selected,
+            bool allowLongApproach = false)
         {
             selected = null;
             if (config == null || config.Attacks == null || Time.time < nextDecisionTime)
@@ -29,7 +32,8 @@ namespace UnityLearning.EnemySystem
                 EnemyAttackConfig attack = config.Attacks[i];
                 if (attack == null || attack.Ability == null || !IsReady(attack))
                     continue;
-                if (distanceToTarget > attack.MaximumRange + config.AttackApproachAllowance)
+                if (!allowLongApproach &&
+                    distanceToTarget > attack.MaximumRange + config.AttackApproachAllowance)
                     continue;
 
                 float rangeError = Mathf.Abs(distanceToTarget - attack.PreferredRange);

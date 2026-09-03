@@ -7,7 +7,8 @@ using UnityEngine;
 /// Project-specific interpretation of generic CombatEditor gameplay windows.
 /// Keep this component outside CombatEditor so the editor package stays portable.
 /// </summary>
-public sealed class PlayerCombatAdapter : MonoBehaviour, ICombatGameplayWindowListener
+public sealed class PlayerCombatAdapter : MonoBehaviour, ICombatGameplayWindowListener,
+    ICombatTeamProvider
 {
     [SerializeField] private PlayerMovement movement;
     [SerializeField] private AbilityScriptableObject firstLightAttack;
@@ -16,8 +17,8 @@ public sealed class PlayerCombatAdapter : MonoBehaviour, ICombatGameplayWindowLi
     private readonly Dictionary<CombatWindowHandle, AbilityEventObj_RotationWindow> rotationWindows = new();
     private readonly Dictionary<CombatWindowHandle, AbilityEventObj_ComboWindow> comboWindows = new();
     private readonly Dictionary<CombatWindowHandle, AbilityEventObj_InterruptWindow> interruptWindows = new();
+    private readonly Dictionary<CombatWindowHandle, Transform> targetAssistTargets = new();
     private readonly HashSet<CombatWindowHandle> exitWindows = new();
-    private IPlayerCombatTargetAssist targetAssist;
     private CombatController combatController;
     private GameplayWindowAbilityRunner dodgeWindowRunner;
     private bool exitRequested;
@@ -26,6 +27,7 @@ public sealed class PlayerCombatAdapter : MonoBehaviour, ICombatGameplayWindowLi
     public AbilityScriptableObject FirstLightAttack => firstLightAttack;
     public AbilityScriptableObject DodgeAbility => dodgeAbility;
     public bool CanExitAttack => exitWindows.Count > 0;
+    public CombatTeam Team => CombatTeam.Player;
 
     private void Awake()
     {
@@ -33,7 +35,6 @@ public sealed class PlayerCombatAdapter : MonoBehaviour, ICombatGameplayWindowLi
         combatController = GetComponent<CombatController>();
         if (combatController == null) combatController = GetComponentInChildren<CombatController>();
         dodgeWindowRunner = new GameplayWindowAbilityRunner(combatController);
-        targetAssist = GetComponent<IPlayerCombatTargetAssist>();
     }
 
     private void OnDisable()
@@ -151,6 +152,10 @@ public sealed class PlayerCombatAdapter : MonoBehaviour, ICombatGameplayWindowLi
                 rotationWindows[context.Handle] = rotation;
                 ApplyRotationPolicy();
                 break;
+            case AbilityEventObj_TargetAssistWindow:
+                targetAssistTargets[context.Handle] = AcquireTarget();
+                ApplyRotationPolicy();
+                break;
             case AbilityEventObj_ComboWindow combo:
                 comboWindows[context.Handle] = combo;
                 break;
@@ -166,9 +171,20 @@ public sealed class PlayerCombatAdapter : MonoBehaviour, ICombatGameplayWindowLi
 
     public void OnCombatWindowUpdated(in CombatGameplayWindowContext context)
     {
-        if (context.Window is AbilityEventObj_TargetAssistWindow assist)
+        if (context.Window is AbilityEventObj_TargetAssistWindow)
         {
-            targetAssist?.ApplyTargetAssist(assist, context.NormalizedTime);
+            if (!targetAssistTargets.TryGetValue(context.Handle, out Transform target) ||
+                target == null || !target.gameObject.activeInHierarchy)
+            {
+                target = AcquireTarget();
+                targetAssistTargets[context.Handle] = target;
+            }
+
+            if (target != null)
+            {
+                Vector3 direction = target.position - transform.position;
+                movement?.FaceWorldDirectionImmediately(direction);
+            }
         }
     }
 
@@ -180,7 +196,8 @@ public sealed class PlayerCombatAdapter : MonoBehaviour, ICombatGameplayWindowLi
         comboWindows.Remove(context.Handle);
         interruptWindows.Remove(context.Handle);
         exitWindows.Remove(context.Handle);
-        if (rotationPolicyChanged)
+        bool targetAssistChanged = targetAssistTargets.Remove(context.Handle);
+        if (rotationPolicyChanged || targetAssistChanged)
         {
             ApplyRotationPolicy();
         }
@@ -199,6 +216,14 @@ public sealed class PlayerCombatAdapter : MonoBehaviour, ICombatGameplayWindowLi
     private void ApplyRotationPolicy()
     {
         if (movement == null) return;
+
+        // Direction assist owns facing while active. Root-motion translation is
+        // preserved, but authored root rotation must not pull away from the target.
+        if (targetAssistTargets.Count > 0)
+        {
+            movement.SetRotationMode(PlayerRotationMode.Preserve);
+            return;
+        }
 
         AbilityEventObj_RotationWindow selected = null;
         foreach (AbilityEventObj_RotationWindow window in rotationWindows.Values)
@@ -233,7 +258,42 @@ public sealed class PlayerCombatAdapter : MonoBehaviour, ICombatGameplayWindowLi
         comboWindows.Clear();
         interruptWindows.Clear();
         exitWindows.Clear();
+        targetAssistTargets.Clear();
         exitRequested = false;
+    }
+
+    private Transform AcquireTarget()
+    {
+        float nearestDistanceSqr = float.PositiveInfinity;
+        Transform nearest = null;
+        MonoBehaviour[] behaviours = FindObjectsOfType<MonoBehaviour>();
+
+        for (int i = 0; i < behaviours.Length; i++)
+        {
+            if (behaviours[i] is not ICombatDamageReceiver receiver ||
+                receiver.Team != CombatTeam.Enemy)
+            {
+                continue;
+            }
+
+            Transform candidate = behaviours[i].transform;
+            if (candidate.root == transform.root)
+            {
+                continue;
+            }
+
+            Vector3 offset = candidate.position - transform.position;
+            offset.y = 0f;
+
+            float distanceSqr = offset.sqrMagnitude;
+            if (distanceSqr <= nearestDistanceSqr)
+            {
+                nearestDistanceSqr = distanceSqr;
+                nearest = candidate;
+            }
+        }
+
+        return nearest;
     }
 
     private sealed class GameplayWindowAbilityRunner
@@ -340,13 +400,4 @@ public sealed class PlayerCombatAdapter : MonoBehaviour, ICombatGameplayWindowLi
             }
         }
     }
-}
-
-/// <summary>
-/// Optional project-side hook for the lock-on/targeting implementation. A game may
-/// move with CharacterController, Rigidbody or networking without changing CombatEditor.
-/// </summary>
-public interface IPlayerCombatTargetAssist
-{
-    void ApplyTargetAssist(AbilityEventObj_TargetAssistWindow config, float normalizedTime);
 }

@@ -3,9 +3,22 @@ using UnityEngine;
 
 namespace CombatCamera
 {
+    public enum CameraShakeChannel
+    {
+        Impact,
+        Movement,
+        Environment,
+        Cinematic
+    }
+
     [Serializable]
     public sealed class CameraShakeSettings
     {
+        [Header("Channel And Trauma")]
+        public CameraShakeChannel Channel = CameraShakeChannel.Impact;
+        [Range(0f, 1f)] public float TraumaPerPulse = 0.65f;
+        [Min(1f)] public float TraumaExponent = 2f;
+
         [Header("Position (Camera Local Space)")]
         public bool EnablePosition = true;
         public Vector3 PositionAmplitude = new Vector3(0.08f, 0.05f, 0.03f);
@@ -28,6 +41,14 @@ namespace CombatCamera
         public AnimationCurve FovCurve = new AnimationCurve(
             new Keyframe(0f, 0f),
             new Keyframe(0.2f, 1f),
+            new Keyframe(1f, 0f));
+
+        [Header("Directional Impulse (World Space)")]
+        public bool EnableDirectionalImpulse;
+        [Tooltip("World-space displacement along the incoming force direction. Use a negative value to recoil against the force.")]
+        public float DirectionalPositionAmplitude = -0.08f;
+        public AnimationCurve DirectionalImpulseCurve = new AnimationCurve(
+            new Keyframe(0f, 1f),
             new Keyframe(1f, 0f));
 
         public CameraShakeSample Evaluate(float sampleTime, float normalizedTime,
@@ -86,23 +107,27 @@ namespace CombatCamera
 
     public readonly struct CameraShakeSample
     {
-        public CameraShakeSample(Vector3 position, Vector3 rotation, float fov)
+        public CameraShakeSample(Vector3 position, Vector3 rotation, float fov,
+            Vector3 worldPosition = default)
         {
             Position = position;
             Rotation = rotation;
             Fov = fov;
+            WorldPosition = worldPosition;
         }
 
         public Vector3 Position { get; }
         public Vector3 Rotation { get; }
         public float Fov { get; }
+        public Vector3 WorldPosition { get; }
 
         public static CameraShakeSample operator +(CameraShakeSample a, CameraShakeSample b)
         {
             return new CameraShakeSample(
                 a.Position + b.Position,
                 a.Rotation + b.Rotation,
-                a.Fov + b.Fov);
+                a.Fov + b.Fov,
+                a.WorldPosition + b.WorldPosition);
         }
     }
 }

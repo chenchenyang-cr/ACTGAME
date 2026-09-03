@@ -3,7 +3,8 @@ using UnityEngine;
 
 namespace UnityLearning.EnemySystem
 {
-    public sealed class EnemyCombatAdapter : MonoBehaviour, ICombatGameplayWindowListener
+    public sealed class EnemyCombatAdapter : MonoBehaviour, ICombatGameplayWindowListener,
+        ICombatTeamProvider
     {
         [SerializeField] private Animator animator;
         [SerializeField] private CombatController combatController;
@@ -16,6 +17,7 @@ namespace UnityLearning.EnemySystem
 
         public EnemyAttackConfig CurrentAttack { get; private set; }
         public bool IsAttacking => CurrentAttack != null;
+        public CombatTeam Team => CombatTeam.Enemy;
 
         private void Awake()
         {

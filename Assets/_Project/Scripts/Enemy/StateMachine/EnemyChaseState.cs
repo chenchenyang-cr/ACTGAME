@@ -7,7 +7,6 @@ namespace UnityLearning.EnemySystem
 
         public override void Enter()
         {
-            Controller.Motor?.SetSpeed(Controller.Config.ChaseSpeed);
             Controller.PlayLocomotion();
         }
 

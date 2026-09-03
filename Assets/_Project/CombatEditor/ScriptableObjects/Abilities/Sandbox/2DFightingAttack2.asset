@@ -166,8 +166,6 @@ MonoBehaviour:
     RotateByNode: 0
   ColliderOffset: {x: 0, y: 0, z: -0.12031689}
   ColliderSize: {x: 1, y: 1, z: 1.4696195}
-  Radius: 1
-  Height: 1
 --- !u!114 &5766600694809400285
 MonoBehaviour:
   m_ObjectHideFlags: 0

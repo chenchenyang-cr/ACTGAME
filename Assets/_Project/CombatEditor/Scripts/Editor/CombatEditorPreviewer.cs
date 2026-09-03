@@ -185,7 +185,7 @@ using UnityEngine.SceneManagement;
 	
 	   
 	
-	    int TotalFrame => (int)(AbilityObj.Clip.length * 60);
+	    int TotalFrame => (int)(AbilityObj.Clip.length * CombatTimeline.FramesPerSecond);
 	
 	
 	    /// <summary>
@@ -396,7 +396,7 @@ using UnityEngine.SceneManagement;
 	            return percentage;
 	        }
 
-	        int totalFrames = Mathf.Max(1, Mathf.RoundToInt(AbilityObj.Clip.length * 60));
+	        int totalFrames = Mathf.Max(1, Mathf.RoundToInt(AbilityObj.Clip.length * CombatTimeline.FramesPerSecond));
 	        int targetFrame = Mathf.RoundToInt(percentage * totalFrames);
 	        float scaledPercentage = 0;
 

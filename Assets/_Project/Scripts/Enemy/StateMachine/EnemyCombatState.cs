@@ -14,7 +14,6 @@ namespace UnityLearning.EnemySystem
 
         public override void Enter()
         {
-            Controller.Motor?.SetSpeed(Controller.Config.CombatSpeed);
             tacticalStateMachine.Start();
         }
 
@@ -28,7 +27,8 @@ namespace UnityLearning.EnemySystem
             }
 
             if (Controller.DistanceToTarget() > Controller.Config.ChaseResumeDistance &&
-                tacticalStateMachine.CurrentTactic != EnemyCombatTactic.ExecuteAttack)
+                tacticalStateMachine.CurrentTactic != EnemyCombatTactic.ExecuteAttack &&
+                tacticalStateMachine.CurrentTactic != EnemyCombatTactic.MoveToAttackRange)
             {
                 Controller.StateMachine.ChangeState(Controller.StateMachine.ChaseState);
                 return;

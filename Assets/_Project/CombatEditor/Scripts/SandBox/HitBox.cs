@@ -1,51 +1,51 @@
-﻿
 using System.Collections.Generic;
 using UnityEngine;
-	
- namespace CombatEditor
-{	
-	public class HitBox : MonoBehaviour
-	{
+
+namespace CombatEditor
+{
+    public class HitBox : MonoBehaviour
+    {
+        private sealed class TargetHitState
+        {
+            public int HitCount;
+            public int NextEligibleFrame;
+        }
+
         public CombatController Owner;
         public AbilityScriptableObject SourceAbility { get; private set; }
         public AbilityEventObj_CreateHitBox SourceEvent { get; private set; }
 
-        [Header("Filtering")]
-        public LayerMask hitTargetLayers = ~0;
+        // Fallback for legacy hit-boxes created without an ability event.
+        [HideInInspector] public LayerMask hitTargetLayers = ~0;
 
-        [Header("Multi Hit")]
-        public bool allowMultiHit;
-        [Min(0.01f)] public float multiHitInterval = 0.1f;
-        [Min(0f)] public float repeatedHitCameraShakeMultiplier = 1f;
-        [Min(0f)] public float repeatedHitStopMultiplier = 1f;
-
-        private readonly HashSet<int> hitTargets = new HashSet<int>();
-        private readonly Dictionary<int, float> nextHitTimes = new Dictionary<int, float>();
-        private readonly Dictionary<int, int> hitCounts = new Dictionary<int, int>();
+        private readonly Dictionary<int, TargetHitState> targetStates = new();
         private IHitBoxHitSource hitSource;
+        private CombatTeam sourceTeam;
+        private int currentAnimationFrame;
         private Vector3 lastSampledPosition;
         private Vector3 lastMotionDirection = Vector3.forward;
         private bool hasLastSampledPosition;
-  
+
         public void Init(CombatController controller, AbilityScriptableObject sourceAbility = null,
             AbilityEventObj_CreateHitBox sourceEvent = null)
         {
             Owner = controller;
             SourceAbility = sourceAbility;
             SourceEvent = sourceEvent;
-            hitTargets.Clear();
-            nextHitTimes.Clear();
-            hitCounts.Clear();
-            hitSource = null;
-            if (Owner == null)
-            {
-                return;
-            }
-
-            hitSource = ResolveHitSource(Owner);
+            targetStates.Clear();
+            hitSource = ResolveInterface<IHitBoxHitSource>(Owner);
+            ICombatTeamProvider teamProvider = ResolveInterface<ICombatTeamProvider>(Owner);
+            sourceTeam = teamProvider != null ? teamProvider.Team : CombatTeam.Neutral;
+            currentAnimationFrame = 0;
             lastSampledPosition = transform.position;
             lastMotionDirection = ResolveFallbackDirection();
             hasLastSampledPosition = true;
+        }
+
+        public void UpdateAnimationTime(float normalizedTime)
+        {
+            currentAnimationFrame = CombatTimeline.ToFrame(normalizedTime,
+                SourceAbility != null ? SourceAbility.Clip : null);
         }
 
         public Vector3 CurrentMotionDirection
@@ -54,219 +54,167 @@ using UnityEngine;
             {
                 RefreshMotionDirection();
                 if (lastMotionDirection.sqrMagnitude <= 0.0001f)
-                {
                     lastMotionDirection = ResolveFallbackDirection();
-                }
-
                 return lastMotionDirection;
             }
         }
 
-        private void OnTriggerEnter(Collider other)
-        {
+        private void OnTriggerEnter(Collider other) =>
             TryProcessHit(other, ResolveHitPoint(other));
-        }
 
-        private void OnTriggerStay(Collider other)
-        {
+        private void OnTriggerStay(Collider other) =>
             TryProcessHit(other, ResolveHitPoint(other));
-        }
-
-        private void OnTriggerExit(Collider other)
-        {
-            ClearMultiHitTracking(other);
-        }
 
         private void OnTriggerEnter2D(Collider2D other)
         {
-            Vector3 hitPoint = other != null ? other.ClosestPoint(transform.position) : transform.position;
-            TryProcessHit(other, hitPoint);
+            Vector3 point = other != null
+                ? other.ClosestPoint(transform.position)
+                : transform.position;
+            TryProcessHit(other, point);
         }
 
         private void OnTriggerStay2D(Collider2D other)
         {
-            Vector3 hitPoint = other != null ? other.ClosestPoint(transform.position) : transform.position;
-            TryProcessHit(other, hitPoint);
-        }
-
-        private void OnTriggerExit2D(Collider2D other)
-        {
-            ClearMultiHitTracking(other);
+            Vector3 point = other != null
+                ? other.ClosestPoint(transform.position)
+                : transform.position;
+            TryProcessHit(other, point);
         }
 
         private void TryProcessHit(Component other, Vector3 hitPoint)
         {
             RefreshMotionDirection();
-
-            if (Owner == null || other == null || hitSource == null)
-            {
+            if (Owner == null || other == null || !IsInHitTargetLayer(other.gameObject.layer))
                 return;
-            }
 
-            if (!IsInHitTargetLayer(other.gameObject.layer))
-            {
+            if (!TryResolveDamageReceiver(other, out ICombatDamageReceiver receiver,
+                    out MonoBehaviour receiverBehaviour))
                 return;
-            }
-
-            Transform otherRoot = other.transform.root;
-            if (otherRoot == null || otherRoot == Owner.transform.root)
-            {
+            if (receiverBehaviour.transform.root == Owner.transform.root)
                 return;
-            }
-
-            int targetId = otherRoot.gameObject.GetInstanceID();
-            if (!allowMultiHit && hitTargets.Contains(targetId))
-            {
+            if (SourceEvent != null && !SourceEvent.AllowFriendlyFire &&
+                sourceTeam != CombatTeam.Neutral && receiver.Team == sourceTeam)
                 return;
+
+            int targetId = receiverBehaviour.GetInstanceID();
+            if (!targetStates.TryGetValue(targetId, out TargetHitState state))
+            {
+                state = new TargetHitState();
+                targetStates.Add(targetId, state);
             }
 
-            if (allowMultiHit &&
-                nextHitTimes.TryGetValue(targetId, out float nextHitTime) &&
-                Time.time < nextHitTime)
-            {
+            CombatHitMode hitMode = SourceEvent != null
+                ? SourceEvent.HitMode
+                : CombatHitMode.Single;
+            if (state.HitCount > 0 && hitMode == CombatHitMode.Single)
                 return;
-            }
+            if (SourceEvent != null && SourceEvent.MaximumHitsPerTarget > 0 &&
+                state.HitCount >= SourceEvent.MaximumHitsPerTarget)
+                return;
+            if (hitMode == CombatHitMode.Repeated && state.HitCount > 0 &&
+                currentAnimationFrame < state.NextEligibleFrame)
+                return;
 
-            int previousHitCount = 0;
-            hitCounts.TryGetValue(targetId, out previousHitCount);
-            int hitSequenceIndex = previousHitCount + 1;
-            HitBoxHitContext hitContext = new HitBoxHitContext(
-                hitSequenceIndex,
-                EvaluateScale(repeatedHitCameraShakeMultiplier, previousHitCount),
-                EvaluateScale(repeatedHitStopMultiplier, previousHitCount));
+            int hitSequenceIndex = state.HitCount + 1;
+            HitBoxHitContext hitContext = new HitBoxHitContext(hitSequenceIndex, 1f, 1f);
+            Vector3 attackDirection = CurrentMotionDirection;
+            CombatHitRequest request = BuildRequest(other, hitPoint, attackDirection,
+                hitSequenceIndex);
 
-            if (hitSource.TryHandleHit(this, other, hitPoint, hitContext,
-                    out CombatHitResolution resolution) && resolution.IsAccepted)
+            CombatHitResolution resolution;
+            bool handled = hitSource != null
+                ? hitSource.TryHandleHit(this, other, hitPoint, hitContext, out resolution)
+                : receiver.TryReceiveHit(in request, out resolution);
+            if (!handled || !resolution.IsAccepted)
+                return;
+
+            state.HitCount = hitSequenceIndex;
+            if (hitMode == CombatHitMode.Repeated)
             {
-                CombatHitEventBus.Publish(new CombatHitConfirmedEvent(
-                    Owner,
-                    SourceAbility,
-                    SourceEvent,
-                    this,
-                    other,
-                    otherRoot.gameObject,
-                    hitPoint,
-                    CurrentMotionDirection,
-                    hitContext,
-                    resolution));
-
-                hitCounts[targetId] = hitSequenceIndex;
-                if (allowMultiHit)
-                {
-                    nextHitTimes[targetId] = Time.time + Mathf.Max(0.01f, multiHitInterval);
-                }
-                else
-                {
-                    hitTargets.Add(targetId);
-                }
+                int interval = SourceEvent != null
+                    ? Mathf.Max(1, SourceEvent.RepeatIntervalFrames)
+                    : 1;
+                state.NextEligibleFrame = currentAnimationFrame + interval;
             }
+
+            if (SourceEvent != null && SourceEvent.EnableHitCameraShake)
+            {
+                CombatCamera.CameraShakeRuntime.Pulse(
+                    SourceEvent.HitCameraShakeSettings,
+                    SourceEvent.HitCameraShakeDuration,
+                    Mathf.Max(0f, resolution.CameraShakeScale),
+                    SourceEvent.HitCameraShakeUseUnscaledTime,
+                    attackDirection);
+            }
+            CombatHitEventBus.Publish(new CombatHitConfirmedEvent(Owner, SourceAbility,
+                SourceEvent, this, other, receiverBehaviour.gameObject, hitPoint,
+                attackDirection, hitContext, resolution));
         }
 
-        private Vector3 ResolveHitPoint(Collider other)
+        private CombatHitRequest BuildRequest(Component other, Vector3 hitPoint,
+            Vector3 attackDirection, int hitSequenceIndex)
         {
-            if (other == null)
-            {
-                return transform.position;
-            }
+            float damage = SourceEvent != null ? SourceEvent.Damage : 0f;
+            float poiseDamage = SourceEvent != null ? SourceEvent.PoiseDamage : 0f;
+            float staggerDuration = SourceEvent != null ? SourceEvent.StaggerDuration : 0f;
+            CombatHitReactionPolicy reaction = SourceEvent != null
+                ? SourceEvent.HitReaction
+                : CombatHitReactionPolicy.None;
 
-            if (CanUseClosestPoint(other))
-            {
-                return other.ClosestPoint(transform.position);
-            }
-
-            return other.bounds.ClosestPoint(transform.position);
-        }
-
-        private static bool CanUseClosestPoint(Collider other)
-        {
-            if (other == null)
-            {
-                return false;
-            }
-
-            if (other is BoxCollider || other is SphereCollider || other is CapsuleCollider)
-            {
-                return true;
-            }
-
-            MeshCollider meshCollider = other as MeshCollider;
-            return meshCollider != null && meshCollider.convex;
+            return new CombatHitRequest(Owner, SourceAbility, SourceEvent, this, other,
+                hitPoint, attackDirection, hitSequenceIndex, damage, poiseDamage,
+                reaction, staggerDuration);
         }
 
         private bool IsInHitTargetLayer(int layer)
         {
-            return (hitTargetLayers.value & (1 << layer)) != 0;
+            LayerMask mask = SourceEvent != null ? SourceEvent.TargetLayers : hitTargetLayers;
+            return (mask.value & (1 << layer)) != 0;
         }
 
-        private static IHitBoxHitSource ResolveHitSource(CombatController owner)
+        private static bool TryResolveDamageReceiver(Component other,
+            out ICombatDamageReceiver receiver, out MonoBehaviour receiverBehaviour)
         {
-            if (owner == null)
+            MonoBehaviour[] behaviours = other.GetComponentsInParent<MonoBehaviour>(true);
+            for (int i = 0; i < behaviours.Length; i++)
             {
-                return null;
-            }
-
-            MonoBehaviour[] selfBehaviours = owner.GetComponents<MonoBehaviour>();
-            for (int i = 0; i < selfBehaviours.Length; i++)
-            {
-                if (selfBehaviours[i] is IHitBoxHitSource selfSource)
+                if (behaviours[i] is ICombatDamageReceiver candidate)
                 {
-                    return selfSource;
+                    receiver = candidate;
+                    receiverBehaviour = behaviours[i];
+                    return true;
                 }
             }
 
-            MonoBehaviour[] parentBehaviours = owner.GetComponentsInParent<MonoBehaviour>(true);
-            for (int i = 0; i < parentBehaviours.Length; i++)
-            {
-                if (parentBehaviours[i] is IHitBoxHitSource parentSource)
-                {
-                    return parentSource;
-                }
-            }
+            receiver = null;
+            receiverBehaviour = null;
+            return false;
+        }
 
-            MonoBehaviour[] childBehaviours = owner.GetComponentsInChildren<MonoBehaviour>(true);
-            for (int i = 0; i < childBehaviours.Length; i++)
-            {
-                if (childBehaviours[i] is IHitBoxHitSource childSource)
-                {
-                    return childSource;
-                }
-            }
+        private static T ResolveInterface<T>(CombatController owner) where T : class
+        {
+            if (owner == null) return null;
+            MonoBehaviour[] behaviours = owner.GetComponentsInParent<MonoBehaviour>(true);
+            for (int i = 0; i < behaviours.Length; i++)
+                if (behaviours[i] is T candidate) return candidate;
 
+            behaviours = owner.GetComponentsInChildren<MonoBehaviour>(true);
+            for (int i = 0; i < behaviours.Length; i++)
+                if (behaviours[i] is T candidate) return candidate;
             return null;
         }
 
-        private void ClearMultiHitTracking(Component other)
+        private Vector3 ResolveHitPoint(Collider other)
         {
-            if (!allowMultiHit || other == null)
-            {
-                return;
-            }
-
-            Transform otherRoot = other.transform.root;
-            if (otherRoot == null || otherRoot == Owner.transform.root)
-            {
-                return;
-            }
-
-            int targetId = otherRoot.gameObject.GetInstanceID();
-            nextHitTimes.Remove(targetId);
-            hitCounts.Remove(targetId);
+            if (other == null) return transform.position;
+            if (other is BoxCollider || other is SphereCollider || other is CapsuleCollider)
+                return other.ClosestPoint(transform.position);
+            if (other is MeshCollider meshCollider && meshCollider.convex)
+                return other.ClosestPoint(transform.position);
+            return other.bounds.ClosestPoint(transform.position);
         }
 
-        private static float EvaluateScale(float multiplier, int repeatedHitCount)
-        {
-            if (repeatedHitCount <= 0)
-            {
-                return 1f;
-            }
-
-            return Mathf.Pow(multiplier, repeatedHitCount);
-        }
-
-        private void LateUpdate()
-        {
-            RefreshMotionDirection();
-        }
+        private void LateUpdate() => RefreshMotionDirection();
 
         private void RefreshMotionDirection()
         {
@@ -280,23 +228,14 @@ using UnityEngine;
             }
 
             Vector3 delta = currentPosition - lastSampledPosition;
-            if (delta.sqrMagnitude > 0.000001f)
-            {
-                lastMotionDirection = delta.normalized;
-            }
-
+            if (delta.sqrMagnitude > 0.000001f) lastMotionDirection = delta.normalized;
             lastSampledPosition = currentPosition;
         }
 
         private Vector3 ResolveFallbackDirection()
         {
-            Vector3 fallbackDirection = Owner != null ? Owner.transform.forward : transform.forward;
-            if (fallbackDirection.sqrMagnitude <= 0.0001f)
-            {
-                fallbackDirection = Vector3.forward;
-            }
-
-            return fallbackDirection.normalized;
+            Vector3 direction = Owner != null ? Owner.transform.forward : transform.forward;
+            return direction.sqrMagnitude > 0.0001f ? direction.normalized : Vector3.forward;
         }
     }
 }

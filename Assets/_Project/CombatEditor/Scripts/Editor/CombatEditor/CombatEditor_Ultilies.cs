@@ -257,7 +257,7 @@ using UnityEngine;
                 }
 	            if (SelectedAbilityObj.Clip != null)
 	            {
-	                AnimFrameCount = (int)(SelectedAbilityObj.Clip.length * 60);
+                AnimFrameCount = (int)(SelectedAbilityObj.Clip.length * CombatTimeline.FramesPerSecond);
 	            }
 	            else
 	            {

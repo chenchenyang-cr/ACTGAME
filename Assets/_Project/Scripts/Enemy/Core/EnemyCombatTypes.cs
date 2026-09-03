@@ -19,9 +19,14 @@ namespace UnityLearning.EnemySystem
     public enum EnemyCombatTactic
     {
         None,
-        SelectAttack,
+        ApproachSlot,
+        Orbit,
+        Pressure,
+        Yield,
         MoveToAttackRange,
         ExecuteAttack,
-        Recover
+        AttackRecovery,
+        Retreat
     }
+
 }

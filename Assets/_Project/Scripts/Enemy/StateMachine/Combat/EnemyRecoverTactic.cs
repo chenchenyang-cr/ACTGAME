@@ -5,12 +5,14 @@ namespace UnityLearning.EnemySystem
         private float remaining;
 
         public EnemyRecoverTactic(EnemyCombatTacticalStateMachine machine) : base(machine) { }
-        public override EnemyCombatTactic Id => EnemyCombatTactic.Recover;
+        public override EnemyCombatTactic Id => EnemyCombatTactic.AttackRecovery;
 
         public override void Enter()
         {
-            remaining = Controller.Config.PostAttackRecovery;
-            Blackboard.SelectedAttack = null;
+            Controller.ReleaseAttackToken();
+            remaining = UnityEngine.Mathf.Min(
+                0.2f,
+                Controller.Config.PostAttackRecovery * 0.25f);
             Controller.Motor?.Stop();
             Controller.PlayIdle();
         }
@@ -22,7 +24,7 @@ namespace UnityLearning.EnemySystem
 
             remaining -= deltaTime;
             if (remaining <= 0f)
-                Machine.ChangeState(Machine.SelectAttackState);
+                Machine.ChangeState(Machine.RetreatState);
         }
     }
 }

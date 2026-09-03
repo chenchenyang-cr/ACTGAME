@@ -5,12 +5,9 @@ Shader "CombatEditor/AirBlurWeaponTrailURP"
         _MainTex ("Distortion Mask", 2D) = "white" {}
         [HDR] _TintColor ("Air Edge Tint", Color) = (0.55, 0.85, 1, 0.5)
         _Intensity ("Edge Brightness", Range(0, 12)) = 1.5
-        _BlurRadius ("Blur Radius (Pixels)", Range(0, 32)) = 8
-        _BlurStrength ("Blur Strength", Range(0, 2)) = 1
         _DistortionStrength ("Distortion (Pixels)", Range(0, 30)) = 8
         _NoiseFrequency ("Air Wave Frequency", Range(0.1, 30)) = 9
-        _DirectionalInfluence ("Swing Direction Influence", Range(0, 1)) = 0.9
-        _CrossDistortion ("Cross Distortion", Range(0, 1)) = 0.3
+        [Enum(U, 0, V, 1)] _DistortionAxis ("Distortion UV Axis", Float) = 0
         _TintStrength ("Air Tint Strength", Range(0, 1)) = 0.35
         _UVTiling ("Mask Tiling", Vector) = (1, 1, 0, 0)
         _UVScrollSpeed ("Air Flow Speed", Float) = 0.8
@@ -30,9 +27,15 @@ Shader "CombatEditor/AirBlurWeaponTrailURP"
         Pass
         {
             Name "WeaponTrail"
-            Blend SrcAlpha OneMinusSrcAlpha
+            // The pass replaces the covered pixels with refracted scene color.
+            // Keeping alpha blending here can reintroduce the undistorted frame.
+            Blend One Zero
             Cull Off
             ZWrite Off
+            // Opaque characters have already written depth before this transparent
+            // pass. The distortion must still draw over those pixels; otherwise the
+            // original character remains while only its displaced copy is visible.
+            ZTest Always
 
             HLSLPROGRAM
             #pragma vertex Vert
@@ -65,12 +68,9 @@ Shader "CombatEditor/AirBlurWeaponTrailURP"
                 float _TailFade;
                 float _Intensity;
                 float _Alpha;
-                float _BlurRadius;
-                float _BlurStrength;
                 float _DistortionStrength;
                 float _NoiseFrequency;
-                float _DirectionalInfluence;
-                float _CrossDistortion;
+                float _DistortionAxis;
                 float _TintStrength;
             CBUFFER_END
 
@@ -105,63 +105,46 @@ Shader "CombatEditor/AirBlurWeaponTrailURP"
                 half tail = smoothstep(0.0, max(_TailFade, 0.0001), input.uv.x);
                 half sideFade = smoothstep(0.0, 0.14, input.uv.y) *
                                 (1.0 - smoothstep(0.86, 1.0, input.uv.y));
+                half coverage = saturate(mask * tail * sideFade);
 
                 float time = _Time.y * _UVScrollSpeed;
-                float waveA = sin((input.uv.x * _NoiseFrequency + time) * 6.2831853);
-                float waveB = cos((input.uv.x * (_NoiseFrequency * 0.63) - time * 1.37 + input.uv.y) * 6.2831853);
+                float waveA = sin((input.uv.x * _NoiseFrequency +
+                    input.uv.y * 1.73 + time) * 6.2831853);
+                float waveB = cos((input.uv.x * (_NoiseFrequency * 0.63) -
+                    time * 1.37 + input.uv.y * 2.31) * 6.2831853);
                 float2 screenUV = input.screenPosition.xy / input.screenPosition.w;
                 float2 texel = rcp(_ScreenParams.xy);
                 float2 swingDirection = normalize(input.swingDirection + float2(0.00001, 0));
+                // Trail U follows the swing; trail V crosses the ribbon. Keep the
+                // refraction on one selected UV axis so it reads as compressed air
+                // produced by the weapon motion instead of free two-axis noise.
                 float2 crossDirection = float2(-swingDirection.y, swingDirection.x);
-                float2 directionalWave = swingDirection * waveA +
-                    crossDirection * (waveB * _CrossDistortion);
-                float2 legacyWave = float2(waveA, waveB);
-                float2 distortionDirection = lerp(
-                    legacyWave, directionalWave, _DirectionalInfluence);
-                float2 distortion = distortionDirection *
-                    (_DistortionStrength * texel) * mask;
-                float2 blurStep = texel * _BlurRadius;
+                float2 distortionAxis = lerp(
+                    swingDirection, crossDirection, step(0.5, _DistortionAxis));
+                float distortionWave = lerp(waveA, waveB, step(0.5, _DistortionAxis));
+                // Fade displacement to zero at every ribbon boundary. A constant,
+                // full-strength offset copies an entire character silhouette beside
+                // the original instead of bending it like local air refraction.
+                float2 distortion = distortionAxis * distortionWave *
+                    (_DistortionStrength * texel) * coverage * coverage;
                 float2 sampleUV = saturate(screenUV + distortion);
 
+                // Capture exactly one opaque-scene sample at the warped coordinate
+                // and replace the covered pixel with it. Multi-tap blur would sample
+                // the character several times and create the unwanted dark echo.
                 half3 sourceColor = SampleSceneColor(sampleUV);
-                half3 blurredColor = sourceColor * 0.08h;
-                blurredColor += SampleSceneColor(saturate(sampleUV + float2( blurStep.x, 0))) * 0.06h;
-                blurredColor += SampleSceneColor(saturate(sampleUV + float2(-blurStep.x, 0))) * 0.06h;
-                blurredColor += SampleSceneColor(saturate(sampleUV + float2(0,  blurStep.y))) * 0.06h;
-                blurredColor += SampleSceneColor(saturate(sampleUV + float2(0, -blurStep.y))) * 0.06h;
-                blurredColor += SampleSceneColor(saturate(sampleUV + blurStep)) * 0.04h;
-                blurredColor += SampleSceneColor(saturate(sampleUV - blurStep)) * 0.04h;
-                blurredColor += SampleSceneColor(saturate(sampleUV + float2(blurStep.x, -blurStep.y))) * 0.04h;
-                blurredColor += SampleSceneColor(saturate(sampleUV + float2(-blurStep.x, blurStep.y))) * 0.04h;
-
-                float2 outerBlurStep = blurStep * 2.0;
-                blurredColor += SampleSceneColor(saturate(sampleUV + float2( outerBlurStep.x, 0))) * 0.06h;
-                blurredColor += SampleSceneColor(saturate(sampleUV + float2(-outerBlurStep.x, 0))) * 0.06h;
-                blurredColor += SampleSceneColor(saturate(sampleUV + float2(0,  outerBlurStep.y))) * 0.06h;
-                blurredColor += SampleSceneColor(saturate(sampleUV + float2(0, -outerBlurStep.y))) * 0.06h;
-                blurredColor += SampleSceneColor(saturate(sampleUV + outerBlurStep)) * 0.035h;
-                blurredColor += SampleSceneColor(saturate(sampleUV - outerBlurStep)) * 0.035h;
-                blurredColor += SampleSceneColor(saturate(sampleUV + float2(outerBlurStep.x, -outerBlurStep.y))) * 0.035h;
-                blurredColor += SampleSceneColor(saturate(sampleUV + float2(-outerBlurStep.x, outerBlurStep.y))) * 0.035h;
-
-                float2 farBlurStep = blurStep * 3.0;
-                blurredColor += SampleSceneColor(saturate(sampleUV + float2( farBlurStep.x, 0))) * 0.035h;
-                blurredColor += SampleSceneColor(saturate(sampleUV + float2(-farBlurStep.x, 0))) * 0.035h;
-                blurredColor += SampleSceneColor(saturate(sampleUV + float2(0,  farBlurStep.y))) * 0.035h;
-                blurredColor += SampleSceneColor(saturate(sampleUV + float2(0, -farBlurStep.y))) * 0.035h;
-
-                half3 sceneColor = saturate(
-                    sourceColor + (blurredColor - sourceColor) * _BlurStrength);
+                half3 sceneColor = sourceColor;
 
                 half tintMask = saturate(mask * tail * sideFade * _TintStrength);
                 half3 tintedScene = sceneColor * _TintColor.rgb +
                     _TintColor.rgb * (_Intensity * 0.035h);
                 sceneColor = lerp(sceneColor, tintedScene, tintMask);
 
-                half edge = saturate(1.0h - sideFade) * sideFade + abs(waveA - waveB) * 0.035h;
+                half edge = (saturate(1.0h - sideFade) * sideFade +
+                    abs(waveA - waveB) * 0.035h) * mask * tail;
                 half3 edgeColor = _TintColor.rgb * (_Intensity * 0.12h) * edge;
-                half alpha = mask * tail * sideFade * _Alpha;
-                return half4(sceneColor + edgeColor, alpha);
+                clip(coverage - 0.001h);
+                return half4(sceneColor + edgeColor, 1.0h);
             }
             ENDHLSL
         }

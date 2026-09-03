@@ -9,18 +9,17 @@ namespace UnityLearning.EnemySystem
 
         public override void Enter()
         {
-            Controller.Motor?.SetSpeed(Controller.Config.CombatSpeed);
             Controller.PlayLocomotion();
         }
 
         public override void Tick(float deltaTime)
         {
-            EnemyAttackConfig attack = Blackboard.SelectedAttack;
+            EnemyAttackConfig attack = SelectedAttack;
             Transform target = Controller.Target;
             EnemyMotor motor = Controller.Motor;
             if (attack == null || target == null || motor == null)
             {
-                Machine.ChangeState(Machine.SelectAttackState);
+                Machine.ChangeState(Machine.RetreatState);
                 return;
             }
 
@@ -40,11 +39,12 @@ namespace UnityLearning.EnemySystem
             if (outward.sqrMagnitude <= 0.0001f) outward = -target.forward;
             Vector3 entryPosition = target.position +
                                     outward.normalized * attack.PreferredRange;
-            motor.MoveTo(entryPosition);
-            if (motor.HasReached(entryPosition, attack.EntryTolerance))
-                motor.FaceTarget(target.position, deltaTime);
-            else
-                motor.FaceMovement(deltaTime);
+            if (!motor.MoveTo(entryPosition))
+            {
+                Machine.ChangeState(Machine.RetreatState);
+                return;
+            }
+            motor.FaceTarget(target.position, deltaTime);
         }
     }
 }

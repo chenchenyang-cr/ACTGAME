@@ -15,8 +15,6 @@ MonoBehaviour:
   detectionDistance: 8
   loseTargetDistance: 12
   alertDuration: 0.45
-  chaseSpeed: 3.5
-  combatSpeed: 2.2
   rotationSpeed: 540
   arrivalTolerance: 0.3
   combatEnterDistance: 4
@@ -25,6 +23,10 @@ MonoBehaviour:
   attackApproachAllowance: 2
   postAttackRecovery: 0.8
   defaultStaggerDuration: 0.45
+  maximumHealth: 100
+  maximumPoise: 30
+  poiseRecoveryDelay: 1.5
+  poiseRecoveryPerSecond: 15
   attacks:
   - displayName: "\u57FA\u7840\u65A9\u51FB"
     ability: {fileID: 11400000, guid: d6dffb344daa61244a34f0853a5062ae, type: 2}
@@ -37,7 +39,16 @@ MonoBehaviour:
   idleState: Idle
   alertState: Alert
   locomotionState: Locomotion
+  locomotionStartState: LocomotionStart
+  locomotionStopState: LocomotionStop
   staggerState: Hit
   deathState: Death
   moveSpeedParameter: MoveSpeed
+  moveXParameter: MoveX
+  moveYParameter: MoveY
+  isMovingParameter: IsMoving
+  startXParameter: StartX
+  startYParameter: StartY
+  stopXParameter: StopX
+  stopYParameter: StopY
   animationBlendDuration: 0.12

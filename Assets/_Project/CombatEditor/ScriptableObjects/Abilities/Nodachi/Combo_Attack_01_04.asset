@@ -72,6 +72,9 @@ MonoBehaviour:
   IsActive: 1
   TriggerMode: 0
   Settings:
+    Channel: 0
+    TraumaPerPulse: 0.65
+    TraumaExponent: 2
     EnablePosition: 0
     PositionAmplitude: {x: 0.08, y: 0.05, z: 0.03}
     PositionFrequency: 24
@@ -163,6 +166,32 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
+    EnableDirectionalImpulse: 0
+    DirectionalPositionAmplitude: -0.08
+    DirectionalImpulseCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
   HitShakeDuration: 0.16
   UseUnscaledTime: 1
   HitBoxFilter: 0
@@ -212,6 +241,272 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &-2149123655349381330
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 75df4da46dd09c44bb149336749072c8, type: 3}
+  m_Name: CreateHitBox
+  m_EditorClassIdentifier: 
+  IsActive: 1
+  ObjData:
+    TargetObj: {fileID: 2557966978344939087, guid: cf086f7d0aab02340bc2140423f5fd3a, type: 3}
+    controlType: 0
+    Offset: {x: 0.00000003730579, y: 0.95257866, z: 0.00000046530812}
+    Rot: {x: 0, y: 0, z: 0, w: 1}
+    Scale: {x: 0.15, y: 1.73, z: 0.24}
+    TargetNode: 12
+    FollowNode: 1
+    RotateByNode: 1
+  Damage: 10
+  PoiseDamage: 10
+  HitReaction: 1
+  StaggerDuration: 0
+  HitMode: 0
+  RepeatIntervalFrames: 6
+  MaximumHitsPerTarget: 0
+  TargetLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  AllowFriendlyFire: 0
+  EnableHitCameraShake: 1
+  HitCameraShakeDuration: 0.25
+  HitCameraShakeUseUnscaledTime: 1
+  HitCameraShakeSettings:
+    Channel: 0
+    TraumaPerPulse: 0.65
+    TraumaExponent: 2
+    EnablePosition: 1
+    PositionAmplitude: {x: 1.5, y: 1.5, z: 1.5}
+    PositionFrequency: 20
+    PositionCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.080470175
+        value: 1.0202011
+        inSlope: 0.7315127
+        outSlope: 0.7315127
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.4199092
+      - serializedVersion: 3
+        time: 0.36666232
+        value: 1.0670047
+        inSlope: -0.33234188
+        outSlope: -0.33234188
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.5409471
+        outWeight: 0.1004785
+      - serializedVersion: 3
+        time: 0.4497266
+        value: 0.3841347
+        inSlope: -1.6678079
+        outSlope: -1.6678079
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 0.5578009
+        value: 0.20072412
+        inSlope: -0.8928412
+        outSlope: -0.8928412
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 0.7507011
+        value: 0.6588677
+        inSlope: 1.1733085
+        outSlope: 1.1733085
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 0.9510106
+        value: 0.66846704
+        inSlope: -1.1361498
+        outSlope: -1.1361498
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    PositionSeed: 137
+    EnableRotation: 1
+    RotationAmplitude: {x: 2, y: 2, z: 2}
+    RotationFrequency: 40
+    RotationCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.080470175
+        value: 1.0202011
+        inSlope: 0.7315127
+        outSlope: 0.7315127
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.4199092
+      - serializedVersion: 3
+        time: 0.36666232
+        value: 1.0670047
+        inSlope: -0.33234188
+        outSlope: -0.33234188
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.5409471
+        outWeight: 0.1004785
+      - serializedVersion: 3
+        time: 0.4497266
+        value: 0.3841347
+        inSlope: -1.6678079
+        outSlope: -1.6678079
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 0.5578009
+        value: 0.20072412
+        inSlope: -0.8928412
+        outSlope: -0.8928412
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 0.7507011
+        value: 0.6588677
+        inSlope: 1.1733085
+        outSlope: 1.1733085
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 0.9510106
+        value: 0.66846704
+        inSlope: -1.1361498
+        outSlope: -1.1361498
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    RotationSeed: 251
+    EnableFov: 0
+    FovAmplitude: 2
+    FovCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.2
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    EnableDirectionalImpulse: 1
+    DirectionalPositionAmplitude: -0.08
+    DirectionalImpulseCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+  PreviewHitCameraShake: 1
 --- !u!114 &-723037461086152580
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -382,6 +677,24 @@ MonoBehaviour:
     - 0.8
     Previewable: 0
     Obj: {fileID: 8202312453999861616}
+  - EventTime: 0
+    EventRange: {x: 0.114285715, y: 0.3904762}
+    EventMultiRange:
+    - 0.2
+    - 0.4
+    - 0.6
+    - 0.8
+    Previewable: 1
+    Obj: {fileID: -2149123655349381330}
+  - EventTime: 0
+    EventRange: {x: 0.114285715, y: 0.3904762}
+    EventMultiRange:
+    - 0.2
+    - 0.4
+    - 0.6
+    - 0.8
+    Previewable: 0
+    Obj: {fileID: 8581487569385555968}
 --- !u!114 &2316454124236059975
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -401,6 +714,7 @@ MonoBehaviour:
   MaxFrame: 14
   StopMultiplier: 4
   TrailSubs: 2
+  AirDistortionAxis: 0
   TrailColor: {r: 1, g: 0, b: 0.06809378, a: 0.5}
   Brightness: 1.5
   TrailTexture: {fileID: 0}
@@ -459,3 +773,17 @@ MonoBehaviour:
     m_RotationOrder: 4
   SampleDistance: 0.39
   FocusPoint: {x: 0.5, y: 0.5}
+--- !u!114 &8581487569385555968
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ab454d9ce3e04684a5f19c71f6c201ad, type: 3}
+  m_Name: TargetAssistWindow
+  m_EditorClassIdentifier: 
+  IsActive: 1
+  Priority: 0

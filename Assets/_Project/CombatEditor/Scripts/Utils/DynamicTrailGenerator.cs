@@ -98,6 +98,7 @@ using UnityEngine;
 	            _settings.TextureTiling.x, _settings.TextureTiling.y, 0f, 0f));
 	        properties.SetFloat("_UVScrollSpeed", _settings.TextureScrollSpeed);
 	        properties.SetFloat("_TailFade", Mathf.Max(0.01f, _settings.TailFade));
+	        properties.SetFloat("_DistortionAxis", (float)_settings.AirDistortionAxis);
 	        properties.SetFloat("_Alpha", Mathf.Clamp01(_settings.Opacity));
             properties.SetFloat("_TintStrength", Mathf.Clamp01(_settings.AirTintStrength));
 	        if (_settings.TrailTexture != null)

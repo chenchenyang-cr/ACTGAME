@@ -24,6 +24,8 @@ using UnityEngine.UIElements;
 	        //EditorGUILayout.PropertyField(serializedObject.FindProperty("uvMethod"));
 	        EditorGUILayout.PropertyField(serializedObject.FindProperty("StopMultiplier"));
 	        EditorGUILayout.Space(6f);
+	        EditorGUILayout.PropertyField(serializedObject.FindProperty("AirDistortionAxis"),
+	            new GUIContent("空气扭曲方向（U/V）"));
 	        EditorGUILayout.PropertyField(serializedObject.FindProperty("TrailColor"));
 	        EditorGUILayout.PropertyField(serializedObject.FindProperty("Brightness"));
 	        EditorGUILayout.PropertyField(serializedObject.FindProperty("TrailTexture"));

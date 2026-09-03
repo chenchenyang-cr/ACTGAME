@@ -45,8 +45,6 @@ using UnityEngine;
 	    }
 	    
 	    Editor InspectedEditor;
-	    Vector2 InspectorScrollPos;
-	
 	    int SelectedClipIndex;
 	
 	    Vector2 Scroll;
@@ -78,12 +76,11 @@ using UnityEngine;
 	        var TrackHeight = CombatEditor.LineHeight;
         #endregion
 	        GUILayout.Box("Inspector", HeaderStyle, GUILayout.Height(Height_Top));
-	        Rect InspectorRect = new Rect(new Rect(0, Height_Top, position.width, position.height));
 	        if (inspectedType == CombatEditor.InspectedType.Null)
 	        {
 	            return;
 	        }
-	        EditorGUILayout.BeginScrollView(Scroll);
+	        Scroll = EditorGUILayout.BeginScrollView(Scroll);
             if(inspectedType == CombatEditor.InspectedType.PreviewConfig)
             {
                 combatEditor.PlayTimeMultiplier = EditorGUILayout.FloatField(new GUIContent("PlaySpeed"),combatEditor.PlayTimeMultiplier);

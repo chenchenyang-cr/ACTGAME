@@ -81,6 +81,12 @@ namespace CombatEditor
 
         private static void OnHitConfirmed(CombatHitConfirmedEvent hitEvent)
         {
+            // Inline HitBox shake is authoritative for this confirmed hit.
+            // Legacy OnConfirmedHit tracks remain available when it is disabled.
+            if (hitEvent.SourceHitBoxEvent != null &&
+                hitEvent.SourceHitBoxEvent.EnableHitCameraShake)
+                return;
+
             foreach (CameraShakeHitBinding binding in CameraShakeBindings.Values)
             {
                 if (!Matches(binding, hitEvent))
@@ -96,7 +102,8 @@ namespace CombatEditor
                 binding.NextTriggerTime = Time.unscaledTime + Mathf.Max(0f, binding.Cooldown);
 
                 CameraShakeRuntime.Pulse(binding.Settings, binding.Duration,
-                    hitEvent.CameraShakeScale, binding.UseUnscaledTime);
+                    hitEvent.CameraShakeScale, binding.UseUnscaledTime,
+                    hitEvent.AttackDirection);
             }
         }
 

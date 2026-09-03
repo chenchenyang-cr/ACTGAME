@@ -36,8 +36,6 @@ namespace UnityLearning.EnemySystem
         [SerializeField, Min(0f)] private float alertDuration = 0.5f;
 
         [Header("Movement")]
-        [SerializeField, Min(0f)] private float chaseSpeed = 3.5f;
-        [SerializeField, Min(0f)] private float combatSpeed = 2.2f;
         [SerializeField, Min(0f)] private float rotationSpeed = 540f;
         [SerializeField, Min(0.01f)] private float arrivalTolerance = 0.3f;
         [SerializeField, Min(0f)] private float combatEnterDistance = 4f;
@@ -50,20 +48,33 @@ namespace UnityLearning.EnemySystem
         [SerializeField, Min(0f)] private float defaultStaggerDuration = 0.45f;
         [SerializeField] private EnemyAttackConfig[] attacks = Array.Empty<EnemyAttackConfig>();
 
+        [Header("Vitals")]
+        [SerializeField, Min(1f)] private float maximumHealth = 100f;
+        [SerializeField, Min(0f)] private float maximumPoise = 30f;
+        [SerializeField, Min(0f)] private float poiseRecoveryDelay = 1.5f;
+        [SerializeField, Min(0f)] private float poiseRecoveryPerSecond = 15f;
+
         [Header("Animation")]
         [SerializeField] private string idleState = "Idle";
         [SerializeField] private string alertState = "Alert";
         [SerializeField] private string locomotionState = "Locomotion";
+        [SerializeField] private string locomotionStartState = "LocomotionStart";
+        [SerializeField] private string locomotionStopState = "LocomotionStop";
         [SerializeField] private string staggerState = "Hit";
         [SerializeField] private string deathState = "Death";
         [SerializeField] private string moveSpeedParameter = "MoveSpeed";
+        [SerializeField] private string moveXParameter = "MoveX";
+        [SerializeField] private string moveYParameter = "MoveY";
+        [SerializeField] private string isMovingParameter = "IsMoving";
+        [SerializeField] private string startXParameter = "StartX";
+        [SerializeField] private string startYParameter = "StartY";
+        [SerializeField] private string stopXParameter = "StopX";
+        [SerializeField] private string stopYParameter = "StopY";
         [SerializeField, Min(0f)] private float animationBlendDuration = 0.12f;
 
         public float DetectionDistance => detectionDistance;
         public float LoseTargetDistance => Mathf.Max(detectionDistance, loseTargetDistance);
         public float AlertDuration => alertDuration;
-        public float ChaseSpeed => chaseSpeed;
-        public float CombatSpeed => combatSpeed;
         public float RotationSpeed => rotationSpeed;
         public float ArrivalTolerance => arrivalTolerance;
         public float CombatEnterDistance => combatEnterDistance;
@@ -73,12 +84,25 @@ namespace UnityLearning.EnemySystem
         public float PostAttackRecovery => postAttackRecovery;
         public float DefaultStaggerDuration => defaultStaggerDuration;
         public EnemyAttackConfig[] Attacks => attacks;
+        public float MaximumHealth => Mathf.Max(1f, maximumHealth);
+        public float MaximumPoise => Mathf.Max(0f, maximumPoise);
+        public float PoiseRecoveryDelay => Mathf.Max(0f, poiseRecoveryDelay);
+        public float PoiseRecoveryPerSecond => Mathf.Max(0f, poiseRecoveryPerSecond);
         public string IdleState => idleState;
         public string AlertState => alertState;
         public string LocomotionState => locomotionState;
+        public string LocomotionStartState => locomotionStartState;
+        public string LocomotionStopState => locomotionStopState;
         public string StaggerState => staggerState;
         public string DeathState => deathState;
         public string MoveSpeedParameter => moveSpeedParameter;
+        public string MoveXParameter => moveXParameter;
+        public string MoveYParameter => moveYParameter;
+        public string IsMovingParameter => isMovingParameter;
+        public string StartXParameter => startXParameter;
+        public string StartYParameter => startYParameter;
+        public string StopXParameter => stopXParameter;
+        public string StopYParameter => stopYParameter;
         public float AnimationBlendDuration => animationBlendDuration;
     }
 }

@@ -10,7 +10,7 @@ namespace CombatEditor
 
         private void Update()
         {
-            if ((Time.realtimeSinceStartup - LastTickTime) >= (1 / 60f))
+            if ((Time.realtimeSinceStartup - LastTickTime) >= (1 / CombatTimeline.FramesPerSecond))
             {
                 Tick();
             }
@@ -319,8 +319,8 @@ namespace CombatEditor
             }
             if (abilityEvent?.Obj is AbilityEventObj_RotationWindow rotation)
                 return $"Rotation: {rotation.Policy}";
-            if (abilityEvent?.Obj is AbilityEventObj_TargetAssistWindow assist)
-                return $"Target Assist: {assist.MaxAcquireDistance:0.#}m";
+            if (abilityEvent?.Obj is AbilityEventObj_TargetAssistWindow)
+                return "Target Assist: Direction";
             if (abilityEvent?.Obj is AbilityEventObj_InterruptWindow interrupt)
             {
                 string allowed = interrupt.AllowedCommandIds;

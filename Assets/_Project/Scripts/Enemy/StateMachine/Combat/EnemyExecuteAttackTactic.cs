@@ -11,9 +11,11 @@ namespace UnityLearning.EnemySystem
         {
             completed = false;
             Controller.Motor?.Stop();
-            if (Blackboard.SelectedAttack == null || Controller.Combat == null ||
-                !Controller.Combat.BeginAttack(Blackboard.SelectedAttack))
-                Machine.ChangeState(Machine.SelectAttackState);
+            if (SelectedAttack == null || Controller.Combat == null ||
+                !Controller.Combat.BeginAttack(SelectedAttack))
+            {
+                Machine.ChangeState(Machine.RetreatState);
+            }
         }
 
         public override void Tick(float deltaTime)
@@ -34,7 +36,7 @@ namespace UnityLearning.EnemySystem
         {
             if (completed) return;
             completed = true;
-            Controller.Brain?.MarkAttackUsed(Blackboard.SelectedAttack);
+            Controller.Brain?.MarkAttackUsed(SelectedAttack);
             Controller.Combat?.EndAttack();
             Machine.ChangeState(Machine.RecoverState);
         }

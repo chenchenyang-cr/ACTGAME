@@ -67,7 +67,7 @@ namespace CombatEditor
             {
                 if (SelectedAbilityObj.Clip != null)
                 {
-                    _previewer.ShowPreviewAtPercentage(Frame * (1 / 60f) / SelectedAbilityObj.Clip.length);
+                    _previewer.ShowPreviewAtPercentage(Frame * (1 / CombatTimeline.FramesPerSecond) / SelectedAbilityObj.Clip.length);
                 }
             }
         }

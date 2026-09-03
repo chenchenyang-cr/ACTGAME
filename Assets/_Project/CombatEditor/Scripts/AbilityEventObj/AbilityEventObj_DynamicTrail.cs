@@ -14,7 +14,10 @@
 	    [Range(2,8)]
 	    public int TrailSubs = 2;
 
+	    public enum DistortionAxis { U, V }
+
 	    [Header("Trail Appearance")]
+	    public DistortionAxis AirDistortionAxis = DistortionAxis.U;
 	    [ColorUsage(true, true)] public Color TrailColor = new Color(0.55f, 0.85f, 1f, 0.5f);
 	    [Min(0f)] public float Brightness = 1.5f;
 	    public Texture2D TrailTexture;

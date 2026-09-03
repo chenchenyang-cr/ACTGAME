@@ -155,6 +155,10 @@ namespace CombatEditor
                 obj.name = type.Name.Replace("AbilityEventObj_", "");
                 AbilityEvent e = new AbilityEvent();
                 e.Obj = obj;
+                if (obj is AbilityEventObj_CreateHitBox)
+                {
+                    e.Previewable = true;
+                }
 
                 Undo.RegisterCreatedObjectUndo(obj, "Add Ability Event");
                 Undo.RecordObject(SelectedAbilityObj, "Add Ability Event");
@@ -211,7 +215,7 @@ namespace CombatEditor
                 }
                 else
                 {
-                    CurrentPlayTime += (1 / 60f) * CurrentSpeedModifier;
+                    CurrentPlayTime += (1 / CombatTimeline.FramesPerSecond) * CurrentSpeedModifier;
                 }
 
                 IterateFrame();

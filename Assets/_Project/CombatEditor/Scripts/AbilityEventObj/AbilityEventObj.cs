@@ -62,9 +62,9 @@ namespace CombatEditor
         public float StartTimeScaledPercentage;
         public float EndTimeScaledPercentage;
 
-        int EventStartFrame => Mathf.RoundToInt(StartTimePercentage * AnimObj.Clip.length * 60);
+        int EventStartFrame => Mathf.RoundToInt(StartTimePercentage * AnimObj.Clip.length * CombatTimeline.FramesPerSecond);
         int CurrentFrame;
-        int EndFrame => Mathf.RoundToInt(EndTimePercentage * AnimObj.Clip.length * 60);
+        int EndFrame => Mathf.RoundToInt(EndTimePercentage * AnimObj.Clip.length * CombatTimeline.FramesPerSecond);
         public GameObject previewGroup => GameObject.Find(CombatGlobalEditorValue.PreviewGroupName);
         public float AnimLength;
         public int LastFrame = -1;
@@ -135,7 +135,7 @@ namespace CombatEditor
         // Preview running is on every frame, not in event range
         public virtual void PreviewRunning(float CurrentTimePercentage)
         {
-            CurrentFrame = Mathf.RoundToInt(CurrentTimePercentage * AnimObj.Clip.length * 60);
+            CurrentFrame = Mathf.RoundToInt(CurrentTimePercentage * AnimObj.Clip.length * CombatTimeline.FramesPerSecond);
 
             if (CurrentFrame != LastFrame)
             {

@@ -65,8 +65,22 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  SampleDistance: 0.4
+  SampleDistance: 0.1
   FocusPoint: {x: 0.5, y: 0.5}
+--- !u!114 &-5432064123583580747
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ab454d9ce3e04684a5f19c71f6c201ad, type: 3}
+  m_Name: TargetAssistWindow
+  m_EditorClassIdentifier: 
+  IsActive: 1
+  Priority: 0
 --- !u!114 &-3655251904635478690
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -86,13 +100,14 @@ MonoBehaviour:
   MaxFrame: 14
   StopMultiplier: 4
   TrailSubs: 2
+  AirDistortionAxis: 0
   TrailColor: {r: 1, g: 0.038993325, b: 0, a: 0.5}
   Brightness: 1.5
   TrailTexture: {fileID: 0}
   TextureTiling: {x: 1, y: 1}
   TextureScrollSpeed: 0.8
   TailFade: 1
-  Opacity: 0.72
+  Opacity: 1
   AirTintStrength: 0.35
   NUM_VERTICES: 12
 --- !u!114 &-3070975137496316347
@@ -174,15 +189,6 @@ MonoBehaviour:
     - 0.8
     Previewable: 0
     Obj: {fileID: -6541295681637221545}
-  - EventTime: 0
-    EventRange: {x: 0.06363636, y: 0.15454546}
-    EventMultiRange:
-    - 0.2
-    - 0.4
-    - 0.6
-    - 0.8
-    Previewable: 0
-    Obj: {fileID: 3091183209804844070}
   - EventTime: 0.15454546
     EventRange: {x: 0, y: 1}
     EventMultiRange:
@@ -219,6 +225,24 @@ MonoBehaviour:
     - 0.8
     Previewable: 0
     Obj: {fileID: -5653400401893947626}
+  - EventTime: 0
+    EventRange: {x: 0.15454546, y: 0.35454544}
+    EventMultiRange:
+    - 0.2
+    - 0.4
+    - 0.6
+    - 0.8
+    Previewable: 0
+    Obj: {fileID: 2455682661258908317}
+  - EventTime: 0
+    EventRange: {x: 0.15454546, y: 0.35454544}
+    EventMultiRange:
+    - 0.2
+    - 0.4
+    - 0.6
+    - 0.8
+    Previewable: 0
+    Obj: {fileID: -5432064123583580747}
 --- !u!114 &184225983890267808
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -234,6 +258,9 @@ MonoBehaviour:
   IsActive: 1
   TriggerMode: 0
   Settings:
+    Channel: 0
+    TraumaPerPulse: 0.65
+    TraumaExponent: 2
     EnablePosition: 0
     PositionAmplitude: {x: 0.08, y: 0.05, z: 0.03}
     PositionFrequency: 24
@@ -291,7 +318,7 @@ MonoBehaviour:
       m_RotationOrder: 4
     RotationSeed: 251
     EnableFov: 1
-    FovAmplitude: -1
+    FovAmplitude: -0.5
     FovCurve:
       serializedVersion: 2
       m_Curve:
@@ -325,6 +352,32 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
+    EnableDirectionalImpulse: 0
+    DirectionalPositionAmplitude: -0.08
+    DirectionalImpulseCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
   HitShakeDuration: 0.16
   UseUnscaledTime: 1
   HitBoxFilter: 0
@@ -351,7 +404,7 @@ MonoBehaviour:
   Priority: 0
   AllowControllerExit: 1
   ExitOnWindowEnter: 1
---- !u!114 &3091183209804844070
+--- !u!114 &2455682661258908317
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -360,36 +413,245 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 28e2dd982f5c43b48b940242e405acc4, type: 3}
-  m_Name: AnimSpeed
+  m_Script: {fileID: 11500000, guid: 75df4da46dd09c44bb149336749072c8, type: 3}
+  m_Name: CreateHitBox
   m_EditorClassIdentifier: 
   IsActive: 1
-  Mode: 1
-  Speed: 0.9
-  SpeedCurve:
+  ObjData:
+    TargetObj: {fileID: 2557966978344939087, guid: cf086f7d0aab02340bc2140423f5fd3a, type: 3}
+    controlType: 0
+    Offset: {x: -0.000000070238585, y: 1.1778493, z: -0.0000011277741}
+    Rot: {x: 0, y: 0, z: 0, w: 1}
+    Scale: {x: 0.28, y: 1.62, z: 0.26}
+    TargetNode: 12
+    FollowNode: 1
+    RotateByNode: 1
+  Damage: 10
+  PoiseDamage: 10
+  HitReaction: 1
+  StaggerDuration: 0
+  HitMode: 0
+  RepeatIntervalFrames: 6
+  MaximumHitsPerTarget: 0
+  TargetLayers:
     serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 1.2
-      inSlope: 0.07558636
-      outSlope: 0.07558636
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0.38333333
-    - serializedVersion: 3
-      time: 1
-      value: 0.5
-      inSlope: -1.8408451
-      outSlope: -1.8408451
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.07333338
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
+    m_Bits: 4294967295
+  AllowFriendlyFire: 0
+  EnableHitCameraShake: 1
+  HitCameraShakeDuration: 0.2
+  HitCameraShakeUseUnscaledTime: 1
+  HitCameraShakeSettings:
+    Channel: 0
+    TraumaPerPulse: 0.65
+    TraumaExponent: 2
+    EnablePosition: 1
+    PositionAmplitude: {x: 0.6, y: 0.6, z: 0.6}
+    PositionFrequency: 80
+    PositionCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.20666629
+        value: 1.062984
+        inSlope: -1.3035872
+        outSlope: -1.3035872
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.1004785
+      - serializedVersion: 3
+        time: 0.37639287
+        value: 0.36405414
+        inSlope: -1.6678079
+        outSlope: -1.6678079
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 0.5975991
+        value: 0.93673956
+        inSlope: -2.3092434
+        outSlope: -2.3092434
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 0.6544653
+        value: 0.29715967
+        inSlope: -0.8928412
+        outSlope: -0.8928412
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 0.96102035
+        value: 0.9015527
+        inSlope: -1.1361498
+        outSlope: -1.1361498
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    PositionSeed: 137
+    EnableRotation: 1
+    RotationAmplitude: {x: 1, y: 1, z: 1}
+    RotationFrequency: 80
+    RotationCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.20666629
+        value: 1.062984
+        inSlope: -1.3035872
+        outSlope: -1.3035872
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.1004785
+      - serializedVersion: 3
+        time: 0.37639287
+        value: 0.36405414
+        inSlope: -1.6678079
+        outSlope: -1.6678079
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 0.5975991
+        value: 0.93673956
+        inSlope: -2.3092434
+        outSlope: -2.3092434
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 0.6544653
+        value: 0.29715967
+        inSlope: -0.8928412
+        outSlope: -0.8928412
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 0.96102035
+        value: 0.9015527
+        inSlope: -1.1361498
+        outSlope: -1.1361498
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    RotationSeed: 123
+    EnableFov: 0
+    FovAmplitude: 2
+    FovCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.2
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    EnableDirectionalImpulse: 1
+    DirectionalPositionAmplitude: -0.08
+    DirectionalImpulseCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+  PreviewHitCameraShake: 1
 --- !u!114 &7488698182390542166
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -404,7 +666,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   IsActive: 1
   Mode: 0
-  Speed: 1.5
+  Speed: 1.6
   SpeedCurve:
     serializedVersion: 2
     m_Curve:

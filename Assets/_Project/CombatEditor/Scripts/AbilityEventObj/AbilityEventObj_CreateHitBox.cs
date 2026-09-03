@@ -1,4 +1,5 @@
 ﻿
+using CombatCamera;
 using UnityEngine;
  namespace CombatEditor {	
 	[AbilityEvent]
@@ -6,10 +7,36 @@ using UnityEngine;
 	//CreateHitBoxEvent
 	public class AbilityEventObj_CreateHitBox : AbilityEventObj_CreateObjWithHandle
 	{
-	    public float Radius = 1;
-	
-	    public float Height = 1;
-	
+	    [Header("Damage")]
+	    [Min(0f)] public float Damage = 10f;
+	    [Min(0f)] public float PoiseDamage = 10f;
+	    public CombatHitReactionPolicy HitReaction =
+	        CombatHitReactionPolicy.FirstHitOnly;
+	    [Min(0f)] public float StaggerDuration;
+
+	    [Header("Hit Rules")]
+	    public CombatHitMode HitMode = CombatHitMode.Single;
+	    [Min(1)] public int RepeatIntervalFrames = 6;
+	    [Tooltip("0 means unlimited until the hit-box window closes.")]
+	    [Min(0)] public int MaximumHitsPerTarget;
+	    public LayerMask TargetLayers = ~0;
+	    public bool AllowFriendlyFire;
+
+	    [Header("Confirmed Hit Camera Shake")]
+	    [Tooltip("Played after this hit-box produces an accepted hit. Repeated hit-boxes play it once per accepted hit.")]
+	    public bool EnableHitCameraShake;
+	    [Min(0.01f)] public float HitCameraShakeDuration = 0.16f;
+	    public bool HitCameraShakeUseUnscaledTime = true;
+	    public CameraShakeSettings HitCameraShakeSettings = new CameraShakeSettings
+	    {
+	        Channel = CameraShakeChannel.Impact,
+	        EnableDirectionalImpulse = true
+	    };
+
+	    [Header("Editor Preview")]
+	    [Tooltip("Simulate one confirmed hit at the beginning of this HitBox range while previewing the timeline.")]
+	    public bool PreviewHitCameraShake;
+
 	    public override EventTimeType GetEventTimeType()
 	    {
 	        return EventTimeType.EventRange;
@@ -33,6 +60,10 @@ using UnityEngine;
 	    public override void StartEffect()
 	    {
 	        base.StartEffect();
+	        if (TargetObj.ObjData == null)
+	        {
+	            return;
+	        }
 	        var Obj = TargetObj.ObjData.CreateObject(_combatController);
 	        if (Obj == null)
 	        {
@@ -43,6 +74,7 @@ using UnityEngine;
             if(CurrentHitBox!=null)
             {
                 CurrentHitBox.Init(_combatController, AnimObj, TargetObj);
+                CurrentHitBox.UpdateAnimationTime(eve.GetEventStartTime());
             }
 
 	        BoxCollider boxCollider = Obj.GetComponent<BoxCollider>();
@@ -54,14 +86,11 @@ using UnityEngine;
 	        if(sphereCollider!=null)
 	        {
 	            sphereCollider.center = Vector3.zero;
-	            sphereCollider.radius = TargetObj.Radius;
 	        }
 	        CapsuleCollider capsuleCollider = Obj.GetComponent<CapsuleCollider>();
 	        if(capsuleCollider != null)
 	        {
 	            capsuleCollider.center = Vector3.zero;
-	            capsuleCollider.radius = TargetObj.Radius;
-	            capsuleCollider.height = TargetObj.Height;
 	        }
             BoxCollider2D boxCollider2D = Obj.GetComponent<BoxCollider2D>();
             if (boxCollider2D != null)
@@ -80,6 +109,16 @@ using UnityEngine;
 	    public override void EffectRunning()
 	    {
 	        base.EffectRunning();
+	    }
+	    public override void EffectRunning(float currentTimePercentage)
+	    {
+	        base.EffectRunning(currentTimePercentage);
+	        CurrentHitBox?.UpdateAnimationTime(currentTimePercentage);
+	    }
+	    public override void EffectRunningFixedUpdate(float currentTimePercentage)
+	    {
+	        base.EffectRunningFixedUpdate(currentTimePercentage);
+	        CurrentHitBox?.UpdateAnimationTime(currentTimePercentage);
 	    }
 	    public override void EndEffect()
 	    {

@@ -10,23 +10,50 @@ namespace UnityLearning.EnemySystem
         [SerializeField] private Animator animator;
         [SerializeField, Min(0f)] private float rotationSpeed = 540f;
         [SerializeField, Min(0.01f)] private float arrivalTolerance = 0.35f;
+        [Tooltip("Animator 参数自身的数值阻尼。方向转向主要由下方的最大方向变化速度控制。")]
         [SerializeField, Min(0f)] private float animatorDampTime = 0.12f;
+        [Tooltip("移动过程中每秒允许改变的最大方向角度，防止 NavMesh 拐点让八方向动画瞬间跳变。")]
+        [SerializeField, Min(1f)] private float maximumDirectionChangeSpeed = 360f;
+        [Tooltip("小于该角度的寻路方向波动会被忽略，避免 MoveX/MoveY 在融合树中抖动。")]
+        [SerializeField, Range(0f, 30f)] private float directionDeadZone = 4f;
+        [SerializeField, Min(0.1f)] private float destinationProjectionDistance = 2f;
 
         private int speedHash;
+        private int moveXHash;
+        private int moveYHash;
+        private int isMovingHash;
+        private int startXHash;
+        private int startYHash;
+        private int stopXHash;
+        private int stopYHash;
         private bool hasSpeedParameter;
+        private bool hasDirectionalParameters;
+        private bool hasIsMovingParameter;
+        private bool hasStartParameters;
+        private bool hasStopParameters;
+        private bool wasMoving;
+        private bool warnedOffNavMesh;
+        private bool hasMovementRequest;
+        private Vector3 requestedDestination;
+        private Vector3 currentMovementVelocity;
+        private Vector3 stabilizedMovementDirection;
+        private bool hasStabilizedMovementDirection;
+        private Vector2 lastNonZeroDirection = Vector2.up;
 
         public bool HasValidPath => navMeshAgent != null && navMeshAgent.isOnNavMesh &&
                                     navMeshAgent.pathStatus != NavMeshPathStatus.PathInvalid;
-        public bool IsMoving => navMeshAgent != null && navMeshAgent.enabled &&
-                                navMeshAgent.desiredVelocity.sqrMagnitude > 0.01f;
-        public Vector3 Velocity => navMeshAgent != null
-            ? navMeshAgent.desiredVelocity
-            : Vector3.zero;
+        public bool IsMoving => currentMovementVelocity.sqrMagnitude > 0.01f;
+        public Vector3 Velocity => currentMovementVelocity;
+        public bool HasMovementRequest => hasMovementRequest;
+        public bool IsOnNavMesh => navMeshAgent != null && navMeshAgent.isOnNavMesh;
+        public bool IsNavigationStopped => navMeshAgent == null || navMeshAgent.isStopped;
+        public NavMeshPathStatus PathStatus => navMeshAgent != null
+            ? navMeshAgent.pathStatus
+            : NavMeshPathStatus.PathInvalid;
 
         private void Awake()
         {
-            if (navMeshAgent == null) navMeshAgent = GetComponent<NavMeshAgent>();
-            if (animator == null) animator = GetComponentInChildren<Animator>();
+            ResolveDependencies();
             if (navMeshAgent != null)
             {
                 navMeshAgent.updatePosition = false;
@@ -34,51 +61,170 @@ namespace UnityLearning.EnemySystem
             }
         }
 
+        private void Start()
+        {
+            TryPlaceOnNavMesh(2f);
+        }
+
         public void Configure(EnemyConfig config)
         {
             if (config == null)
                 return;
 
+            ResolveDependencies();
+
             rotationSpeed = config.RotationSpeed;
             arrivalTolerance = config.ArrivalTolerance;
-            if (navMeshAgent != null) navMeshAgent.speed = config.ChaseSpeed;
-
-            if (string.IsNullOrWhiteSpace(config.MoveSpeedParameter))
-            {
-                hasSpeedParameter = false;
-                return;
-            }
 
             speedHash = Animator.StringToHash(config.MoveSpeedParameter);
-            hasSpeedParameter = true;
-        }
-
-        public void SetSpeed(float speed)
-        {
-            if (navMeshAgent != null) navMeshAgent.speed = Mathf.Max(0f, speed);
+            hasSpeedParameter = HasAnimatorParameter(
+                config.MoveSpeedParameter,
+                AnimatorControllerParameterType.Float);
+            moveXHash = Animator.StringToHash(config.MoveXParameter);
+            moveYHash = Animator.StringToHash(config.MoveYParameter);
+            hasDirectionalParameters = HasAnimatorParameter(
+                                           config.MoveXParameter,
+                                           AnimatorControllerParameterType.Float) &&
+                                       HasAnimatorParameter(
+                                           config.MoveYParameter,
+                                           AnimatorControllerParameterType.Float);
+            isMovingHash = Animator.StringToHash(config.IsMovingParameter);
+            hasIsMovingParameter = HasAnimatorParameter(
+                config.IsMovingParameter,
+                AnimatorControllerParameterType.Bool);
+            startXHash = Animator.StringToHash(config.StartXParameter);
+            startYHash = Animator.StringToHash(config.StartYParameter);
+            hasStartParameters = HasAnimatorParameter(
+                                     config.StartXParameter,
+                                     AnimatorControllerParameterType.Float) &&
+                                 HasAnimatorParameter(
+                                     config.StartYParameter,
+                                     AnimatorControllerParameterType.Float);
+            stopXHash = Animator.StringToHash(config.StopXParameter);
+            stopYHash = Animator.StringToHash(config.StopYParameter);
+            hasStopParameters = HasAnimatorParameter(
+                                    config.StopXParameter,
+                                    AnimatorControllerParameterType.Float) &&
+                                HasAnimatorParameter(
+                                    config.StopYParameter,
+                                    AnimatorControllerParameterType.Float);
         }
 
         private void Update()
         {
-            if (hasSpeedParameter && animator != null && navMeshAgent != null)
+            if (animator == null || navMeshAgent == null)
+                return;
+
+            Vector3 desiredVelocity = StabilizeMovementIntent(
+                CalculateMovementIntent(),
+                Time.deltaTime);
+            currentMovementVelocity = desiredVelocity;
+            desiredVelocity.y = 0f;
+            float normalizedSpeed = Mathf.Clamp01(desiredVelocity.magnitude);
+            bool moving = normalizedSpeed > 0.02f;
+            Vector3 localDirection3D = desiredVelocity.sqrMagnitude > 0.0001f
+                ? transform.InverseTransformDirection(desiredVelocity.normalized)
+                : Vector3.zero;
+            Vector2 localDirection = new Vector2(localDirection3D.x, localDirection3D.z);
+            if (moving && localDirection.sqrMagnitude > 0.0001f)
             {
-                float normalizedSpeed = navMeshAgent.speed > 0.01f? 
-                navMeshAgent.desiredVelocity.magnitude / navMeshAgent.speed : 0f;
-                animator.SetFloat(speedHash, normalizedSpeed, animatorDampTime, Time.deltaTime);
+                localDirection.Normalize();
+                lastNonZeroDirection = localDirection;
+                if (!wasMoving && hasStartParameters)
+                    SetDiscreteDirection(startXHash, startYHash, localDirection);
             }
+            else if (!moving && wasMoving && hasStopParameters)
+            {
+                SetDiscreteDirection(stopXHash, stopYHash, lastNonZeroDirection);
+            }
+
+            if (hasSpeedParameter)
+                animator.SetFloat(speedHash, normalizedSpeed, animatorDampTime, Time.deltaTime);
+
+            if (hasDirectionalParameters)
+            {
+                animator.SetFloat(
+                    moveXHash,
+                    localDirection.x * normalizedSpeed,
+                    animatorDampTime,
+                    Time.deltaTime);
+                animator.SetFloat(
+                    moveYHash,
+                    localDirection.y * normalizedSpeed,
+                    animatorDampTime,
+                    Time.deltaTime);
+            }
+
+            if (hasIsMovingParameter)
+                animator.SetBool(isMovingHash, moving);
+            wasMoving = moving;
         }
 
         public bool MoveTo(Vector3 destination)
         {
-            if (navMeshAgent == null || !navMeshAgent.enabled || !navMeshAgent.isOnNavMesh)
+            if (navMeshAgent == null || !navMeshAgent.enabled)
+            {
+                hasMovementRequest = false;
                 return false;
+            }
+
+            if (!navMeshAgent.isOnNavMesh && !TryPlaceOnNavMesh(2f))
+            {
+                if (!warnedOffNavMesh)
+                {
+                    Debug.LogWarning(
+                        $"{name} 不在 NavMesh 上，无法移动。请检查敌人出生点和场景 NavMesh 烘焙范围。",
+                        this);
+                    warnedOffNavMesh = true;
+                }
+                hasMovementRequest = false;
+                return false;
+            }
+
+            warnedOffNavMesh = false;
+            if (!NavMesh.SamplePosition(
+                    destination,
+                    out NavMeshHit destinationHit,
+                    destinationProjectionDistance,
+                    navMeshAgent.areaMask))
+            {
+                hasMovementRequest = false;
+                return false;
+            }
+            destination = destinationHit.position;
 
             navMeshAgent.isStopped = false;
-            return navMeshAgent.SetDestination(destination);
+            hasMovementRequest = navMeshAgent.SetDestination(destination);
+            if (hasMovementRequest)
+                requestedDestination = destination;
+            return hasMovementRequest;
+        }
+
+        public bool TryPlaceOnNavMesh(float sampleDistance)
+        {
+            if (navMeshAgent == null || !navMeshAgent.enabled)
+                return false;
+            if (navMeshAgent.isOnNavMesh)
+                return true;
+            if (!NavMesh.SamplePosition(
+                    transform.position,
+                    out NavMeshHit hit,
+                    Mathf.Max(0.1f, sampleDistance),
+                    navMeshAgent.areaMask))
+                return false;
+
+            bool placed = navMeshAgent.Warp(hit.position);
+            if (placed)
+                transform.position = hit.position;
+            return placed;
         }
 
         public void Stop()
         {
+            hasMovementRequest = false;
+            currentMovementVelocity = Vector3.zero;
+            stabilizedMovementDirection = Vector3.zero;
+            hasStabilizedMovementDirection = false;
             if (navMeshAgent == null || !navMeshAgent.enabled || !navMeshAgent.isOnNavMesh)
                 return;
 
@@ -122,6 +268,13 @@ namespace UnityLearning.EnemySystem
                 return;
 
             navMeshAgent.enabled = value;
+            if (!value)
+            {
+                hasMovementRequest = false;
+                currentMovementVelocity = Vector3.zero;
+                stabilizedMovementDirection = Vector3.zero;
+                hasStabilizedMovementDirection = false;
+            }
             if (value)
             {
                 navMeshAgent.updatePosition = false;
@@ -139,6 +292,92 @@ namespace UnityLearning.EnemySystem
                 transform.rotation,
                 targetRotation,
                 rotationSpeed * deltaTime);
+        }
+
+        private Vector3 CalculateMovementIntent()
+        {
+            if (!hasMovementRequest || navMeshAgent == null ||
+                !navMeshAgent.enabled || !navMeshAgent.isOnNavMesh)
+                return Vector3.zero;
+
+            Vector3 steeringPoint = navMeshAgent.hasPath && !navMeshAgent.pathPending
+                ? navMeshAgent.steeringTarget
+                : requestedDestination;
+            Vector3 toSteering = steeringPoint - transform.position;
+            toSteering.y = 0f;
+
+            if (toSteering.sqrMagnitude <= arrivalTolerance * arrivalTolerance)
+            {
+                toSteering = requestedDestination - transform.position;
+                toSteering.y = 0f;
+            }
+
+            return toSteering.sqrMagnitude > arrivalTolerance * arrivalTolerance
+                ? toSteering.normalized
+                : Vector3.zero;
+        }
+
+        private Vector3 StabilizeMovementIntent(Vector3 desiredVelocity, float deltaTime)
+        {
+            desiredVelocity.y = 0f;
+            float speed = desiredVelocity.magnitude;
+            if (speed <= 0.0001f)
+                return Vector3.zero;
+
+            Vector3 targetDirection = desiredVelocity / speed;
+            if (!wasMoving || !hasStabilizedMovementDirection)
+            {
+                stabilizedMovementDirection = targetDirection;
+                hasStabilizedMovementDirection = true;
+                return stabilizedMovementDirection * speed;
+            }
+
+            float angle = Vector3.Angle(stabilizedMovementDirection, targetDirection);
+            if (angle > directionDeadZone)
+            {
+                float maximumRadians = maximumDirectionChangeSpeed *
+                                       Mathf.Deg2Rad * Mathf.Max(0f, deltaTime);
+                stabilizedMovementDirection = Vector3.RotateTowards(
+                    stabilizedMovementDirection,
+                    targetDirection,
+                    maximumRadians,
+                    0f).normalized;
+            }
+
+            return stabilizedMovementDirection * speed;
+        }
+
+        private bool HasAnimatorParameter(
+            string parameterName,
+            AnimatorControllerParameterType parameterType)
+        {
+            if (animator == null || string.IsNullOrWhiteSpace(parameterName))
+                return false;
+
+            AnimatorControllerParameter[] parameters = animator.parameters;
+            for (int i = 0; i < parameters.Length; i++)
+            {
+                if (parameters[i].type == parameterType &&
+                    parameters[i].name == parameterName)
+                    return true;
+            }
+            return false;
+        }
+
+        private void ResolveDependencies()
+        {
+            if (navMeshAgent == null)
+                navMeshAgent = GetComponent<NavMeshAgent>();
+            if (animator == null)
+                animator = GetComponentInChildren<Animator>(true);
+        }
+
+        private void SetDiscreteDirection(int xHash, int yHash, Vector2 direction)
+        {
+            float angle = Mathf.Atan2(direction.x, direction.y) * Mathf.Rad2Deg;
+            float snappedAngle = Mathf.Round(angle / 45f) * 45f * Mathf.Deg2Rad;
+            animator.SetFloat(xHash, Mathf.Sin(snappedAngle));
+            animator.SetFloat(yHash, Mathf.Cos(snappedAngle));
         }
     }
 }
