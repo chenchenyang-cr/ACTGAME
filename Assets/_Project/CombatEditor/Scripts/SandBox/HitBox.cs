@@ -139,11 +139,13 @@ namespace CombatEditor
 
             if (SourceEvent != null && SourceEvent.EnableHitCameraShake)
             {
+                CombatCamera.CameraShakeSettings shakeSettings =
+                    SourceEvent.ResolveHitCameraShakeSettings();
                 CombatCamera.CameraShakeRuntime.Pulse(
-                    SourceEvent.HitCameraShakeSettings,
-                    SourceEvent.HitCameraShakeDuration,
+                    shakeSettings,
+                    SourceEvent.ResolveHitCameraShakeDuration(),
                     Mathf.Max(0f, resolution.CameraShakeScale),
-                    SourceEvent.HitCameraShakeUseUnscaledTime,
+                    SourceEvent.ResolveHitCameraShakeUseUnscaledTime(),
                     attackDirection);
             }
             CombatHitEventBus.Publish(new CombatHitConfirmedEvent(Owner, SourceAbility,

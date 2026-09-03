@@ -62,8 +62,10 @@ using UnityEngine;
 
 	    private void UpdateHitShakePreview(float currentTimePercentage)
 	    {
-	        if (!Obj.EnableHitCameraShake || !Obj.PreviewHitCameraShake ||
-	            Obj.HitCameraShakeSettings == null)
+	        CameraShakeSettings settings = Obj.ResolveHitCameraShakeSettings();
+	        if (eve == null || !eve.Previewable ||
+	            !Obj.EnableHitCameraShake || !Obj.PreviewHitCameraShake ||
+	            settings == null || !settings.HasVisibleOutput())
 	        {
 	            ReleaseHitShakePreview();
 	            return;
@@ -71,14 +73,13 @@ using UnityEngine;
 
 	        float elapsed = (currentTimePercentage - StartTimePercentage) *
 	                        Mathf.Max(0.01f, AnimLength);
-	        float duration = Mathf.Max(0.01f, Obj.HitCameraShakeDuration);
+	        float duration = Mathf.Max(0.01f, Obj.ResolveHitCameraShakeDuration());
 	        if (elapsed < 0f || elapsed > duration)
 	        {
 	            ReleaseHitShakePreview();
 	            return;
 	        }
 
-	        CameraShakeSettings settings = Obj.HitCameraShakeSettings;
 	        float trauma = Mathf.Clamp01(settings.TraumaPerPulse);
 	        float noiseIntensity = Mathf.Pow(trauma,
 	            Mathf.Max(1f, settings.TraumaExponent));

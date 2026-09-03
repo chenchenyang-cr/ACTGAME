@@ -98,6 +98,11 @@ namespace CombatCamera
                 ContinuousSources.Remove(handle);
         }
 
+        public static void ClearContinuousSources()
+        {
+            ContinuousSources.Clear();
+        }
+
         public static void Pulse(CameraShakeSettings settings, float duration,
             float intensityScale = 1f, bool useUnscaledTime = true,
             Vector3 worldForceDirection = default)

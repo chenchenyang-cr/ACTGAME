@@ -155,7 +155,8 @@ namespace CombatEditor
                 obj.name = type.Name.Replace("AbilityEventObj_", "");
                 AbilityEvent e = new AbilityEvent();
                 e.Obj = obj;
-                if (obj is AbilityEventObj_CreateHitBox)
+                if (obj is AbilityEventObj_CreateHitBox ||
+                    obj is AbilityEventObj_TargetAssistWindow)
                 {
                     e.Previewable = true;
                 }

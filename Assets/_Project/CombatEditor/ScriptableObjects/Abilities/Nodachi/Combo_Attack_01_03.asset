@@ -22,8 +22,8 @@ MonoBehaviour:
     TargetNode: 12
     FollowNode: 1
     RotateByNode: 1
-  Damage: 10
-  PoiseDamage: 10
+  Damage: 0
+  PoiseDamage: 0
   HitReaction: 1
   StaggerDuration: 0
   HitMode: 0
@@ -34,6 +34,7 @@ MonoBehaviour:
     m_Bits: 4294967295
   AllowFriendlyFire: 0
   EnableHitCameraShake: 1
+  HitCameraShakeProfile: {fileID: 11400000, guid: f2c43206a32f439fa929f036818f1199, type: 2}
   HitCameraShakeDuration: 0.2
   HitCameraShakeUseUnscaledTime: 1
   HitCameraShakeSettings:
@@ -350,7 +351,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   IsActive: 1
   Mode: 0
-  Speed: 1.2
+  Speed: 1
   SpeedCurve:
     serializedVersion: 2
     m_Curve:
@@ -389,6 +390,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   IsActive: 1
   Priority: 0
+  AcquireRadius: 3
 --- !u!114 &-980798567647887915
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -421,7 +423,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   IsActive: 1
   Mode: 1
-  Speed: 0.5
+  Speed: 0.4
   SpeedCurve:
     serializedVersion: 2
     m_Curve:
@@ -434,6 +436,24 @@ MonoBehaviour:
       weightedMode: 0
       inWeight: 0
       outWeight: 0.38333333
+    - serializedVersion: 3
+      time: 0.31901783
+      value: 0.68772805
+      inSlope: -0.2482881
+      outSlope: -0.2482881
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.69782794
+      value: 0.7523123
+      inSlope: 0.033028413
+      outSlope: 0.033028413
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
     - serializedVersion: 3
       time: 1
       value: 0.5
@@ -560,7 +580,7 @@ MonoBehaviour:
     - 0.4
     - 0.6
     - 0.8
-    Previewable: 0
+    Previewable: 1
     Obj: {fileID: -2474862647418300675}
 --- !u!114 &1653761415681740489
 MonoBehaviour:
@@ -699,7 +719,7 @@ MonoBehaviour:
       m_RotationOrder: 4
     RotationSeed: 251
     EnableFov: 1
-    FovAmplitude: -1
+    FovAmplitude: -1.5
     FovCurve:
       serializedVersion: 2
       m_Curve:

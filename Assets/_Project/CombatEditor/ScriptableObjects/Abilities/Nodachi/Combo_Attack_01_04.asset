@@ -263,18 +263,19 @@ MonoBehaviour:
     TargetNode: 12
     FollowNode: 1
     RotateByNode: 1
-  Damage: 10
-  PoiseDamage: 10
+  Damage: 0
+  PoiseDamage: 0
   HitReaction: 1
   StaggerDuration: 0
-  HitMode: 0
+  HitMode: 1
   RepeatIntervalFrames: 6
-  MaximumHitsPerTarget: 0
+  MaximumHitsPerTarget: 4
   TargetLayers:
     serializedVersion: 2
     m_Bits: 4294967295
   AllowFriendlyFire: 0
   EnableHitCameraShake: 1
+  HitCameraShakeProfile: {fileID: 11400000, guid: 06a1ca6322283f745b833b916328effd, type: 2}
   HitCameraShakeDuration: 0.25
   HitCameraShakeUseUnscaledTime: 1
   HitCameraShakeSettings:
@@ -693,7 +694,7 @@ MonoBehaviour:
     - 0.4
     - 0.6
     - 0.8
-    Previewable: 0
+    Previewable: 1
     Obj: {fileID: 8581487569385555968}
 --- !u!114 &2316454124236059975
 MonoBehaviour:
@@ -771,7 +772,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  SampleDistance: 0.39
+  SampleDistance: 0.187
   FocusPoint: {x: 0.5, y: 0.5}
 --- !u!114 &8581487569385555968
 MonoBehaviour:
@@ -787,3 +788,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   IsActive: 1
   Priority: 0
+  AcquireRadius: 3

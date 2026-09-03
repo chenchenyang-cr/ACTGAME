@@ -51,6 +51,18 @@ namespace CombatCamera
             new Keyframe(0f, 1f),
             new Keyframe(1f, 0f));
 
+        public bool HasVisibleOutput()
+        {
+            bool hasPosition = EnablePosition && PositionFrequency > 0f &&
+                               PositionAmplitude.sqrMagnitude > 0.0000001f;
+            bool hasRotation = EnableRotation && RotationFrequency > 0f &&
+                               RotationAmplitude.sqrMagnitude > 0.0000001f;
+            bool hasFov = EnableFov && Mathf.Abs(FovAmplitude) > 0.0001f;
+            bool hasDirectionalImpulse = EnableDirectionalImpulse &&
+                                         Mathf.Abs(DirectionalPositionAmplitude) > 0.0001f;
+            return hasPosition || hasRotation || hasFov || hasDirectionalImpulse;
+        }
+
         public CameraShakeSample Evaluate(float sampleTime, float normalizedTime,
             float intensityScale = 1f)
         {

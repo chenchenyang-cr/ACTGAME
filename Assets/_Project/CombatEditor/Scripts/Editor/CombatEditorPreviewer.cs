@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using CombatCamera;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -79,6 +80,7 @@ using UnityEngine.SceneManagement;
 	    {
 	        if (EditorApplication.isPlaying) return;
 	        previewsSelfDestroy();
+	        CameraShakeRuntime.ClearContinuousSources();
 	        ClearAllPreviewHandles();
 	        DestroyPreviewGroupObj();
 	        ResetMotions();

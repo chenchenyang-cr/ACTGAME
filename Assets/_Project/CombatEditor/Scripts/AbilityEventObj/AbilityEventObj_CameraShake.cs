@@ -138,6 +138,12 @@ namespace CombatEditor
 
         public override void PreviewUpdateFrame(float currentTimePercentage)
         {
+            if (eve == null || !eve.Previewable)
+            {
+                Release();
+                return;
+            }
+
             if (Config.TriggerMode == CameraShakeTriggerMode.Direct)
                 PreviewDirect(currentTimePercentage);
             else

@@ -25,8 +25,14 @@ using UnityEngine;
 	    [Header("Confirmed Hit Camera Shake")]
 	    [Tooltip("Played after this hit-box produces an accepted hit. Repeated hit-boxes play it once per accepted hit.")]
 	    public bool EnableHitCameraShake;
+	    public CameraShakeProfile HitCameraShakeProfile;
+
+	    // Backwards-compatible fallback for ability assets not migrated yet.
+	    [HideInInspector]
 	    [Min(0.01f)] public float HitCameraShakeDuration = 0.16f;
+	    [HideInInspector]
 	    public bool HitCameraShakeUseUnscaledTime = true;
+	    [HideInInspector]
 	    public CameraShakeSettings HitCameraShakeSettings = new CameraShakeSettings
 	    {
 	        Channel = CameraShakeChannel.Impact,
@@ -36,6 +42,27 @@ using UnityEngine;
 	    [Header("Editor Preview")]
 	    [Tooltip("Simulate one confirmed hit at the beginning of this HitBox range while previewing the timeline.")]
 	    public bool PreviewHitCameraShake;
+
+	    public CameraShakeSettings ResolveHitCameraShakeSettings()
+	    {
+	        return HitCameraShakeProfile != null
+	            ? HitCameraShakeProfile.Settings
+	            : HitCameraShakeSettings;
+	    }
+
+	    public float ResolveHitCameraShakeDuration()
+	    {
+	        return HitCameraShakeProfile != null
+	            ? HitCameraShakeProfile.Duration
+	            : HitCameraShakeDuration;
+	    }
+
+	    public bool ResolveHitCameraShakeUseUnscaledTime()
+	    {
+	        return HitCameraShakeProfile != null
+	            ? HitCameraShakeProfile.UseUnscaledTime
+	            : HitCameraShakeUseUnscaledTime;
+	    }
 
 	    public override EventTimeType GetEventTimeType()
 	    {

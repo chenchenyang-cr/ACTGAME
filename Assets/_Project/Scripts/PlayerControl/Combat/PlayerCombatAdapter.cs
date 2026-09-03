@@ -152,8 +152,8 @@ public sealed class PlayerCombatAdapter : MonoBehaviour, ICombatGameplayWindowLi
                 rotationWindows[context.Handle] = rotation;
                 ApplyRotationPolicy();
                 break;
-            case AbilityEventObj_TargetAssistWindow:
-                targetAssistTargets[context.Handle] = AcquireTarget();
+            case AbilityEventObj_TargetAssistWindow assist:
+                targetAssistTargets[context.Handle] = AcquireTarget(assist.AcquireRadius);
                 ApplyRotationPolicy();
                 break;
             case AbilityEventObj_ComboWindow combo:
@@ -171,12 +171,12 @@ public sealed class PlayerCombatAdapter : MonoBehaviour, ICombatGameplayWindowLi
 
     public void OnCombatWindowUpdated(in CombatGameplayWindowContext context)
     {
-        if (context.Window is AbilityEventObj_TargetAssistWindow)
+        if (context.Window is AbilityEventObj_TargetAssistWindow assist)
         {
             if (!targetAssistTargets.TryGetValue(context.Handle, out Transform target) ||
                 target == null || !target.gameObject.activeInHierarchy)
             {
-                target = AcquireTarget();
+                target = AcquireTarget(assist.AcquireRadius);
                 targetAssistTargets[context.Handle] = target;
             }
 
@@ -262,9 +262,10 @@ public sealed class PlayerCombatAdapter : MonoBehaviour, ICombatGameplayWindowLi
         exitRequested = false;
     }
 
-    private Transform AcquireTarget()
+    private Transform AcquireTarget(float acquireRadius)
     {
-        float nearestDistanceSqr = float.PositiveInfinity;
+        float nearestDistanceSqr = Mathf.Max(0f, acquireRadius);
+        nearestDistanceSqr *= nearestDistanceSqr;
         Transform nearest = null;
         MonoBehaviour[] behaviours = FindObjectsOfType<MonoBehaviour>();
 

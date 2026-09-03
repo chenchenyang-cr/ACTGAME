@@ -40,6 +40,13 @@ namespace CombatEditor
                     MessageType.Info);
             }
 
+            if (config.EnableHitCameraShake && config.HitCameraShakeProfile == null)
+            {
+                EditorGUILayout.HelpBox(
+                    "请选择 Camera Shake Profile。当前暂时使用旧版内嵌参数作为兼容回退。",
+                    MessageType.Warning);
+            }
+
             if (previewDataChanged)
             {
                 SceneView.RepaintAll();
