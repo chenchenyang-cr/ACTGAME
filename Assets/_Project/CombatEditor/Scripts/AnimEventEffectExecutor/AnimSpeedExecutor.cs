@@ -11,6 +11,8 @@ using UnityEngine;
 	    public float MaxTime;
 	    public float StartTime;
 	    public bool SelfDestroy;
+	    public AnimationCurve SpeedCurve;
+	    public bool UseUnscaledTime;
 	    public CharacterAnimSpeedModifier(float speedScale, float maxTime)
 	    {
 	        SpeedScale = speedScale;
@@ -25,6 +27,28 @@ using UnityEngine;
 	        StartTime = Time.time;
 	        SelfDestroy = false;
 	    }
+
+	    public CharacterAnimSpeedModifier(AnimationCurve speedCurve, float maxTime,
+	        bool useUnscaledTime)
+	    {
+	        SpeedScale = 1f;
+	        SpeedCurve = speedCurve;
+	        MaxTime = Mathf.Max(0.01f, maxTime);
+	        UseUnscaledTime = useUnscaledTime;
+	        StartTime = useUnscaledTime ? Time.unscaledTime : Time.time;
+	        SelfDestroy = true;
+	    }
+
+	    public float CurrentTime => UseUnscaledTime ? Time.unscaledTime : Time.time;
+
+	    public float EvaluateSpeedScale()
+	    {
+	        if (SpeedCurve == null || SpeedCurve.length == 0)
+	            return Mathf.Max(0f, SpeedScale);
+
+	        float normalizedTime = Mathf.Clamp01((CurrentTime - StartTime) / MaxTime);
+	        return Mathf.Max(0f, SpeedCurve.Evaluate(normalizedTime));
+	    }
 	
 	}
 	
@@ -38,6 +62,7 @@ using UnityEngine;
 	    }
 	
 	    public List<CharacterAnimSpeedModifier> _animSpeedModifiers = new List<CharacterAnimSpeedModifier>();
+	    private CharacterAnimSpeedModifier _hitSpeedModifier;
 	    public void AddSpeedModifiers(float SpeedScale, float time)
 	    {
 	        _animSpeedModifiers.Add(new CharacterAnimSpeedModifier(SpeedScale, time));
@@ -52,6 +77,16 @@ using UnityEngine;
 	    {
 	        _animSpeedModifiers.Remove(modifier);
 	    }
+	    public void PlayHitSpeedCurve(AnimationCurve speedCurve, float duration,
+	        bool useUnscaledTime)
+	    {
+	        if (_hitSpeedModifier != null)
+	            _animSpeedModifiers.Remove(_hitSpeedModifier);
+
+	        _hitSpeedModifier = new CharacterAnimSpeedModifier(speedCurve, duration,
+	            useUnscaledTime);
+	        _animSpeedModifiers.Add(_hitSpeedModifier);
+	    }
 	    public float GetCurrentSpeedModifier()
 	    {
 	        //var LowestSpeed = _animSpeedModifiers.OrderBy(t => t.SpeedScale).Take(1).ToArray();
@@ -62,13 +97,17 @@ using UnityEngine;
 	        float Speed = 1;
 	        for (int i = 0; i < _animSpeedModifiers.Count; i++)
 	        {
-                if(Time.time - _animSpeedModifiers[i].StartTime > _animSpeedModifiers[i].MaxTime && _animSpeedModifiers[i].SelfDestroy)
-                {
-                    _animSpeedModifiers.RemoveAt(i);
-                    i -= 1;
-                    continue;
-                }
-	            Speed *= Mathf.Max(0, _animSpeedModifiers[i].SpeedScale);
+	            CharacterAnimSpeedModifier modifier = _animSpeedModifiers[i];
+	            if (modifier.SelfDestroy &&
+	                modifier.CurrentTime - modifier.StartTime >= modifier.MaxTime)
+	            {
+	                if (modifier == _hitSpeedModifier)
+	                    _hitSpeedModifier = null;
+	                _animSpeedModifiers.RemoveAt(i);
+	                i -= 1;
+	                continue;
+	            }
+	            Speed *= modifier.EvaluateSpeedScale();
 	        }
 	        return Speed;
 	    }

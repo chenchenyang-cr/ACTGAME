@@ -64,6 +64,41 @@ using UnityEngine;
 	            : HitCameraShakeUseUnscaledTime;
 	    }
 
+	    [Header("Confirmed Hit Animation Speed")]
+	    [Tooltip("Apply the same animation-speed curve to both the attacker and the accepted hit target.")]
+	    public bool EnableHitAnimationSpeed;
+	    [Min(0.01f)] public float HitAnimationSpeedDuration = 0.08f;
+	    [Tooltip("Use real time so a curve value of 0 cannot prevent the effect from ending.")]
+	    public bool HitAnimationSpeedUseUnscaledTime = true;
+	    [Tooltip("Horizontal axis is normalized effect time; vertical axis is the direct animation-speed multiplier. 1 = normal, 0 = stopped.")]
+	    [MyAnimationCurve]
+	    public AnimationCurve HitAnimationSpeedCurve = new AnimationCurve(
+	        new Keyframe(0f, 0f), new Keyframe(1f, 1f));
+
+	    public float EvaluateHitAnimationSpeed(float normalizedTime)
+	    {
+	        if (HitAnimationSpeedCurve == null || HitAnimationSpeedCurve.length == 0)
+	            return 1f;
+
+	        return Mathf.Max(0f,
+	            HitAnimationSpeedCurve.Evaluate(Mathf.Clamp01(normalizedTime)));
+	    }
+
+	    [Header("Confirmed Hit VFX")]
+	    [Tooltip("Spawn this effect only after the hit has been accepted by the target.")]
+	    public bool EnableHitVfx;
+	    public GameObject HitVfxPrefab;
+	    public CombatHitVfxDirectionMode HitVfxDirection =
+	        CombatHitVfxDirectionMode.AttackDirection;
+	    [Tooltip("Local-space offset after applying the resolved hit-effect rotation.")]
+	    public Vector3 HitVfxPositionOffset;
+	    public Vector3 HitVfxRotationOffset;
+	    [Min(0f)] public float HitVfxScale = 1f;
+	    [Tooltip("Seconds before the spawned object is destroyed. 0 automatically estimates particle duration.")]
+	    [Min(0f)] public float HitVfxLifetime;
+	    public CombatHitResultMask HitVfxResultMask =
+	        CombatHitResultMask.Normal | CombatHitResultMask.Critical;
+
 	    public override EventTimeType GetEventTimeType()
 	    {
 	        return EventTimeType.EventRange;

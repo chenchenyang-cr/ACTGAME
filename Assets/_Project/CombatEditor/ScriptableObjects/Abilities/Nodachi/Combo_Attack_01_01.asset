@@ -123,7 +123,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ca2229d21ed65194bac74b8298b11290, type: 3}
   m_Name: Particles
   m_EditorClassIdentifier: 
-  IsActive: 0
+  IsActive: 1
   ObjData:
     TargetObj: {fileID: 7212047850060897593, guid: 1bddde0101aa1e744bfa819371e6aa4f, type: 3}
     controlType: 0
@@ -509,6 +509,50 @@ MonoBehaviour:
       m_PostInfinity: 2
       m_RotationOrder: 4
   PreviewHitCameraShake: 1
+  EnableHitAnimationSpeed: 1
+  HitAnimationSpeedDuration: 0.06
+  HitAnimationSpeedUseUnscaledTime: 1
+  HitAnimationSpeedCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.89000005
+      value: 0
+      inSlope: -0
+      outSlope: 4.3102574
+      tangentMode: 5
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 9.090913
+      outSlope: 0.06838714
+      tangentMode: 5
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  EnableHitVfx: 1
+  HitVfxPrefab: {fileID: 0}
+  HitVfxDirection: 0
+  HitVfxPositionOffset: {x: 0, y: 0, z: 0}
+  HitVfxRotationOffset: {x: 0, y: 0, z: 0}
+  HitVfxScale: 0.1
+  HitVfxLifetime: 0
+  HitVfxResultMask: 3
 --- !u!114 &7335254943570530704
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -562,7 +606,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   IsActive: 1
   Mode: 0
-  Speed: 1.2
+  Speed: 1.4
   SpeedCurve:
     serializedVersion: 2
     m_Curve:

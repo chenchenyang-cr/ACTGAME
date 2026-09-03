@@ -148,9 +148,31 @@ namespace CombatEditor
                     SourceEvent.ResolveHitCameraShakeUseUnscaledTime(),
                     attackDirection);
             }
+            if (SourceEvent != null && SourceEvent.EnableHitAnimationSpeed)
+            {
+                PlayHitAnimationSpeed(Owner);
+                CombatController targetController =
+                    receiverBehaviour.GetComponentInParent<CombatController>();
+                if (targetController == null)
+                    targetController = receiverBehaviour.transform.root
+                        .GetComponentInChildren<CombatController>(true);
+                if (targetController != Owner)
+                    PlayHitAnimationSpeed(targetController);
+            }
             CombatHitEventBus.Publish(new CombatHitConfirmedEvent(Owner, SourceAbility,
                 SourceEvent, this, other, receiverBehaviour.gameObject, hitPoint,
                 attackDirection, hitContext, resolution));
+        }
+
+        private void PlayHitAnimationSpeed(CombatController controller)
+        {
+            if (controller == null || controller._animSpeedExecutor == null)
+                return;
+
+            controller._animSpeedExecutor.PlayHitSpeedCurve(
+                SourceEvent.HitAnimationSpeedCurve,
+                SourceEvent.HitAnimationSpeedDuration,
+                SourceEvent.HitAnimationSpeedUseUnscaledTime);
         }
 
         private CombatHitRequest BuildRequest(Component other, Vector3 hitPoint,

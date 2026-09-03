@@ -2,12 +2,8 @@
 using UnityEngine;
 namespace CombatEditor
 {	
-	public class MyAnimationCurveAttribute:Attribute
+	public sealed class MyAnimationCurveAttribute : PropertyAttribute
 	{
-	   public MyAnimationCurveAttribute()
-	    {
-	        
-	    }
 	}
 	[Serializable]
 	public class MyAnimationCurve

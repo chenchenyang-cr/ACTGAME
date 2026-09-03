@@ -47,6 +47,26 @@ namespace CombatEditor
                     MessageType.Warning);
             }
 
+            if (config.EnableHitAnimationSpeed)
+            {
+                EditorGUILayout.HelpBox(
+                    "命中确认后，攻击者和被击中者会同时使用该曲线变速。横轴是效果时间（0~1），纵轴直接作为速度倍率；连续命中会刷新效果，不会重复叠乘。",
+                    MessageType.Info);
+            }
+
+            if (config.EnableHitVfx && config.HitVfxPrefab == null)
+            {
+                EditorGUILayout.HelpBox(
+                    "命中特效已启用，但尚未指定 Hit VFX Prefab。",
+                    MessageType.Warning);
+            }
+            else if (config.EnableHitVfx)
+            {
+                EditorGUILayout.HelpBox(
+                    "特效会在确认命中后生成于 HitPoint。默认 Attack Direction 适合血液和火花；位置与旋转偏移按最终特效朝向计算。",
+                    MessageType.Info);
+            }
+
             if (previewDataChanged)
             {
                 SceneView.RepaintAll();

@@ -17,6 +17,10 @@ public sealed class AttackState : PlayerState
 
     public override void Enter()
     {
+        // Attacking always ends the fast locomotion granted after a dodge.
+        // Otherwise returning directly to locomotion while movement input is held
+        // keeps MoveSpeed on the fast-run gait.
+        Machine.Movement.EndFastMovement();
         Machine.Movement.SetRotationMode(PlayerRotationMode.Animation);
         BeginAttack();
     }

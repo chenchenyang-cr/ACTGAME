@@ -1,40 +1,49 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using UnityEditor;
-using System;
+using UnityEngine;
 
 namespace CombatEditor
-{	
-	//public class AnimationCurveAttributeDrawer : OdinAttributeDrawer<AnimationCurveAttribute, AnimationCurve>
-	public class MyAnimationCurveDrawer:PropertyDrawer
-	{
-	    SerializedProperty Curve;
-	    SerializedProperty Scale;
-	    public float CurveHeight = 30;
-	    public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
-	    {
-	        //return base.GetPropertyHeight(property, label);
-	        Rect ControlRect = EditorGUILayout.GetControlRect();
-	        return CurveHeight - 18;
-	    }
-	    public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
-	    {
-	        //base.OnGUI(position, property, label);
-	        EditorGUI.BeginProperty(position, label, property);
-	        // Read the serialized curve data.
-	        Curve = property.FindPropertyRelative("curve");
-	        Scale = property.FindPropertyRelative("Scale");
-	
-	        Rect newPos = new Rect(position.x, position.y - 18, position.width, position.height + 18);
-	     
-	        Curve.animationCurveValue = EditorGUI.CurveField( newPos, GUIContent.none, Curve.animationCurveValue, Color.green, new Rect(0, -1, 1, 2));
-	        //Scale.floatValue = EditorGUI.FloatField(position, Scale.floatValue);
-	
-	            EditorGUI.DrawRect(new Rect(newPos.position + new Vector2(newPos.width * CombatGlobalEditorValue.Percentage, 0), new Vector2(1, newPos.height)), Color.white);
-	        // Draw the current preview position marker.
-	        EditorGUI.EndProperty();
-	    }
-	    
-	}
+{
+    [CustomPropertyDrawer(typeof(MyAnimationCurveAttribute))]
+    public sealed class MyAnimationCurveDrawer : PropertyDrawer
+    {
+        private const float CurveHeight = 36f;
+
+        public override float GetPropertyHeight(SerializedProperty property,
+            GUIContent label)
+        {
+            return property.propertyType == SerializedPropertyType.AnimationCurve
+                ? CurveHeight
+                : EditorGUI.GetPropertyHeight(property, label, true);
+        }
+
+        public override void OnGUI(Rect position, SerializedProperty property,
+            GUIContent label)
+        {
+            EditorGUI.BeginProperty(position, label, property);
+
+            if (property.propertyType == SerializedPropertyType.AnimationCurve)
+            {
+                EditorGUI.BeginChangeCheck();
+                AnimationCurve curve = EditorGUI.CurveField(position, label,
+                    property.animationCurveValue, Color.green,
+                    new Rect(0f, -1f, 1f, 2f));
+                if (EditorGUI.EndChangeCheck())
+                    property.animationCurveValue = curve;
+
+                if (Event.current.type == EventType.Repaint)
+                {
+                    float markerX = position.x + position.width *
+                        Mathf.Clamp01(CombatGlobalEditorValue.Percentage);
+                    EditorGUI.DrawRect(new Rect(markerX, position.y, 1f,
+                        position.height), Color.white);
+                }
+            }
+            else
+            {
+                EditorGUI.PropertyField(position, property, label, true);
+            }
+
+            EditorGUI.EndProperty();
+        }
+    }
 }

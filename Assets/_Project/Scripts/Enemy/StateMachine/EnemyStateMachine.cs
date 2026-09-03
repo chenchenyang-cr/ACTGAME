@@ -36,9 +36,9 @@ namespace UnityLearning.EnemySystem
             CurrentState?.Tick(deltaTime);
         }
 
-        public void ChangeState(EnemyState nextState)
+        public void ChangeState(EnemyState nextState, bool restartIfCurrent = false)
         {
-            if (nextState == null || nextState == CurrentState)
+            if (nextState == null || (!restartIfCurrent && nextState == CurrentState))
                 return;
 
             CurrentState?.Exit();

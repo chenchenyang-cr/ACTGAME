@@ -18,7 +18,7 @@ MonoBehaviour:
     Channel: 0
     TraumaPerPulse: 0.65
     TraumaExponent: 1
-    EnablePosition: 1
+    EnablePosition: 0
     PositionAmplitude: {x: 0.3, y: 0.3, z: 0}
     PositionFrequency: 30
     PositionCurve:
@@ -92,7 +92,7 @@ MonoBehaviour:
       m_RotationOrder: 4
     PositionSeed: 137
     EnableRotation: 1
-    RotationAmplitude: {x: 0.8, y: 0.8, z: 0.8}
+    RotationAmplitude: {x: 2, y: 2, z: 2}
     RotationFrequency: 50
     RotationCurve:
       serializedVersion: 2

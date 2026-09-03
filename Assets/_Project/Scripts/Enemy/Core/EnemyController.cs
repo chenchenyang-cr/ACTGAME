@@ -164,7 +164,7 @@ namespace UnityLearning.EnemySystem
             PendingStaggerDuration = duration >= 0f
                 ? duration
                 : config.DefaultStaggerDuration;
-            stateMachine.ChangeState(stateMachine.StaggerState);
+            stateMachine.ChangeState(stateMachine.StaggerState, true);
         }
 
         public void NotifyDied()
@@ -214,7 +214,17 @@ namespace UnityLearning.EnemySystem
             }
             PlayAnimation(config.LocomotionStartState);
         }
-        public void PlayStagger() => PlayAnimation(config.StaggerState);
+        public void PlayStagger()
+        {
+            if (animator == null || string.IsNullOrWhiteSpace(config.StaggerState))
+                return;
+
+            animator.CrossFadeInFixedTime(
+                config.StaggerState,
+                config.AnimationBlendDuration,
+                0,
+                0f);
+        }
         public void PlayDeath() => PlayAnimation(config.DeathState);
 
         public bool IsLocomotionSettledInIdle()
