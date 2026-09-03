@@ -15,13 +15,6 @@ using UnityEditor;
 	    public bool Previewable;
         public AbilityEventObj Obj;
 
-        public void ResetAbilityEvent()
-	    {
-	        if (Obj != null)
-	        {
-	   
-	        }
-	    }
 	    public float GetEventStartTime()
 	    {
 	        if(Obj == null)
@@ -83,12 +76,6 @@ using UnityEditor;
 	    public float loopCount = 0;
 	    
 	    public List<AbilityEvent> events = new List<AbilityEvent>();
-	
-	    public void ResetEvent()
-	    {
-	        EventManager.TriggerEvent("ChangeAbilityEvent");
-	    }
-	
 	
 	}
 }

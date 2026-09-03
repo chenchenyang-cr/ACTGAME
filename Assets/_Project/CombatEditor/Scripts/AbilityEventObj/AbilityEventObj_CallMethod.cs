@@ -5,12 +5,6 @@ using UnityEngine;
 
 namespace CombatEditor
 {
-    // Keep a filename-matching compatibility type for Unity script binding.
-    [Obsolete("Use AbilityEventObj_Method or AbilityEventObj_MethodContinuous instead.")]
-    public class AbilityEventObj_CallMethod : AbilityEventObj_Method
-    {
-    }
-
     internal static class AbilityMethodInvoker
     {
         private static readonly Dictionary<string, MethodInfo> MethodCache = new Dictionary<string, MethodInfo>();

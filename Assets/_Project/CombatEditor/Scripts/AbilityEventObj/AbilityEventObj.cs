@@ -20,10 +20,6 @@ namespace CombatEditor
 #endif
 
         public enum EventTimeType { Null, EventTime, EventRange,EventMultiRange }
-        public void A()
-        {
-            EventManager.TriggerEvent("ChangeAbilityEvent");
-        }
         public virtual EventTimeType GetEventTimeType()
         {
             return EventTimeType.Null;
@@ -252,10 +248,6 @@ namespace CombatEditor
         public string ID;
         public bool IsRunning;
         public AbilityScriptableObject AnimObj;
-        public void UpdateEventPosition()
-        {
-            Debug.Log("UpdateEventPosition");
-        }
         public AbilityEventEffect(AbilityEventObj Obj)
         {
             _EventObj = Obj;
@@ -267,9 +259,6 @@ namespace CombatEditor
         public AbilityEventObj _EventObj;
 
         public AbilityEvent eve;
-        float CurrentTimePer;
-
-
         public virtual void StartEffect()
         {
             if (IsRunning)
@@ -282,11 +271,9 @@ namespace CombatEditor
         public virtual void EffectRunning() { }
         public virtual void EffectRunning(float CurrentTimePercentage)
         {
-            CurrentTimePer = CurrentTimePercentage;
         }
         public virtual void EffectRunningFixedUpdate(float CurrentTimePercentage)
         {
-            CurrentTimePer = CurrentTimePercentage;
         }
 
         public virtual void EffectLateRunning() { }

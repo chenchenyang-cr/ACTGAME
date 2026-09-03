@@ -46,9 +46,13 @@ namespace CombatCamera
         [Header("Directional Impulse (World Space)")]
         public bool EnableDirectionalImpulse;
         [Tooltip("World-space displacement along the incoming force direction. Use a negative value to recoil against the force.")]
-        public float DirectionalPositionAmplitude = -0.08f;
+        public float DirectionalPositionAmplitude = -0.35f;
+        [Tooltip("Signed deterministic hit response: the initial positive lobe applies the recoil, and the following negative/positive lobes create an overshoot and settling rebound.")]
         public AnimationCurve DirectionalImpulseCurve = new AnimationCurve(
             new Keyframe(0f, 1f),
+            new Keyframe(0.12f, -0.32f),
+            new Keyframe(0.32f, 0.1f),
+            new Keyframe(0.58f, -0.025f),
             new Keyframe(1f, 0f));
 
         public bool HasVisibleOutput()

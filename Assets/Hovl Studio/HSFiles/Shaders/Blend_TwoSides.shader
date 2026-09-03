@@ -31,6 +31,65 @@ Shader "Hovl/Particles/Blend_TwoSides"
 
 	SubShader
 	{
+		Tags { "RenderType"="TransparentCutout" "Queue"="Transparent" "RenderPipeline"="UniversalPipeline" }
+		Cull Off
+		ZWrite Off
+		Blend SrcAlpha OneMinusSrcAlpha
+
+		Pass
+		{
+			Name "UniversalForward"
+			Tags { "LightMode"="UniversalForward" }
+			HLSLPROGRAM
+			#pragma vertex vert
+			#pragma fragment frag
+			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+			struct Attributes { float4 positionOS : POSITION; float3 normalOS : NORMAL; float4 uv : TEXCOORD0; float4 color : COLOR; };
+			struct Varyings { float4 positionCS : SV_POSITION; float3 positionWS : TEXCOORD0; float3 normalWS : TEXCOORD1; float4 uv : TEXCOORD2; float4 color : COLOR; };
+			TEXTURE2D(_MainTex); SAMPLER(sampler_MainTex); TEXTURE2D(_Mask); SAMPLER(sampler_Mask); TEXTURE2D(_Noise); SAMPLER(sampler_Noise);
+			CBUFFER_START(UnityPerMaterial)
+			float4 _MainTex_ST, _Mask_ST, _Noise_ST, _SpeedMainTexUVNoiseZW;
+			float4 _FresnelColor, _FrontFacesColor, _BackFacesColor, _BackFresnelColor;
+			float _Cutoff, _Emission, _UseFresnel, _Usesmoothcorners, _Fresnel, _FresnelEmission;
+			float _SeparateFresnel, _SeparateEmission, _UseBackFresnel, _BackFresnel, _BackFresnelEmission, _UseCustomData, _Sideopacity;
+			CBUFFER_END
+
+			Varyings vert(Attributes input)
+			{
+				Varyings output = (Varyings)0; VertexPositionInputs pos = GetVertexPositionInputs(input.positionOS.xyz);
+				output.positionCS=pos.positionCS; output.positionWS=pos.positionWS; output.normalWS=TransformObjectToWorldNormal(input.normalOS);
+				output.uv=input.uv; output.color=input.color; return output;
+			}
+
+			half4 frag(Varyings input, FRONT_FACE_TYPE face : FRONT_FACE_SEMANTIC) : SV_Target
+			{
+				half front = IS_FRONT_VFACE(face, 1.0h, 0.0h);
+				half3 n = normalize(input.normalWS) * lerp(-1.0h, 1.0h, front);
+				half3 v = SafeNormalize(GetWorldSpaceViewDir(input.positionWS));
+				float2 maskUV=input.uv.xy*_Mask_ST.xy+_Mask_ST.zw;
+				float2 noiseUV=input.uv.xy*_Noise_ST.xy+_Noise_ST.zw+_Time.y*_SpeedMainTexUVNoiseZW.zw+input.uv.w;
+				half4 noise=SAMPLE_TEXTURE2D(_Mask,sampler_Mask,maskUV)*SAMPLE_TEXTURE2D(_Noise,sampler_Noise,noiseUV)*lerp(1.0h,input.uv.z,saturate(_UseCustomData));
+				clip(noise.r-_Cutoff);
+				half smoothNoise=saturate(noise.r*2.0h-1.0h);
+				half fresnel=pow(saturate(1.0h-dot(n,v)), max(0.001h, front>0.5h?_Fresnel:_BackFresnel));
+				half4 faceColor=front>0.5h?_FrontFacesColor:_BackFacesColor;
+				half4 rimColor=front>0.5h?_FresnelColor:_BackFresnelColor;
+				half useRim=front>0.5h?_UseFresnel:_UseBackFresnel;
+				half rimEmission=front>0.5h?_FresnelEmission:_BackFresnelEmission;
+				half corner=lerp(1.0h,smoothNoise,saturate(_Usesmoothcorners));
+				half4 shaded=lerp(faceColor,faceColor*(1.0h-fresnel)*corner+rimColor*fresnel*rimEmission,saturate(useRim));
+				float2 mainUV=input.uv.xy*_MainTex_ST.xy+_MainTex_ST.zw+_Time.y*_SpeedMainTexUVNoiseZW.xy;
+				half4 mainTex=SAMPLE_TEXTURE2D(_MainTex,sampler_MainTex,mainUV);
+				half4 color=lerp(shaded*mainTex,shaded+_FresnelColor*mainTex*_SeparateEmission,saturate(_SeparateFresnel))*_Emission*input.color;
+				color.a=lerp(input.color.a,input.color.a*saturate(noise.r-1.0h+lerp(1.0h,input.uv.z,saturate(_UseCustomData))),saturate(_Sideopacity));
+				return color;
+			}
+			ENDHLSL
+		}
+	}
+
+	SubShader
+	{
 		Tags{ "RenderType" = "TransparentCutout"  "Queue" = "Transparent+0" "IsEmissive" = "true"  "PreviewType"="Plane" }
 		Cull Off
 		Blend SrcAlpha OneMinusSrcAlpha

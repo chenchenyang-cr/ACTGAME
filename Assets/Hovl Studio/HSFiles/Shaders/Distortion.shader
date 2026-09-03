@@ -11,13 +11,53 @@ Shader "Hovl/Particles/Distortion"
 	{
 		SubShader
 		{
+			Tags { "Queue"="Transparent" "RenderType"="Transparent" "RenderPipeline"="UniversalPipeline" }
+			Blend SrcAlpha OneMinusSrcAlpha
+			Cull Off
+			ZWrite Off
+			Pass
+			{
+				Name "UniversalForward"
+				Tags { "LightMode"="UniversalForward" }
+				HLSLPROGRAM
+				#pragma vertex vert
+				#pragma fragment frag
+				#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+				#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DeclareOpaqueTexture.hlsl"
+				struct Attributes { float4 positionOS:POSITION; float2 uv:TEXCOORD0; float4 color:COLOR; };
+				struct Varyings { float4 positionCS:SV_POSITION; float2 uv:TEXCOORD0; float4 color:COLOR; };
+				TEXTURE2D(_NormalMap); SAMPLER(sampler_NormalMap);
+				CBUFFER_START(UnityPerMaterial)
+				float4 _NormalMap_ST;
+				float _Distortionpower, _InvFade;
+				CBUFFER_END
+				Varyings vert(Attributes i){Varyings o;o.positionCS=TransformObjectToHClip(i.positionOS.xyz);o.uv=TRANSFORM_TEX(i.uv,_NormalMap);o.color=i.color;return o;}
+				half4 frag(Varyings i):SV_Target
+				{
+					half3 normal=UnpackNormal(SAMPLE_TEXTURE2D(_NormalMap,sampler_NormalMap,i.uv));
+					float2 screenUV=GetNormalizedScreenSpaceUV(i.positionCS);
+					// The original GrabPass shader expressed distortion in texels. Applying
+					// the value directly in normalized screen UVs makes a value such as
+					// 0.05 shift the image by five percent of the screen and exposes the
+					// particle quad. Preserve the original pixel-scale displacement.
+					float2 screenTexelSize=_ScaledScreenParams.zw-1.0;
+					float2 offset=normal.xy*screenTexelSize*_Distortionpower*i.color.a;
+					half strength=saturate(abs(normal.x)+abs(normal.y)*30.0h-0.03h);
+					return half4(SampleSceneColor(screenUV+offset),strength*i.color.a);
+				}
+				ENDHLSL
+			}
+		}
+
+		SubShader
+		{
 			Tags { "Queue"="Transparent" "IgnoreProjector"="True" "RenderType"="Transparent" "PreviewType"="Plane" }
 			Blend SrcAlpha OneMinusSrcAlpha
 			Cull Off
 			Lighting Off 
 			ZWrite Off
 			Fog { Mode Off}
-			GrabPass{ }
+			// GrabPass is intentionally omitted for URP compatibility.
 
 			Pass {		
 				CGPROGRAM

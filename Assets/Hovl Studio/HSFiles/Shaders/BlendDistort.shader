@@ -25,9 +25,57 @@ Shader "Hovl/Particles/BlendDistort"
 
 	SubShader
 	{
+		Tags { "RenderType"="Transparent" "Queue"="Transparent" "RenderPipeline"="UniversalPipeline" }
+		Cull Off
+		ZWrite Off
+		Blend SrcAlpha OneMinusSrcAlpha
+		Pass
+		{
+			Name "UniversalForward"
+			Tags { "LightMode"="UniversalForward" }
+			HLSLPROGRAM
+			#pragma vertex vert
+			#pragma fragment frag
+			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DeclareOpaqueTexture.hlsl"
+			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DeclareDepthTexture.hlsl"
+			struct Attributes { float4 positionOS:POSITION; float3 normalOS:NORMAL; float4 uv:TEXCOORD0; float4 uv1:TEXCOORD1; float4 color:COLOR; };
+			struct Varyings { float4 positionCS:SV_POSITION; float3 positionWS:TEXCOORD0; float3 normalWS:TEXCOORD1; float4 uv:TEXCOORD2; float4 uv1:TEXCOORD3; float4 color:COLOR; };
+			TEXTURE2D(_MainTex); SAMPLER(sampler_MainTex); TEXTURE2D(_Noise); SAMPLER(sampler_Noise); TEXTURE2D(_Flow); SAMPLER(sampler_Flow); TEXTURE2D(_Mask); SAMPLER(sampler_Mask); TEXTURE2D(_NormalMap); SAMPLER(sampler_NormalMap);
+			CBUFFER_START(UnityPerMaterial)
+			float4 _MainTex_ST,_Noise_ST,_Flow_ST,_Mask_ST,_NormalMap_ST,_Color,_SpeedMainTexUVNoiseZW,_DistortionSpeedXYPowerZ;
+			float _Distortionpower,_Emission,_Opacity,_Usedepth,_Softedges,_Depthpower;
+			CBUFFER_END
+			Varyings vert(Attributes i){Varyings o; VertexPositionInputs p=GetVertexPositionInputs(i.positionOS.xyz);o.positionCS=p.positionCS;o.positionWS=p.positionWS;o.normalWS=TransformObjectToWorldNormal(i.normalOS);o.uv=i.uv;o.uv1=i.uv1;o.color=i.color;return o;}
+			half4 frag(Varyings i):SV_Target
+			{
+				float2 screenUV=GetNormalizedScreenSpaceUV(i.positionCS);
+				float2 normalUV=i.uv.xy*_NormalMap_ST.xy+_NormalMap_ST.zw+_Time.y*_SpeedMainTexUVNoiseZW.zw;
+				half2 distortion=SAMPLE_TEXTURE2D(_NormalMap,sampler_NormalMap,normalUV).xy*2.0h-1.0h;
+				half3 scene=SampleSceneColor(screenUV+distortion*_Distortionpower);
+				float2 flowUV=i.uv1.xy*_Flow_ST.xy+_Flow_ST.zw+_Time.y*_DistortionSpeedXYPowerZ.xy;
+				half4 flow=SAMPLE_TEXTURE2D(_Flow,sampler_Flow,flowUV)*SAMPLE_TEXTURE2D(_Mask,sampler_Mask,i.uv.xy*_Mask_ST.xy+_Mask_ST.zw)*_DistortionSpeedXYPowerZ.z;
+				float2 mainUV=i.uv.xy*_MainTex_ST.xy+_MainTex_ST.zw+_Time.y*_SpeedMainTexUVNoiseZW.xy-flow.rg;
+				half4 mainTex=SAMPLE_TEXTURE2D(_MainTex,sampler_MainTex,mainUV);
+				half4 noise=SAMPLE_TEXTURE2D(_Noise,sampler_Noise,i.uv.xy*_Noise_ST.xy+_Noise_ST.zw+_Time.y*_SpeedMainTexUVNoiseZW.zw+float2(i.uv1.w,0));
+				half alpha=saturate(mainTex.a*noise.a*_Color.a*i.color.a*_Opacity);
+				half3 effect=mainTex.rgb*noise.rgb*_Color.rgb*i.color.rgb*_Emission*alpha;
+				half depthFade=saturate(abs(LinearEyeDepth(SampleSceneDepth(screenUV),_ZBufferParams)-LinearEyeDepth(i.positionCS.z/i.positionCS.w,_ZBufferParams))/max(0.0001h,_Depthpower));
+				alpha=lerp(alpha,alpha*depthFade,saturate(_Usedepth));
+				half edge=saturate(abs(dot(normalize(i.normalWS),SafeNormalize(GetWorldSpaceViewDir(i.positionWS))))*5.0h);
+				alpha*=lerp(1.0h,edge,saturate(_Softedges));
+				return half4(lerp(scene+effect,scene*effect,saturate(i.uv1.z)),alpha);
+			}
+			ENDHLSL
+		}
+	}
+
+	SubShader
+	{
 		Tags{ "RenderType" = "Transparent"  "Queue" = "Transparent+0" "IgnoreProjector" = "True" "IsEmissive" = "true"  }
 		Cull Off
-		GrabPass{ }
+		// GrabPass is intentionally omitted. URP uses _CameraOpaqueTexture in the
+		// UniversalPipeline subshader above.
 		CGPROGRAM
 		#ifndef UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX
 		#define UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input)

@@ -18,6 +18,56 @@ Shader "Hovl/Particles/Ice"
 
 	SubShader
 	{
+		Tags { "RenderType"="Transparent" "Queue"="Transparent" "RenderPipeline"="UniversalPipeline" }
+		Cull Back
+		ZWrite Off
+		Blend SrcAlpha OneMinusSrcAlpha
+
+		Pass
+		{
+			Name "UniversalForward"
+			Tags { "LightMode"="UniversalForward" }
+			HLSLPROGRAM
+			#pragma vertex vert
+			#pragma fragment frag
+			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+
+			struct Attributes { float4 positionOS : POSITION; float3 normalOS : NORMAL; float2 uv : TEXCOORD0; float4 color : COLOR; };
+			struct Varyings { float4 positionCS : SV_POSITION; float3 positionWS : TEXCOORD0; float3 normalWS : TEXCOORD1; float2 uv : TEXCOORD2; float4 color : COLOR; };
+			TEXTURE2D(_MainTex); SAMPLER(sampler_MainTex);
+			CBUFFER_START(UnityPerMaterial)
+			float4 _MainTex_ST, _Color, _UpColor, _FresnelColor;
+			float _ColorPosition, _Emission, _FresnelPower, _FresnelScale;
+			CBUFFER_END
+
+			Varyings vert(Attributes input)
+			{
+				Varyings output;
+				VertexPositionInputs pos = GetVertexPositionInputs(input.positionOS.xyz);
+				output.positionCS = pos.positionCS;
+				output.positionWS = pos.positionWS;
+				output.normalWS = TransformObjectToWorldNormal(input.normalOS);
+				output.uv = TRANSFORM_TEX(input.uv, _MainTex);
+				output.color = input.color;
+				return output;
+			}
+
+			half4 frag(Varyings input) : SV_Target
+			{
+				half3 normalWS = normalize(input.normalWS);
+				half3 viewDirWS = SafeNormalize(GetWorldSpaceViewDir(input.positionWS));
+				half upBlend = saturate(TransformWorldToObjectDir(normalWS).y + lerp(-1.0h, 1.0h, _ColorPosition));
+				half fresnel = saturate(_FresnelScale * pow(saturate(1.0h - dot(normalWS, viewDirWS)), _FresnelPower));
+				half4 baseSample = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv);
+				half4 color = (baseSample * lerp(_Color, _UpColor, upBlend) * (1.0h - fresnel) + fresnel * _FresnelColor) * input.color;
+				return half4(color.rgb * (1.0h + _Emission), color.a);
+			}
+			ENDHLSL
+		}
+	}
+
+	SubShader
+	{
 		Tags{ "RenderType" = "Transparent"  "Queue" = "Transparent+0" "IgnoreProjector" = "True" "IsEmissive" = "true"  }
 		Cull Back
 		CGINCLUDE
