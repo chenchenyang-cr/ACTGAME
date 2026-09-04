@@ -63,6 +63,10 @@ namespace UnityLearning.EnemySystem
             }
 
             bool killed = currentHealth <= 0f;
+            controller.PlayHitVisualShake();
+            controller.PlayHitRecoil(
+                request.Attacker != null ? request.Attacker.transform : null,
+                request.AttackDirection);
             if (killed)
             {
                 controller.NotifyDied();

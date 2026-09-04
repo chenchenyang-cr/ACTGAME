@@ -48,6 +48,19 @@ namespace UnityLearning.EnemySystem
         [SerializeField, Min(0f)] private float defaultStaggerDuration = 0.45f;
         [SerializeField] private EnemyAttackConfig[] attacks = Array.Empty<EnemyAttackConfig>();
 
+        [Header("Hit Feedback")]
+        [SerializeField] private bool enableHitVisualShake = true;
+        [SerializeField, Min(0f)] private float hitShakeDuration = 0.12f;
+        [SerializeField, Min(0f)] private float hitShakeFrequency = 32f;
+        [SerializeField, Min(0f)] private float hitShakeAmplitude = 0.025f;
+        [SerializeField] private AnimationCurve hitShakeDecayCurve =
+            AnimationCurve.EaseInOut(0f, 1f, 1f, 0f);
+        [SerializeField] private bool enableHitRecoil = true;
+        [SerializeField, Min(0f)] private float hitRecoilDuration = 0.12f;
+        [SerializeField, Min(0f)] private float hitRecoilSpeed = 1.2f;
+        [SerializeField] private AnimationCurve hitRecoilDecayCurve =
+            AnimationCurve.EaseInOut(0f, 1f, 1f, 0f);
+
         [Header("Vitals")]
         [SerializeField, Min(1f)] private float maximumHealth = 100f;
         [SerializeField, Min(0f)] private float maximumPoise = 30f;
@@ -84,6 +97,15 @@ namespace UnityLearning.EnemySystem
         public float PostAttackRecovery => postAttackRecovery;
         public float DefaultStaggerDuration => defaultStaggerDuration;
         public EnemyAttackConfig[] Attacks => attacks;
+        public bool EnableHitVisualShake => enableHitVisualShake;
+        public float HitShakeDuration => Mathf.Max(0f, hitShakeDuration);
+        public float HitShakeFrequency => Mathf.Max(0f, hitShakeFrequency);
+        public float HitShakeAmplitude => Mathf.Max(0f, hitShakeAmplitude);
+        public AnimationCurve HitShakeDecayCurve => hitShakeDecayCurve;
+        public bool EnableHitRecoil => enableHitRecoil;
+        public float HitRecoilDuration => Mathf.Max(0f, hitRecoilDuration);
+        public float HitRecoilSpeed => Mathf.Max(0f, hitRecoilSpeed);
+        public AnimationCurve HitRecoilDecayCurve => hitRecoilDecayCurve;
         public float MaximumHealth => Mathf.Max(1f, maximumHealth);
         public float MaximumPoise => Mathf.Max(0f, maximumPoise);
         public float PoiseRecoveryDelay => Mathf.Max(0f, poiseRecoveryDelay);

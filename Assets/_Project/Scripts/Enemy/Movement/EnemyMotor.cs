@@ -3,6 +3,7 @@ using UnityEngine.AI;
 
 namespace UnityLearning.EnemySystem
 {
+    [DefaultExecutionOrder(11000)]
     [RequireComponent(typeof(NavMeshAgent))]
     public sealed class EnemyMotor : MonoBehaviour
     {
@@ -39,6 +40,12 @@ namespace UnityLearning.EnemySystem
         private Vector3 stabilizedMovementDirection;
         private bool hasStabilizedMovementDirection;
         private Vector2 lastNonZeroDirection = Vector2.up;
+        private Vector3 hitRecoilDirection;
+        private AnimationCurve hitRecoilDecayCurve;
+        private float hitRecoilDuration;
+        private float hitRecoilSpeed;
+        private float hitRecoilElapsed;
+        private bool hitRecoilActive;
 
         public bool HasValidPath => navMeshAgent != null && navMeshAgent.isOnNavMesh &&
                                     navMeshAgent.pathStatus != NavMeshPathStatus.PathInvalid;
@@ -158,6 +165,53 @@ namespace UnityLearning.EnemySystem
             if (hasIsMovingParameter)
                 animator.SetBool(isMovingHash, moving);
             wasMoving = moving;
+        }
+
+        private void LateUpdate()
+        {
+            if (!hitRecoilActive)
+                return;
+
+            float normalizedTime = Mathf.Clamp01(hitRecoilElapsed / hitRecoilDuration);
+            float decay = hitRecoilDecayCurve != null &&
+                          hitRecoilDecayCurve.length > 0
+                ? Mathf.Max(0f, hitRecoilDecayCurve.Evaluate(normalizedTime))
+                : 1f - normalizedTime;
+            ApplyExternalDisplacement(hitRecoilDirection *
+                                      (hitRecoilSpeed * decay * Time.deltaTime));
+
+            hitRecoilElapsed += Time.deltaTime;
+            if (hitRecoilElapsed >= hitRecoilDuration)
+                hitRecoilActive = false;
+        }
+
+        public void PlayHitRecoil(Vector3 direction, float duration, float speed,
+            AnimationCurve decayCurve)
+        {
+            direction.y = 0f;
+            if (direction.sqrMagnitude <= 0.0001f || duration <= 0f || speed <= 0f)
+            {
+                hitRecoilActive = false;
+                return;
+            }
+
+            hitRecoilDirection = direction.normalized;
+            hitRecoilDuration = duration;
+            hitRecoilSpeed = speed;
+            hitRecoilDecayCurve = decayCurve;
+            hitRecoilElapsed = 0f;
+            hitRecoilActive = true;
+        }
+
+        private void ApplyExternalDisplacement(Vector3 displacement)
+        {
+            if (displacement.sqrMagnitude <= 0f)
+                return;
+
+            transform.position += displacement;
+            if (navMeshAgent != null && navMeshAgent.enabled &&
+                navMeshAgent.isOnNavMesh)
+                navMeshAgent.nextPosition = transform.position;
         }
 
         public bool MoveTo(Vector3 destination)

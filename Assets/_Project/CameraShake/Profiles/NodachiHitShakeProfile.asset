@@ -19,7 +19,7 @@ MonoBehaviour:
     TraumaPerPulse: 0.65
     TraumaExponent: 1
     EnablePosition: 0
-    PositionAmplitude: {x: 0.3, y: 0.3, z: 0}
+    PositionAmplitude: {x: 0.4, y: 0.4, z: 0}
     PositionFrequency: 30
     PositionCurve:
       serializedVersion: 2

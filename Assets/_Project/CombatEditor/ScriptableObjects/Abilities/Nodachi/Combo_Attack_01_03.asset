@@ -340,7 +340,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  SampleDistance: 0.4
+  SampleDistance: 0.5
   FocusPoint: {x: 0.5, y: 0.5}
 --- !u!114 &-8228217466998677033
 MonoBehaviour:

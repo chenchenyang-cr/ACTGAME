@@ -21,6 +21,7 @@ namespace UnityLearning.EnemySystem
         [SerializeField] private EnemyStateMachine stateMachine;
         [SerializeField] private Animator animator;
         [SerializeField] private EncounterCombatDirector combatDirector;
+        [SerializeField] private CharacterHitVisualShake hitVisualShake;
 
         public EnemyConfig Config => config;
         public Transform Target => target;
@@ -48,6 +49,7 @@ namespace UnityLearning.EnemySystem
             if (combatAdapter == null) combatAdapter = GetComponent<EnemyCombatAdapter>();
             if (stateMachine == null) stateMachine = GetComponent<EnemyStateMachine>();
             if (animator == null) animator = GetComponentInChildren<Animator>();
+            ConfigureHitVisualShake();
             ResolveCombatDirector();
             ConfigureRootMotion();
             if (target == null && combatDirector != null)
@@ -88,6 +90,19 @@ namespace UnityLearning.EnemySystem
             CombatController combatController = GetComponent<CombatController>();
             if (combatController != null)
                 combatController.AllowMotionTranslation = true;
+        }
+
+        private void ConfigureHitVisualShake()
+        {
+            if (animator == null)
+                return;
+
+            if (hitVisualShake == null)
+                hitVisualShake = GetComponent<CharacterHitVisualShake>();
+            if (hitVisualShake == null)
+                hitVisualShake = gameObject.AddComponent<CharacterHitVisualShake>();
+
+            hitVisualShake.Initialize(animator.transform);
         }
 
         private static Quaternion IgnoreAnimationRootRotation(Quaternion animationDeltaRotation)
@@ -165,6 +180,40 @@ namespace UnityLearning.EnemySystem
                 ? duration
                 : config.DefaultStaggerDuration;
             stateMachine.ChangeState(stateMachine.StaggerState, true);
+        }
+
+        public void PlayHitVisualShake()
+        {
+            if (config == null || !config.EnableHitVisualShake || hitVisualShake == null)
+                return;
+
+            hitVisualShake.Play(
+                config.HitShakeDuration,
+                config.HitShakeFrequency,
+                config.HitShakeAmplitude,
+                config.HitShakeDecayCurve);
+        }
+
+        public void PlayHitRecoil(Transform attacker, Vector3 attackDirection)
+        {
+            if (config == null || !config.EnableHitRecoil || motor == null)
+                return;
+
+            Vector3 recoilDirection = attacker != null
+                ? transform.position - attacker.position
+                : attackDirection;
+            recoilDirection.y = 0f;
+            if (recoilDirection.sqrMagnitude <= 0.0001f)
+            {
+                recoilDirection = attackDirection;
+                recoilDirection.y = 0f;
+            }
+
+            motor.PlayHitRecoil(
+                recoilDirection,
+                config.HitRecoilDuration,
+                config.HitRecoilSpeed,
+                config.HitRecoilDecayCurve);
         }
 
         public void NotifyDied()

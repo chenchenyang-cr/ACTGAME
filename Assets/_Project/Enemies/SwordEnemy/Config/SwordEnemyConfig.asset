@@ -23,10 +23,6 @@ MonoBehaviour:
   attackApproachAllowance: 2
   postAttackRecovery: 0.8
   defaultStaggerDuration: 0.45
-  maximumHealth: 100
-  maximumPoise: 30
-  poiseRecoveryDelay: 1.5
-  poiseRecoveryPerSecond: 15
   attacks:
   - displayName: "\u57FA\u7840\u65A9\u51FB"
     ability: {fileID: 11400000, guid: d6dffb344daa61244a34f0853a5062ae, type: 2}
@@ -36,6 +32,83 @@ MonoBehaviour:
     priority: 1
     facingTolerance: 18
     entryTolerance: 0.3
+  enableHitVisualShake: 1
+  hitShakeDuration: 0.12
+  hitShakeFrequency: 32
+  hitShakeAmplitude: 0.025
+  hitShakeDecayCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  enableHitRecoil: 1
+  hitRecoilDuration: 0.25
+  hitRecoilSpeed: 5
+  hitRecoilDecayCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.29892278
+      value: 0.95174646
+      inSlope: 1.7590693
+      outSlope: 1.7590693
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.6928021
+      value: -0.39345163
+      inSlope: -1.5764638
+      outSlope: -1.5764638
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  maximumHealth: 100
+  maximumPoise: 30
+  poiseRecoveryDelay: 1.5
+  poiseRecoveryPerSecond: 15
   idleState: Idle
   alertState: Alert
   locomotionState: Locomotion

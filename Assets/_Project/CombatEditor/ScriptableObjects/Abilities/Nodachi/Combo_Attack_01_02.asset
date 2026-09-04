@@ -366,7 +366,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  SampleDistance: 0.197
+  SampleDistance: 0.3
   FocusPoint: {x: 0.5, y: 0.5}
 --- !u!114 &8702645937542011431
 MonoBehaviour:
@@ -618,7 +618,7 @@ MonoBehaviour:
       m_RotationOrder: 4
   PreviewHitCameraShake: 1
   EnableHitAnimationSpeed: 1
-  HitAnimationSpeedDuration: 0.06
+  HitAnimationSpeedDuration: 0.04
   HitAnimationSpeedUseUnscaledTime: 1
   HitAnimationSpeedCurve:
     serializedVersion: 2
