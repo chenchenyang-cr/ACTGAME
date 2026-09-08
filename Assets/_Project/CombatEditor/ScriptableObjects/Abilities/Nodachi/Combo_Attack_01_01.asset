@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   IsActive: 1
   Priority: 0
-  AllowedCommandIds: Dodge
+  AllowedCommandIds: Dodge,Parry
   AllowMovement: 1
   MinimumPriority: 0
   AllowHitReaction: 1
@@ -111,32 +111,6 @@ MonoBehaviour:
   Opacity: 1
   AirTintStrength: 0.35
   NUM_VERTICES: 12
---- !u!114 &-3070975137496316347
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ca2229d21ed65194bac74b8298b11290, type: 3}
-  m_Name: Particles
-  m_EditorClassIdentifier: 
-  IsActive: 1
-  ObjData:
-    TargetObj: {fileID: 7212047850060897593, guid: 1bddde0101aa1e744bfa819371e6aa4f, type: 3}
-    controlType: 0
-    Offset: {x: 0.19045809, y: 1.350974, z: -0.4423604}
-    Rot: {x: 0.21156308, y: 0.9499168, z: 0.0499996, w: 0.22449787}
-    Scale: {x: 1, y: 1, z: 1}
-    TargetNode: 0
-    FollowNode: 1
-    RotateByNode: 0
-  TimeType: 1
-  PlaySpeed: 2
-  SizeMultiplier: 0.24
-  CenterOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -151,6 +125,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   AbilityType: 0
   Clip: {fileID: 7400000, guid: d37ede9243301c14b8ac38c939d247e0, type: 2}
+  AdditionalClips: []
   PreviewPercentageRange: {x: 0, y: 1}
   loopCount: 0
   events:
@@ -190,15 +165,6 @@ MonoBehaviour:
     - 0.8
     Previewable: 0
     Obj: {fileID: -6541295681637221545}
-  - EventTime: 0.15454546
-    EventRange: {x: 0, y: 1}
-    EventMultiRange:
-    - 0.2
-    - 0.4
-    - 0.6
-    - 0.8
-    Previewable: 0
-    Obj: {fileID: -3070975137496316347}
   - EventTime: 0
     EventRange: {x: 0.15454546, y: 0.3181818}
     EventMultiRange:
@@ -293,6 +259,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 4294967295
   AllowFriendlyFire: 0
+  CanBeParried: 1
   EnableHitCameraShake: 1
   HitCameraShakeProfile: {fileID: 11400000, guid: f2c43206a32f439fa929f036818f1199, type: 2}
   HitCameraShakeDuration: 0.2
@@ -510,24 +477,24 @@ MonoBehaviour:
       m_RotationOrder: 4
   PreviewHitCameraShake: 1
   EnableHitAnimationSpeed: 1
-  HitAnimationSpeedDuration: 0.04
+  HitAnimationSpeedDuration: 0.01
   HitAnimationSpeedUseUnscaledTime: 1
   HitAnimationSpeedCurve:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
+      value: 0.4
+      inSlope: -0.03657967
+      outSlope: -0.03657967
       tangentMode: 34
       weightedMode: 0
       inWeight: 0
       outWeight: 0.33333334
     - serializedVersion: 3
-      time: 0.89000005
-      value: 0
-      inSlope: -0
+      time: 0.9566657
+      value: 0.3650055
+      inSlope: -0.03657967
       outSlope: 4.3102574
       tangentMode: 5
       weightedMode: 0
@@ -536,7 +503,7 @@ MonoBehaviour:
     - serializedVersion: 3
       time: 1
       value: 1
-      inSlope: 9.090913
+      inSlope: 14.653391
       outSlope: 0.06838714
       tangentMode: 5
       weightedMode: 0
@@ -546,9 +513,9 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   EnableHitVfx: 1
-  HitVfxPrefab: {fileID: 0}
+  HitVfxPrefab: {fileID: 1923962722205832878, guid: cd05009f07b076e4baa80b03d69fdf3b, type: 3}
   HitVfxDirection: 0
-  HitVfxPositionOffset: {x: 0, y: 0, z: 0}
+  HitVfxPositionOffset: {x: 0, y: -0.5, z: 0}
   HitVfxRotationOffset: {x: 0, y: 0, z: 0}
   HitVfxScale: 0.1
   HitVfxLifetime: 0
@@ -606,7 +573,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   IsActive: 1
   Mode: 0
-  Speed: 1.4
+  Speed: 1.6
   SpeedCurve:
     serializedVersion: 2
     m_Curve:

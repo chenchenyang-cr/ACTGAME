@@ -12,6 +12,8 @@ public sealed class PlayerActionAnimator
     private readonly int dodgeXHash;
     private readonly int dodgeYHash;
     private readonly int combatWeightHash;
+    private readonly int dodgeToFastRunNormalHash;
+    private readonly int dodgeToFastRunCombatHash;
     private readonly Object logContext;
 
     private bool isDodgeAnimationPlaying;
@@ -31,7 +33,62 @@ public sealed class PlayerActionAnimator
         dodgeXHash = Animator.StringToHash(profile.DodgeXParameter);
         dodgeYHash = Animator.StringToHash(profile.DodgeYParameter);
         combatWeightHash = Animator.StringToHash(profile.CombatWeightParameter);
+        if (animator != null && profile.AnimatorLayer < animator.layerCount && profile.AnimatorLayer >= 0)
+        {
+            string layerName = animator.GetLayerName(profile.AnimatorLayer);
+            dodgeToFastRunNormalHash = Animator.StringToHash($"{layerName}.{profile.DodgeToFastRunNormalStateName}");
+            dodgeToFastRunCombatHash = Animator.StringToHash($"{layerName}.{profile.DodgeToFastRunCombatStateName}");
+        }
     }
+
+    private int trackedActionHash;
+    private int trackedActionRequestFrame;
+    private bool trackedActionEntered;
+    private bool trackedActionPlaying;
+
+    public bool PlayTrackedAction(string stateName, float blendDuration)
+    {
+        trackedActionEntered = false;
+        trackedActionRequestFrame = Time.frameCount;
+        trackedActionPlaying = TryCrossFade(stateName, blendDuration, out trackedActionHash);
+        return trackedActionPlaying;
+    }
+
+    public bool TryGetTrackedActionTime(out float normalizedTime)
+    {
+        normalizedTime = 0f;
+        if (!trackedActionPlaying || !ValidateAnimatorLayer()) return false;
+        // On a same-state restart, Animator may still report the previous attempt's time
+        // until it evaluates the new transition. Never reuse that old parry window.
+        if (Time.frameCount <= trackedActionRequestFrame) return false;
+        AnimatorStateInfo state;
+        if (animator.IsInTransition(profile.AnimatorLayer))
+        {
+            state = animator.GetNextAnimatorStateInfo(profile.AnimatorLayer);
+            if (state.fullPathHash == trackedActionHash)
+            {
+                trackedActionEntered = true;
+                normalizedTime = state.normalizedTime;
+                return true;
+            }
+        }
+        state = animator.GetCurrentAnimatorStateInfo(profile.AnimatorLayer);
+        if (state.fullPathHash != trackedActionHash) return false;
+        trackedActionEntered = true;
+        normalizedTime = state.normalizedTime;
+        return true;
+    }
+
+    public bool IsTrackedActionComplete()
+    {
+        if (!trackedActionPlaying) return true;
+        if (Time.frameCount <= trackedActionRequestFrame) return false;
+        if (TryGetTrackedActionTime(out float time)) return time >= 1f;
+        // Recover if another animator transition steals the action.
+        return trackedActionEntered || Time.frameCount > trackedActionRequestFrame + 2;
+    }
+
+    public void StopTrackingAction() => trackedActionPlaying = false;
 
     public void PlayAbility(AbilityScriptableObject ability)
     {
@@ -114,10 +171,61 @@ public sealed class PlayerActionAnimator
 
     public void PlayLocomotionLoop()
     {
+        PlayLocomotionLoop(profile.LocomotionReturnBlendDuration);
+    }
+
+    private void PlayLocomotionLoop(float duration)
+    {
         string stateName = IsCombatAnimationActive()
             ? profile.CombatLocomotionLoopStateName
             : profile.NormalLocomotionLoopStateName;
-        TryCrossFade(stateName, profile.LocomotionReturnBlendDuration, out _);
+        TryCrossFade(stateName, duration, out _);
+    }
+
+    public void UpdateLocomotionRecovery()
+    {
+        if (!ValidateAnimatorLayer() || animator.IsInTransition(profile.AnimatorLayer))
+        {
+            return;
+        }
+
+        AnimatorStateInfo current = animator.GetCurrentAnimatorStateInfo(profile.AnimatorLayer);
+        if ((current.fullPathHash == dodgeToFastRunNormalHash ||
+             current.fullPathHash == dodgeToFastRunCombatHash) && current.normalizedTime >= 0.9f)
+        {
+            // A fixed-time cross-fade can advance the incoming non-looping clip
+            // past its exit time. Check the level, not only the Animator's exit
+            // crossing, so late entries and long frames cannot strand recovery.
+            PlayLocomotionLoop(profile.DodgeToFastRunBlendDuration);
+        }
+    }
+
+    public bool TryPlayDodgeToFastRun()
+    {
+        if (!isDodgeAnimationPlaying || !ValidateAnimatorLayer())
+        {
+            return false;
+        }
+
+        string stateName = IsCombatAnimationActive()
+            ? profile.DodgeToFastRunCombatStateName
+            : profile.DodgeToFastRunNormalStateName;
+        int stateHash = Animator.StringToHash($"{animator.GetLayerName(profile.AnimatorLayer)}.{stateName}");
+        // Controllers without authored recovery states keep their direct return.
+        if (!animator.HasState(profile.AnimatorLayer, stateHash))
+        {
+            return false;
+        }
+
+        // These clips include the initial dodge. Continue at the elapsed clip
+        // time instead of replaying it; late inputs still get the recovery tail.
+        float fixedTimeOffset = TryGetDodgeAnimationState(out AnimatorStateInfo dodgeState)
+            ? Mathf.Clamp(dodgeState.normalizedTime * dodgeState.length,
+                0f, profile.DodgeToFastRunLatestStartTime)
+            : profile.DodgeToFastRunLatestStartTime;
+        return PlayerAnimatorTransition.TryCrossFade(
+            animator, profile.AnimatorLayer, stateHash,
+            profile.DodgeToFastRunBlendDuration, fixedTimeOffset, logContext);
     }
 
     private bool TryGetDodgeAnimationState(out AnimatorStateInfo stateInfo)

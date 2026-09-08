@@ -81,6 +81,7 @@ namespace CombatEditor
 
         private static void OnHitConfirmed(CombatHitConfirmedEvent hitEvent)
         {
+            if (hitEvent.ResultType == CombatHitResultType.Parried) return;
             // Inline HitBox shake is authoritative for this confirmed hit.
             // Legacy OnConfirmedHit tracks remain available when it is disabled.
             if (hitEvent.SourceHitBoxEvent != null &&

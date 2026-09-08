@@ -14,6 +14,11 @@ public sealed class PlayerCombatAdapter : MonoBehaviour, ICombatGameplayWindowLi
     [SerializeField] private AbilityScriptableObject firstLightAttack;
     [SerializeField] private AbilityScriptableObject dodgeAbility;
 
+    [SerializeField] private AbilityScriptableObject parryStartAbility;
+    public AbilityScriptableObject ParryStartAbility => parryStartAbility;
+    [SerializeField] private AbilityScriptableObject parryEndAbility;
+    public AbilityScriptableObject ParryEndAbility => parryEndAbility;
+
     private readonly Dictionary<CombatWindowHandle, AbilityEventObj_RotationWindow> rotationWindows = new();
     private readonly Dictionary<CombatWindowHandle, AbilityEventObj_ComboWindow> comboWindows = new();
     private readonly Dictionary<CombatWindowHandle, AbilityEventObj_InterruptWindow> interruptWindows = new();

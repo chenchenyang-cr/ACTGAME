@@ -118,6 +118,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   AbilityType: 0
   Clip: {fileID: 7400000, guid: d23ea6f9b28c084458d3b5aeb18bddc4, type: 2}
+  AdditionalClips:
+  - {fileID: 7400000, guid: 9714542593179574f83db66c638e5410, type: 2}
   PreviewPercentageRange: {x: 0, y: 1}
   loopCount: 0
   events:

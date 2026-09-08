@@ -28,3 +28,5 @@ MonoBehaviour:
   combatExitLayerName: Combat Upper Body
   combatExitStateName: Idle_Combat_To_Idle
   combatExitBlendDuration: 0.1
+  ParryEndBlendDuration: 0.18
+  ParryStartEndTransitionTime: 0.75

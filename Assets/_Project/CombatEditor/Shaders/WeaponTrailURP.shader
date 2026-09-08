@@ -5,7 +5,11 @@ Shader "CombatEditor/AirBlurWeaponTrailURP"
         _MainTex ("Distortion Mask", 2D) = "white" {}
         [HDR] _TintColor ("Air Edge Tint", Color) = (0.55, 0.85, 1, 0.5)
         _Intensity ("Edge Brightness", Range(0, 12)) = 1.5
-        _DistortionStrength ("Distortion (Pixels)", Range(0, 30)) = 8
+        [HDR] _EdgeGlowColor ("Edge Glow Color", Color) = (0.55, 0.85, 1, 1)
+        _EdgeGlowIntensity ("Edge Glow Intensity", Range(0, 20)) = 0
+        _EdgeGlowWidth ("Edge Glow Width", Range(0.01, 0.45)) = 0.12
+        _EdgeGlowSoftness ("Edge Glow Inner Transition", Range(0.01, 0.5)) = 0.22
+        _DistortionStrength ("Distortion (Pixels)", Range(0, 300)) = 8
         _NoiseFrequency ("Air Wave Frequency", Range(0.1, 30)) = 9
         [Enum(U, 0, V, 1)] _DistortionAxis ("Distortion UV Axis", Float) = 0
         _TintStrength ("Air Tint Strength", Range(0, 1)) = 0.35
@@ -72,6 +76,10 @@ Shader "CombatEditor/AirBlurWeaponTrailURP"
                 float _NoiseFrequency;
                 float _DistortionAxis;
                 float _TintStrength;
+                float4 _EdgeGlowColor;
+                float _EdgeGlowIntensity;
+                float _EdgeGlowWidth;
+                float _EdgeGlowSoftness;
             CBUFFER_END
 
             Varyings Vert(Attributes input)
@@ -143,8 +151,26 @@ Shader "CombatEditor/AirBlurWeaponTrailURP"
                 half edge = (saturate(1.0h - sideFade) * sideFade +
                     abs(waveA - waveB) * 0.035h) * mask * tail;
                 half3 edgeColor = _TintColor.rgb * (_Intensity * 0.12h) * edge;
+                // Two soft luminous bands along the blade-base and blade-tip edges.
+                // Independent material controls keep event tint/brightness overrides
+                // from suppressing HDR emission. Fade with the trail's mask and tail.
+                // Combine both edges with Gaussian falloff: a narrow luminous core
+                // blends into a broad, dim shoulder instead of ending at a UV cutoff.
+                float glowWidth = max(_EdgeGlowWidth, 0.001);
+                float2 edgeOffsets = float2(input.uv.y, 1.0 - input.uv.y) - glowWidth * 0.5;
+                float2 coreDistance = edgeOffsets / (glowWidth * 0.5);
+                float2 softDistance = edgeOffsets / (glowWidth * 0.5 + _EdgeGlowSoftness);
+                float2 coreGlow = exp2(-2.0 * coreDistance * coreDistance);
+                float2 softGlow = exp2(-2.0 * softDistance * softDistance);
+                half outerFade = smoothstep(0.0, min(glowWidth * 0.25, 0.03), input.uv.y) *
+                    smoothstep(0.0, min(glowWidth * 0.25, 0.03), 1.0 - input.uv.y);
+                half glowBand = dot(coreGlow, float2(0.65, 0.65)) +
+                    dot(softGlow, float2(0.35, 0.35));
+                glowBand *= outerFade;
+                half glowMask = glowBand * mask * tail * saturate(_Alpha);
+                half3 edgeGlow = _EdgeGlowColor.rgb * _EdgeGlowIntensity * glowMask;
                 clip(coverage - 0.001h);
-                return half4(sceneColor + edgeColor, 1.0h);
+                return half4(sceneColor + edgeColor + edgeGlow, 1.0h);
             }
             ENDHLSL
         }

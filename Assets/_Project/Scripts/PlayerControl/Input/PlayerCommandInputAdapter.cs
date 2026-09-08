@@ -22,15 +22,21 @@ public sealed class PlayerCommandInputAdapter : MonoBehaviour
 
     private void OnEnable()
     {
+        inputReader.ParryPressed += BufferParry;
+        inputReader.InputReset += inputBuffer.Clear;
         inputReader.DodgePressed += BufferDodge;
         inputReader.LightAttackPressed += BufferLightAttack;
     }
 
     private void OnDisable()
     {
+        inputReader.ParryPressed -= BufferParry;
+        inputReader.InputReset -= inputBuffer.Clear;
         inputReader.DodgePressed -= BufferDodge;
         inputReader.LightAttackPressed -= BufferLightAttack;
     }
+
+    private void BufferParry() => inputBuffer.AddInput(PlayerActionCommand.Parry);
 
     private void BufferDodge()
     {

@@ -12,14 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a7c02e95b03d48b6821befd404d085c1, type: 3}
   m_Name: NodachiHitShakeProfile
   m_EditorClassIdentifier: 
-  Duration: 0.2
+  Duration: 0.15
   UseUnscaledTime: 1
   Settings:
     Channel: 0
     TraumaPerPulse: 0.65
     TraumaExponent: 1
     EnablePosition: 0
-    PositionAmplitude: {x: 0.4, y: 0.4, z: 0}
+    PositionAmplitude: {x: 0.1, y: 0.1, z: 0}
     PositionFrequency: 30
     PositionCurve:
       serializedVersion: 2
@@ -92,8 +92,8 @@ MonoBehaviour:
       m_RotationOrder: 4
     PositionSeed: 137
     EnableRotation: 1
-    RotationAmplitude: {x: 0.9, y: 0.75, z: 0.3}
-    RotationFrequency: 16
+    RotationAmplitude: {x: 0.6, y: 0.45, z: 0.15}
+    RotationFrequency: 25
     RotationCurve:
       serializedVersion: 2
       m_Curve:

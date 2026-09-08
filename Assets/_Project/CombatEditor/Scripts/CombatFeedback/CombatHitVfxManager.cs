@@ -36,6 +36,8 @@ namespace CombatEditor
 
         private static void OnHitConfirmed(CombatHitConfirmedEvent hitEvent)
         {
+            // Defender feedback owns the parry effect; do not also spawn the attack's hit effect.
+            if (hitEvent.ResultType == CombatHitResultType.Parried) return;
             AbilityEventObj_CreateHitBox config = hitEvent.SourceHitBoxEvent;
             if (config == null || !config.EnableHitVfx || config.HitVfxPrefab == null ||
                 (config.HitVfxResultMask & hitEvent.ResultMask) == 0)

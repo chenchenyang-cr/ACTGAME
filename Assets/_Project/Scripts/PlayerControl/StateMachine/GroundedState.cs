@@ -11,6 +11,9 @@ public abstract class GroundedState : PlayerState
     {
         switch (command)
         {
+            case PlayerActionCommand.Parry:
+                return Machine.TryEnterParry();
+
             case PlayerActionCommand.Dodge:
                 Machine.ChangeState(Machine.DodgeState);
                 return true;

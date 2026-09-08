@@ -9,7 +9,8 @@ namespace CombatEditor
         TargetAssist,
         Combo,
         Interrupt,
-        Exit
+        Exit,
+        Parry
     }
 
     public enum CombatRotationPolicy

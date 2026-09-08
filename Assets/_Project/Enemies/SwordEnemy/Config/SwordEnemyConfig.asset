@@ -33,9 +33,9 @@ MonoBehaviour:
     facingTolerance: 18
     entryTolerance: 0.3
   enableHitVisualShake: 1
-  hitShakeDuration: 0.12
-  hitShakeFrequency: 32
-  hitShakeAmplitude: 0.025
+  hitShakeDuration: 0.15
+  hitShakeFrequency: 15
+  hitShakeAmplitude: 0.3
   hitShakeDecayCurve:
     serializedVersion: 2
     m_Curve:
@@ -60,7 +60,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  enableHitRecoil: 1
+  enableHitRecoil: 0
   hitRecoilDuration: 0.25
   hitRecoilSpeed: 5
   hitRecoilDecayCurve:

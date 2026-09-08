@@ -127,6 +127,15 @@ public partial class @PlayerAction: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""Parry"",
+                    ""type"": ""Button"",
+                    ""id"": ""3b0585b3-cd08-4e11-8646-eafc5d372e8b"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": ""Press(behavior=0)"",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -261,6 +270,28 @@ public partial class @PlayerAction: IInputActionCollection2, IDisposable
                     ""action"": ""Look"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""c8870077-2424-405a-869b-1869081c22ef"",
+                    ""path"": ""<Keyboard>/e"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Parry"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""950c6a77-186f-4f1a-9c51-96dc806a14c1"",
+                    ""path"": ""<Gamepad>/rightShoulder"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Parry"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -273,6 +304,7 @@ public partial class @PlayerAction: IInputActionCollection2, IDisposable
         m_GamePlay_Look = m_GamePlay.FindAction("Look", throwIfNotFound: true);
         m_GamePlay_Dodge = m_GamePlay.FindAction("Dodge", throwIfNotFound: true);
         m_GamePlay_LightAttack = m_GamePlay.FindAction("LightAttack", throwIfNotFound: true);
+        m_GamePlay_Parry = m_GamePlay.FindAction("Parry", throwIfNotFound: true);
     }
 
     ~@PlayerAction()
@@ -357,6 +389,7 @@ public partial class @PlayerAction: IInputActionCollection2, IDisposable
     private readonly InputAction m_GamePlay_Look;
     private readonly InputAction m_GamePlay_Dodge;
     private readonly InputAction m_GamePlay_LightAttack;
+    private readonly InputAction m_GamePlay_Parry;
     /// <summary>
     /// Provides access to input actions defined in input action map "GamePlay".
     /// </summary>
@@ -384,6 +417,10 @@ public partial class @PlayerAction: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "GamePlay/LightAttack".
         /// </summary>
         public InputAction @LightAttack => m_Wrapper.m_GamePlay_LightAttack;
+        /// <summary>
+        /// Provides access to the underlying input action "GamePlay/Parry".
+        /// </summary>
+        public InputAction @Parry => m_Wrapper.m_GamePlay_Parry;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -422,6 +459,9 @@ public partial class @PlayerAction: IInputActionCollection2, IDisposable
             @LightAttack.started += instance.OnLightAttack;
             @LightAttack.performed += instance.OnLightAttack;
             @LightAttack.canceled += instance.OnLightAttack;
+            @Parry.started += instance.OnParry;
+            @Parry.performed += instance.OnParry;
+            @Parry.canceled += instance.OnParry;
         }
 
         /// <summary>
@@ -445,6 +485,9 @@ public partial class @PlayerAction: IInputActionCollection2, IDisposable
             @LightAttack.started -= instance.OnLightAttack;
             @LightAttack.performed -= instance.OnLightAttack;
             @LightAttack.canceled -= instance.OnLightAttack;
+            @Parry.started -= instance.OnParry;
+            @Parry.performed -= instance.OnParry;
+            @Parry.canceled -= instance.OnParry;
         }
 
         /// <summary>
@@ -513,5 +556,12 @@ public partial class @PlayerAction: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnLightAttack(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Parry" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnParry(InputAction.CallbackContext context);
     }
 }

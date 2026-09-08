@@ -69,6 +69,7 @@ public class PlayerMovement : MonoBehaviour
     private static readonly int StartYHash = Animator.StringToHash("StartY");
     private static readonly int StopXHash = Animator.StringToHash("StopX");
     private static readonly int StopYHash = Animator.StringToHash("StopY");
+    private static readonly int StopSpeedHash = Animator.StringToHash("StopSpeed");
     private static readonly int CombatWeightHash = Animator.StringToHash("CombatWeight");
     private static readonly int TurnDirectionHash = Animator.StringToHash("TurnDirection");
     private static readonly int Turn180StateHash =
@@ -445,6 +446,19 @@ public class PlayerMovement : MonoBehaviour
                 Vector2 stopDirection = QuantizeEightWayDirection(lastNonZeroLocalDirection);
                 animator.SetFloat(StopXHash, stopDirection.x);
                 animator.SetFloat(StopYHash, stopDirection.y);
+                // Keep the stopping gait fixed while MoveSpeed decays toward idle.
+                // Older controllers do not expose this optional parameter.
+                foreach (AnimatorControllerParameter parameter in animator.parameters)
+                {
+                    if (parameter.nameHash == StopSpeedHash &&
+                        parameter.type == AnimatorControllerParameterType.Float)
+                    {
+                        animator.SetFloat(StopSpeedHash, smoothedAnimatorMoveAmount >= 1.5f
+                            ? FastRunGaitSample
+                            : Mathf.Clamp(smoothedAnimatorMoveAmount, WalkGaitSample, RunGaitSample));
+                        break;
+                    }
+                }
             }
 
             smoothedAnimatorMoveAmount = Mathf.Lerp(

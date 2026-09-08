@@ -8,6 +8,11 @@ public sealed class LocomotionState : GroundedState
     {
         Machine.Movement.Tick(moveInput, hasMoveInput);
 
+        if (hasMoveInput)
+        {
+            Machine.ActionAnimator?.UpdateLocomotionRecovery();
+        }
+
         if (!hasMoveInput)
         {
             Machine.ChangeState(Machine.IdleState);

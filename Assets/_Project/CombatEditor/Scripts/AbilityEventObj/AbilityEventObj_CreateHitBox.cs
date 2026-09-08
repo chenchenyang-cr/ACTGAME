@@ -1,4 +1,4 @@
-﻿
+
 using CombatCamera;
 using UnityEngine;
  namespace CombatEditor {	
@@ -21,6 +21,8 @@ using UnityEngine;
 	    [Min(0)] public int MaximumHitsPerTarget;
 	    public LayerMask TargetLayers = ~0;
 	    public bool AllowFriendlyFire;
+        [Tooltip("Whether this attack can be deflected during a parry window.")]
+        public bool CanBeParried = true;
 
 	    [Header("Confirmed Hit Camera Shake")]
 	    [Tooltip("Played after this hit-box produces an accepted hit. Repeated hit-boxes play it once per accepted hit.")]

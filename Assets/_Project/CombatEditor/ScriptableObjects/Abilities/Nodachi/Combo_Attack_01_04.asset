@@ -53,7 +53,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   IsActive: 1
   Priority: 0
-  AllowedCommandIds: Dodge
+  AllowedCommandIds: Dodge,Parry
   AllowMovement: 1
   MinimumPriority: 0
   AllowHitReaction: 1
@@ -268,12 +268,13 @@ MonoBehaviour:
   HitReaction: 1
   StaggerDuration: 0
   HitMode: 1
-  RepeatIntervalFrames: 6
+  RepeatIntervalFrames: 2
   MaximumHitsPerTarget: 4
   TargetLayers:
     serializedVersion: 2
     m_Bits: 4294967295
   AllowFriendlyFire: 0
+  CanBeParried: 1
   EnableHitCameraShake: 1
   HitCameraShakeProfile: {fileID: 11400000, guid: 06a1ca6322283f745b833b916328effd, type: 2}
   HitCameraShakeDuration: 0.25
@@ -509,24 +510,24 @@ MonoBehaviour:
       m_RotationOrder: 4
   PreviewHitCameraShake: 1
   EnableHitAnimationSpeed: 1
-  HitAnimationSpeedDuration: 0.1
+  HitAnimationSpeedDuration: 0.04
   HitAnimationSpeedUseUnscaledTime: 1
   HitAnimationSpeedCurve:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0
-      inSlope: 0.0039953385
-      outSlope: 0.0039953385
+      value: 0.4
+      inSlope: -0.03657967
+      outSlope: -0.03657967
       tangentMode: 34
       weightedMode: 0
       inWeight: 0
       outWeight: 0.33333334
     - serializedVersion: 3
-      time: 0.9433295
-      value: 0.003768921
-      inSlope: 0.0039953385
+      time: 0.9566657
+      value: 0.3650055
+      inSlope: -0.03657967
       outSlope: 4.3102574
       tangentMode: 5
       weightedMode: 0
@@ -535,7 +536,7 @@ MonoBehaviour:
     - serializedVersion: 3
       time: 1
       value: 1
-      inSlope: 17.579363
+      inSlope: 14.653391
       outSlope: 0.06838714
       tangentMode: 5
       weightedMode: 0
@@ -545,9 +546,9 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   EnableHitVfx: 1
-  HitVfxPrefab: {fileID: 0}
+  HitVfxPrefab: {fileID: 1923962722205832878, guid: cd05009f07b076e4baa80b03d69fdf3b, type: 3}
   HitVfxDirection: 0
-  HitVfxPositionOffset: {x: 0, y: 0, z: 0}
+  HitVfxPositionOffset: {x: 0, y: -0.5, z: 0}
   HitVfxRotationOffset: {x: 0, y: 0, z: 0}
   HitVfxScale: 0.3
   HitVfxLifetime: 0
@@ -638,6 +639,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   AbilityType: 0
   Clip: {fileID: 7400000, guid: 5e842e94b52061549b68da1d3e2db151, type: 2}
+  AdditionalClips: []
   PreviewPercentageRange: {x: 0, y: 1}
   loopCount: 0
   events:

@@ -64,6 +64,8 @@ public sealed class AttackState : PlayerState
             consumeLastHandledCommand = true;
             switch (command)
             {
+                case PlayerActionCommand.Parry:
+                    return Machine.TryEnterParry();
                 case PlayerActionCommand.Dodge:
                     Machine.ChangeState(Machine.DodgeState);
                     return true;

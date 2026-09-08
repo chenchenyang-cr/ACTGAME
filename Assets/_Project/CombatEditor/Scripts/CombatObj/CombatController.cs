@@ -400,6 +400,21 @@ namespace CombatEditor
 	                    ae.EventEffects.Add(EventEffect);
 	                }
 	                Group.eves.Add(ae);
+                    // Register independent effect instances for each animation
+                    // variant while keeping a single authored event timeline.
+                    var registeredClips = new HashSet<AnimationClip> { CombatObj.Clip };
+                    if (CombatObj.AdditionalClips != null)
+                    {
+                        foreach (AnimationClip variant in CombatObj.AdditionalClips)
+                        {
+                            if (variant == null || !registeredClips.Add(variant)) continue;
+                            foreach (AbilityEvent abilityEvent in CombatObj.events)
+                            {
+                                AbilityEventEffect effect = AddEventEffects(variant.GetInstanceID(), abilityEvent);
+                                effect.AnimObj = CombatObj;
+                            }
+                        }
+                    }
 	            }
 	        }
 	    }

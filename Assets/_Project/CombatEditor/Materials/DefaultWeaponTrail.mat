@@ -33,7 +33,10 @@ Material:
     - _Alpha: 1
     - _BladeFadePower: 0.72
     - _DistortionAxis: 0
-    - _DistortionStrength: 30
+    - _DistortionStrength: 300
+    - _EdgeGlowIntensity: 2.1
+    - _EdgeGlowSoftness: 0.088
+    - _EdgeGlowWidth: 0.01
     - _Intensity: 12
     - _NoiseFrequency: 5.1
     - _NoiseFrequency1: 7.7
@@ -50,6 +53,7 @@ Material:
     - _WaveStrength: 0.341
     - _WidthPower: 0.1
     m_Colors:
+    - _EdgeGlowColor: {r: 1, g: 0.037387293, b: 0, a: 1}
     - _TintColor: {r: 1.319508, g: 1.319508, b: 1.319508, a: 0.5}
     - _UVTiling: {r: 1, g: 1, b: 0, a: 0}
   m_BuildTextureStacks: []

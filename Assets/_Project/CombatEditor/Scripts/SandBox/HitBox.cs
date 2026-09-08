@@ -25,11 +25,15 @@ namespace CombatEditor
         private Vector3 lastSampledPosition;
         private Vector3 lastMotionDirection = Vector3.forward;
         private bool hasLastSampledPosition;
+        private bool hitsCancelled;
+
+        public void CancelHits() => hitsCancelled = true;
 
         public void Init(CombatController controller, AbilityScriptableObject sourceAbility = null,
             AbilityEventObj_CreateHitBox sourceEvent = null)
         {
             Owner = controller;
+            hitsCancelled = false;
             SourceAbility = sourceAbility;
             SourceEvent = sourceEvent;
             targetStates.Clear();
@@ -84,7 +88,7 @@ namespace CombatEditor
         private void TryProcessHit(Component other, Vector3 hitPoint)
         {
             RefreshMotionDirection();
-            if (Owner == null || other == null || !IsInHitTargetLayer(other.gameObject.layer))
+            if (hitsCancelled || Owner == null || other == null || !IsInHitTargetLayer(other.gameObject.layer))
                 return;
 
             if (!TryResolveDamageReceiver(other, out ICombatDamageReceiver receiver,
@@ -137,7 +141,7 @@ namespace CombatEditor
                 state.NextEligibleFrame = currentAnimationFrame + interval;
             }
 
-            if (SourceEvent != null && SourceEvent.EnableHitCameraShake)
+            if (resolution.ResultType != CombatHitResultType.Parried && SourceEvent != null && SourceEvent.EnableHitCameraShake)
             {
                 CombatCamera.CameraShakeSettings shakeSettings =
                     SourceEvent.ResolveHitCameraShakeSettings();
@@ -148,7 +152,7 @@ namespace CombatEditor
                     SourceEvent.ResolveHitCameraShakeUseUnscaledTime(),
                     attackDirection);
             }
-            if (SourceEvent != null && SourceEvent.EnableHitAnimationSpeed)
+            if (resolution.ResultType != CombatHitResultType.Parried && SourceEvent != null && SourceEvent.EnableHitAnimationSpeed)
             {
                 PlayHitAnimationSpeed(Owner);
                 CombatController targetController =

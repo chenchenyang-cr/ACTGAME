@@ -19,7 +19,7 @@ MonoBehaviour:
     TraumaPerPulse: 0.65
     TraumaExponent: 1
     EnablePosition: 0
-    PositionAmplitude: {x: 0.7, y: 0.7, z: 0}
+    PositionAmplitude: {x: 0.1, y: 0.1, z: 0}
     PositionFrequency: 30
     PositionCurve:
       serializedVersion: 2
@@ -92,8 +92,8 @@ MonoBehaviour:
       m_RotationOrder: 4
     PositionSeed: 137
     EnableRotation: 1
-    RotationAmplitude: {x: 1.5, y: 1.2, z: 0.45}
-    RotationFrequency: 14
+    RotationAmplitude: {x: 1.1, y: 0.8, z: 0.3}
+    RotationFrequency: 30
     RotationCurve:
       serializedVersion: 2
       m_Curve:

@@ -29,6 +29,8 @@ public sealed class PlayerStateMachine : MonoBehaviour
     public LocomotionState LocomotionState { get; private set; }
     public AttackState AttackState { get; private set; }
     public DodgeState DodgeState { get; private set; }
+    public ParryState ParryState { get; private set; }
+    public PlayerAnimationProfile AnimationProfile => animationProfile;
     public HitState HitState { get; private set; }
 
     public PlayerMovement Movement => playerMovement;
@@ -95,6 +97,7 @@ public sealed class PlayerStateMachine : MonoBehaviour
         AttackState = new AttackState(this);
         DodgeState = new DodgeState(this);
         HitState = new HitState(this);
+        ParryState = new ParryState(this);
 
         ChangeState(IdleState);
     }
@@ -115,6 +118,12 @@ public sealed class PlayerStateMachine : MonoBehaviour
 
     private void ProcessBufferedCommand(PlayerInputBuffer inputBuffer)
     {
+        if (CurrentState != null && inputBuffer != null && inputBuffer.TryPeekParry(out _) &&
+            CurrentState.TryHandleCommand(PlayerActionCommand.Parry))
+        {
+            inputBuffer.ConsumeParry();
+            return;
+        }
         if (CurrentState == null ||inputBuffer == null ||!inputBuffer.TryPeek(out BufferedInput input))
         {
             return;
@@ -148,7 +157,7 @@ public sealed class PlayerStateMachine : MonoBehaviour
     {
         return nextState == AttackState ||
                nextState == DodgeState ||
-               nextState == HitState;
+               nextState == HitState || nextState == ParryState;
     }
 
     public void ReturnToControllableState()
@@ -188,8 +197,14 @@ public sealed class PlayerStateMachine : MonoBehaviour
         // MoveSpeed must already be 2 when the Loop state is sampled for the
         // first time, so this intentionally happens before the cross-fade.
         playerMovement.BeginFastMovement();
+        // Request the recovery before DodgeState.Exit clears animation tracking.
+        bool playingDodgeRecovery = ActionAnimator != null &&
+                                    ActionAnimator.TryPlayDodgeToFastRun();
         ChangeState(LocomotionState);
-        ActionAnimator?.PlayLocomotionLoop();
+        if (!playingDodgeRecovery)
+        {
+            ActionAnimator?.PlayLocomotionLoop();
+        }
         playerMovement.PrepareLocomotionAnimation(currentMoveInput);
         return true;
     }
@@ -212,9 +227,36 @@ public sealed class PlayerStateMachine : MonoBehaviour
         return true;
     }
 
+    public void NotifyCombatActivity() => combatStanceAnimator?.NotifyCombatActivity();
+
+    public bool TryEnterParry()
+    {
+        if (combatAdapter == null || combatAdapter.ParryStartAbility == null ||
+            combatAdapter.ParryStartAbility.Clip == null || !IsGrounded) return false;
+        ChangeState(ParryState);
+        return true;
+    }
+
+    private void OnEnable()
+    {
+        if (CurrentState != null && CurrentState == IdleState)
+        {
+            IdleState.Enter();
+            ActionAnimator?.PlayIdle();
+        }
+    }
+
+    private void OnDisable()
+    {
+        CurrentState?.Exit();
+        inputBuffer?.Clear();
+        if (IdleState != null) CurrentState = IdleState;
+    }
+
     public void EnterHitState()
     {
-        ChangeState(HitState);
+        if (CurrentState == HitState) HitState.Enter();
+        else ChangeState(HitState);
     }
 
     public void RecoverFromHit()

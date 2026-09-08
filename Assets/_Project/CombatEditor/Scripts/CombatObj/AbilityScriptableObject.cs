@@ -70,6 +70,8 @@ using UnityEditor;
 	      
 	    public enum AbilityTypes { OneShot, Loop , BlendingTree_1D, BlendingTree_2D }
 	    public AnimationClip Clip;
+        [Tooltip("Animation variants that use these same event tracks and normalized timings, such as the combat version of a dodge.")]
+        public List<AnimationClip> AdditionalClips = new List<AnimationClip>();
 	    [HideInInspector]
 	    public Vector2 PreviewPercentageRange = new Vector2(0, 1);
 	    //public float Speed = 1;

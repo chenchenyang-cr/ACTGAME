@@ -10,6 +10,8 @@ public class PlayerInputReader : MonoBehaviour//输入系统与Unity Input Syste
     public PlayerInputState State { get; private set; }
 
     
+    public event Action ParryPressed;
+    public event Action InputReset;
     public event Action DodgePressed;
     public event Action LightAttackPressed;
 
@@ -30,6 +32,7 @@ public class PlayerInputReader : MonoBehaviour//输入系统与Unity Input Syste
         UnregisterCallback();
         _gameInput.GamePlay.Disable();
         State.Reset();
+        InputReset?.Invoke();
     }
     void OnDestroy()
     {
@@ -43,6 +46,7 @@ public class PlayerInputReader : MonoBehaviour//输入系统与Unity Input Syste
         _gameInput.GamePlay.Move.canceled += OnMoveCanceled;
         _gameInput.GamePlay.Look.performed += OnLookPreformed;
         _gameInput.GamePlay.Look.canceled += OnLookCanceled;
+        _gameInput.GamePlay.Parry.performed += OnParryPerformed;
         _gameInput.GamePlay.Dodge.performed += OnDodgePreformed;
         _gameInput.GamePlay.LightAttack.performed += OnLightAttackPreformed;
 
@@ -53,6 +57,7 @@ public class PlayerInputReader : MonoBehaviour//输入系统与Unity Input Syste
         _gameInput.GamePlay.Move.canceled -= OnMoveCanceled;
         _gameInput.GamePlay.Look.performed -= OnLookPreformed;
         _gameInput.GamePlay.Look.canceled -= OnLookCanceled;
+        _gameInput.GamePlay.Parry.performed -= OnParryPerformed;
         _gameInput.GamePlay.Dodge.performed -= OnDodgePreformed;
         _gameInput.GamePlay.LightAttack.performed -= OnLightAttackPreformed;
 
@@ -80,6 +85,17 @@ public class PlayerInputReader : MonoBehaviour//输入系统与Unity Input Syste
     void OnLightAttackPreformed(UnityEngine.InputSystem.InputAction.CallbackContext context)
     {
         LightAttackPressed?.Invoke();
+    }
+
+    private void OnParryPerformed(InputAction.CallbackContext context)
+    {
+        ParryPressed?.Invoke();
+    }
+    private void OnApplicationFocus(bool focus)
+    {
+        if (focus || State == null) return;
+        State.Reset();
+        InputReset?.Invoke();
     }
 
     public bool HasActiveMoveControl()

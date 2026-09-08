@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: CommonSpriteSheetSlashLine
-  m_Shader: {fileID: 4800000, guid: dd5eb991161d50b4d9452916f712ba14, type: 3}
+  m_Shader: {fileID: 4800000, guid: 711a5f45d62554d479b0c4bcba28a023, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -53,7 +53,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: 4cdecdfbc6f2fa34689b6691b5d55879, type: 3}
+        m_Texture: {fileID: 2800000, guid: 86e5b5a10ae8f004a872b1512036e1b9, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Mask:
@@ -127,6 +127,7 @@ Material:
     - _DistortionStrengthScaled: 0
     - _DstBlend: 10
     - _EmissionEnabled: 0
+    - _EmissionIntensity: 5
     - _FlipbookMode: 0
     - _Float0: 0.26
     - _FresnelPower: 0
@@ -149,6 +150,7 @@ Material:
     - _Parallax: 0.02
     - _QueueControl: 0
     - _QueueOffset: 0
+    - _ReceiveShadows: 1
     - _SmoothnessTextureChannel: 0
     - _SoftParticlesEnabled: 0
     - _SoftParticlesFarFadeDistance: 1
@@ -170,7 +172,7 @@ Material:
     - _ColorAddSubDiff: {r: 0, g: 0, b: 0, a: 0}
     - _Dissolvecolor: {r: 1, g: 1, b: 1, a: 1}
     - _DissolvespeedXY: {r: 2, g: 2, b: 0, a: 0}
-    - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - _EmissionColor: {r: 9.082411, g: 1.7141596, b: 0, a: 1}
     - _Maincolor: {r: 0.7609469, g: 0.8547776, b: 0.9433962, a: 1}
     - _MaskOffset: {r: -0.1, g: -0.5, b: 0, a: 0}
     - _MaskScroll: {r: 0.81, g: 0, b: 0, a: 0}
