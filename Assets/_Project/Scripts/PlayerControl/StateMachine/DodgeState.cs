@@ -3,11 +3,15 @@ using UnityEngine;
 public sealed class DodgeState : PlayerState
 {
     private bool animationStarted;
+    private bool continuationSelected;
+    private bool movementUnlocked;
 
     public DodgeState(PlayerStateMachine machine) : base(machine) { }
 
     public override void Enter()
     {
+        continuationSelected = false;
+        movementUnlocked = false;
         PlayerMovementDirectionSnapshot snapshot =
             Machine.Movement.CaptureDirectionSnapshot(Machine.HasLatestMoveInput ? Machine.LatestMoveInput : Vector2.zero);
         if (snapshot.HasDirection)
@@ -19,12 +23,11 @@ public sealed class DodgeState : PlayerState
         Machine.Movement.SetRootMotionTranslationScale(Machine.DodgeRootMotionMultiplier);
         Machine.Combat?.BeginDodgeAbility();
         animationStarted = Machine.ActionAnimator != null &&
-                           Machine.ActionAnimator.PlayDodge(Vector2.up);
+                           Machine.ActionAnimator.PlayDodge(Vector2.up, Machine.HasLatestMoveInput);
     }
 
     public override void Tick(Vector2 moveInput, bool hasMoveInput)
     {
-        Machine.Movement.Tick(Vector2.zero, false);
         if (Machine.ActionAnimator != null &&
             Machine.ActionAnimator.TryGetDodgeNormalizedTime(out float normalizedTime))
         {
@@ -36,12 +39,22 @@ public sealed class DodgeState : PlayerState
             return;
         }
 
-        if (hasMoveInput &&
-            Machine.Combat != null &&
-            Machine.Combat.CanInterruptWithMovement())
+        // Input recovery is controlled by the authored movement window, not
+        // by the end of the longer dodge/recovery animation.
+        movementUnlocked |= Machine.Combat != null && Machine.Combat.CanInterruptWithMovement();
+        Machine.Movement.SetRotationMode(movementUnlocked
+            ? PlayerRotationMode.MovementDirection
+            : PlayerRotationMode.Preserve);
+        if (movementUnlocked) Machine.Movement.SetRootMotionTranslationScale(1f);
+        Machine.Movement.Tick(movementUnlocked ? moveInput : Vector2.zero,
+            movementUnlocked && hasMoveInput, allowTurn180: false);
+
+        if (!continuationSelected && Machine.ActionAnimator != null &&
+            Machine.ActionAnimator.TryGetDodgeElapsedTime(out float elapsed) &&
+            elapsed >= Machine.AnimationProfile.DodgeContinuationDecisionTime)
         {
-            Complete(moveInput, true);
-            return;
+            continuationSelected = true;
+            Machine.ActionAnimator.SetDodgeContinuation(hasMoveInput);
         }
 
         if (!animationStarted ||

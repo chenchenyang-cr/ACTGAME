@@ -142,13 +142,13 @@ public class PlayerMovement : MonoBehaviour
         rootMotionApplier?.SetRootRotationProcessor(ProcessRootRotation);
     }
 
-    public void Tick(Vector2 input, bool hasMoveInput)
+    public void Tick(Vector2 input, bool hasMoveInput, bool allowTurn180 = true)
     {
         UpdateVerticalMotion();
         moveInput = Vector2.ClampMagnitude(input, 1f);
         UpdateMoveDirection();
         isCombatMovement = animator != null && animator.GetFloat(CombatWeightHash) >= CombatModeThreshold;
-        bool isUsingTurn180RootMotion = UpdateTurn180();
+        bool isUsingTurn180RootMotion = allowTurn180 && UpdateTurn180();
         turn180RootMotionHandler?.SetTurn180RootMotionActive(
             isUsingTurn180RootMotion);
         UpdateAnimatorParameters(isCombatMovement, hasMoveInput);

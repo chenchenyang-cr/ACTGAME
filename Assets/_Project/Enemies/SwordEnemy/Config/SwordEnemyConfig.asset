@@ -26,6 +26,8 @@ MonoBehaviour:
   attacks:
   - displayName: "\u57FA\u7840\u65A9\u51FB"
     ability: {fileID: 11400000, guid: d6dffb344daa61244a34f0853a5062ae, type: 2}
+    followUpAbility: {fileID: 11400000, guid: aec78409291540988e5d4e717f499bc0, type: 2}
+    followUpChance: 0.5
     minimumRange: 0.8
     maximumRange: 2.25
     cooldown: 1.15
@@ -35,18 +37,36 @@ MonoBehaviour:
   enableHitVisualShake: 1
   hitShakeDuration: 0.15
   hitShakeFrequency: 15
-  hitShakeAmplitude: 0.3
+  hitShakeAmplitude: 0.1
   hitShakeDecayCurve:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
-      time: 0
-      value: 1
+      time: -0.0099983215
+      value: 0.0047035217
       inSlope: 0
       outSlope: 0
       tangentMode: 0
       weightedMode: 0
       inWeight: 0
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.2399238
+      value: 0.9924638
+      inSlope: 0.3047198
+      outSlope: 0.3047198
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.48058027
+    - serializedVersion: 3
+      time: 0.5868854
+      value: 0.95561564
+      inSlope: -1.4783856
+      outSlope: -1.4783856
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
       outWeight: 0.33333334
     - serializedVersion: 3
       time: 1

@@ -35,6 +35,8 @@ namespace UnityLearning.EnemySystem
         private void CompleteAttack()
         {
             if (completed) return;
+            if (Controller.Target != null && Controller.Combat != null &&
+                Controller.Combat.TryBeginFollowUp()) return;
             completed = true;
             Controller.Brain?.MarkAttackUsed(SelectedAttack);
             Controller.Combat?.EndAttack();

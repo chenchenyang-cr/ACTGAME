@@ -35,10 +35,9 @@ public sealed class PlayerAnimationProfile : ScriptableObject
     public string HitStateName = "Player_Hit_F";
 
     [Header("Dodge To Fast Run")]
-    [Tooltip("Blend duration for the short dodge-to-sprint recovery, independent of the full action blend.")]
-    [SerializeField, Min(0f)] private float dodgeToFastRunBlendDuration = 0.08f;
-    [Tooltip("Latest entry time in seconds into the authored dodge-to-run clip, preserving its running recovery even after a late movement input.")]
-    [SerializeField, Min(0f)] private float dodgeToFastRunLatestStartTime = 0.8f;
+    [Tooltip("Source-animation time in seconds at which movement input selects the dodge ending. Shared dodge prefixes must still match at this time.")]
+    [UnityEngine.Serialization.FormerlySerializedAs("dodgeToFastRunLatestStartTime")]
+    [SerializeField, Min(0f)] private float dodgeContinuationDecisionTime = 0.8f;
 
     [Header("Animator Parameters")]
     [SerializeField] private string dodgeXParameter = "DodgeX";
@@ -62,8 +61,7 @@ public sealed class PlayerAnimationProfile : ScriptableObject
     public string DodgeCombatStateName => dodgeCombatStateName;
     public string DodgeToFastRunNormalStateName => dodgeToFastRunNormalStateName;
     public string DodgeToFastRunCombatStateName => dodgeToFastRunCombatStateName;
-    public float DodgeToFastRunLatestStartTime => dodgeToFastRunLatestStartTime;
-    public float DodgeToFastRunBlendDuration => dodgeToFastRunBlendDuration;
+    public float DodgeContinuationDecisionTime => dodgeContinuationDecisionTime;
     public string DodgeXParameter => dodgeXParameter;
     public string DodgeYParameter => dodgeYParameter;
     public string CombatWeightParameter => combatWeightParameter;

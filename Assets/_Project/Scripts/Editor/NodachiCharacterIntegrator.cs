@@ -721,6 +721,8 @@ public static class NodachiCharacterIntegrator
         }
 
         string sceneText = File.ReadAllText(path);
+        // A validated replacement owns its Avatar, controller and materials.
+        if (sceneText.Contains("m_Name: SchoolKatanaVisual")) return true;
         return sceneText.Contains("m_Name: Player_Nodachi") &&
                sceneText.Contains("m_Name: NodachiVisual") &&
                sceneText.Contains("m_Name: LegacyCharacter_Disabled") &&
@@ -750,6 +752,11 @@ public static class NodachiCharacterIntegrator
         {
             GameObject player = scene.GetRootGameObjects()
                 .FirstOrDefault(root => root.name == "Player_Nodachi");
+            if (player != null && player.transform.Find("SchoolKatanaVisual") != null)
+            {
+                SessionState.SetBool(SessionMaterialKey, true);
+                return;
+            }
             Transform visual = player != null ? player.transform.Find("NodachiVisual") : null;
             if (visual == null)
             {

@@ -92,7 +92,7 @@ MonoBehaviour:
       m_RotationOrder: 4
     PositionSeed: 137
     EnableRotation: 1
-    RotationAmplitude: {x: 0.6, y: 0.45, z: 0.15}
+    RotationAmplitude: {x: 0.4, y: 0.2, z: 0.15}
     RotationFrequency: 25
     RotationCurve:
       serializedVersion: 2
@@ -125,17 +125,17 @@ MonoBehaviour:
         inWeight: 1
         outWeight: 0.33333334
       - serializedVersion: 3
-        time: 0.41543987
-        value: 0.22023058
-        inSlope: -2.958122
-        outSlope: -2.958122
+        time: 0.678776
+        value: 0.7067418
+        inSlope: -0.848311
+        outSlope: -0.848311
         tangentMode: 34
         weightedMode: 0
         inWeight: 0.33333334
         outWeight: 0.33333334
       - serializedVersion: 3
-        time: 0.7009744
-        value: 0.600101
+        time: 0.7543039
+        value: 0.6384158
         inSlope: 0.19651468
         outSlope: 0.19651468
         tangentMode: 0
@@ -236,7 +236,7 @@ MonoBehaviour:
       m_PostInfinity: 2
       m_RotationOrder: 4
     EnableDirectionalImpulse: 1
-    DirectionalPositionAmplitude: -0.38
+    DirectionalPositionAmplitude: -0.2
     DirectionalImpulseCurve:
       serializedVersion: 2
       m_Curve:

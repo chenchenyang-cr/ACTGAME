@@ -197,14 +197,8 @@ public sealed class PlayerStateMachine : MonoBehaviour
         // MoveSpeed must already be 2 when the Loop state is sampled for the
         // first time, so this intentionally happens before the cross-fade.
         playerMovement.BeginFastMovement();
-        // Request the recovery before DodgeState.Exit clears animation tracking.
-        bool playingDodgeRecovery = ActionAnimator != null &&
-                                    ActionAnimator.TryPlayDodgeToFastRun();
         ChangeState(LocomotionState);
-        if (!playingDodgeRecovery)
-        {
-            ActionAnimator?.PlayLocomotionLoop();
-        }
+        ActionAnimator?.PlayLocomotionLoop();
         playerMovement.PrepareLocomotionAnimation(currentMoveInput);
         return true;
     }

@@ -38,6 +38,7 @@ public static class PlayerParryValidation
         AbilityEventObj_ParryWindow window = null;
         try
         {
+            ValidateSuccessDamageProtection(Check);
             window = ScriptableObject.CreateInstance<AbilityEventObj_ParryWindow>();
             Vector2 range = new Vector2(0.1f, 0.5f);
             Check(!window.Contains(0.099f, range, Vector3.forward, Vector3.forward), "Before window");
@@ -101,6 +102,55 @@ public static class PlayerParryValidation
         {
             if (bufferObject != null) UnityEngine.Object.DestroyImmediate(bufferObject);
             if (window != null) UnityEngine.Object.DestroyImmediate(window);
+        }
+    }
+
+    private static void ValidateSuccessDamageProtection(Action<bool, string> check)
+    {
+        // Edit-mode fixture: assign state directly without playing an Animator.
+        var player = new GameObject("Parry damage validation") { hideFlags = HideFlags.HideAndDontSave };
+        try
+        {
+            var receiver = player.AddComponent<PlayerDamageReceiver>();
+            var machine = player.GetComponent<PlayerStateMachine>();
+            var parry = new ParryState(machine);
+            typeof(PlayerDamageReceiver).GetField("machine",
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
+                .SetValue(receiver, machine);
+            typeof(PlayerDamageReceiver).GetProperty("CurrentHealth").SetValue(receiver, 100f);
+            typeof(PlayerStateMachine).GetProperty("ParryState").SetValue(machine, parry);
+            typeof(PlayerStateMachine).GetProperty("CurrentState").SetValue(machine, parry);
+            var phase = typeof(ParryState).GetProperty("CurrentPhase");
+            phase.SetValue(parry, ParryState.Phase.Success);
+
+            var lethalHit = new CombatHitRequest(null, null, null, null, null,
+                Vector3.zero, Vector3.forward, 1, 1000f, 0f,
+                CombatHitReactionPolicy.EveryHit, 0f);
+            for (int i = 0; i < 3; i++)
+            {
+                bool accepted = receiver.TryReceiveHit(in lethalHit, out var result);
+                check(!accepted && !result.IsAccepted && receiver.CurrentHealth == 100f &&
+                      machine.CurrentState == parry,
+                    "Success rejects subsequent damage and hit reactions " + i);
+            }
+
+            var normalHit = new CombatHitRequest(null, null, null, null, null,
+                Vector3.zero, Vector3.forward, 1, 10f, 0f,
+                CombatHitReactionPolicy.None, 0f);
+            phase.SetValue(parry, ParryState.Phase.End);
+            check(receiver.TryReceiveHit(in normalHit, out _) && receiver.CurrentHealth == 90f,
+                "Damage resumes after success animation ends");
+            phase.SetValue(parry, ParryState.Phase.Start);
+            check(receiver.TryReceiveHit(in normalHit, out _) && receiver.CurrentHealth == 80f,
+                "Fresh parry attempt does not retain success immunity");
+            phase.SetValue(parry, ParryState.Phase.Success);
+            typeof(PlayerStateMachine).GetProperty("CurrentState").SetValue(machine, new IdleState(machine));
+            check(receiver.TryReceiveHit(in normalHit, out _) && receiver.CurrentHealth == 70f,
+                "Leaving parry does not retain success immunity");
+        }
+        finally
+        {
+            UnityEngine.Object.DestroyImmediate(player);
         }
     }
 }

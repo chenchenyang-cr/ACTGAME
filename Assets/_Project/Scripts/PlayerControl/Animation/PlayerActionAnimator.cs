@@ -12,14 +12,14 @@ public sealed class PlayerActionAnimator
     private readonly int dodgeXHash;
     private readonly int dodgeYHash;
     private readonly int combatWeightHash;
-    private readonly int dodgeToFastRunNormalHash;
-    private readonly int dodgeToFastRunCombatHash;
     private readonly Object logContext;
 
     private bool isDodgeAnimationPlaying;
     private bool hasEnteredDodgeAnimation;
     private int dodgeAnimationStateHash;
     private int dodgeAnimationRequestFrame;
+    private bool dodgeContinuesToFastRun;
+    private bool dodgeUsesCombatStance;
 
     public PlayerActionAnimator(
         Animator animator,
@@ -33,12 +33,6 @@ public sealed class PlayerActionAnimator
         dodgeXHash = Animator.StringToHash(profile.DodgeXParameter);
         dodgeYHash = Animator.StringToHash(profile.DodgeYParameter);
         combatWeightHash = Animator.StringToHash(profile.CombatWeightParameter);
-        if (animator != null && profile.AnimatorLayer < animator.layerCount && profile.AnimatorLayer >= 0)
-        {
-            string layerName = animator.GetLayerName(profile.AnimatorLayer);
-            dodgeToFastRunNormalHash = Animator.StringToHash($"{layerName}.{profile.DodgeToFastRunNormalStateName}");
-            dodgeToFastRunCombatHash = Animator.StringToHash($"{layerName}.{profile.DodgeToFastRunCombatStateName}");
-        }
     }
 
     private int trackedActionHash;
@@ -100,7 +94,7 @@ public sealed class PlayerActionAnimator
         TryCrossFade(ability.Clip.name, out _);
     }
 
-    public bool PlayDodge(Vector2 localDirection)
+    public bool PlayDodge(Vector2 localDirection, bool continueToFastRun)
     {
         if (!ValidateAnimatorLayer())
         {
@@ -111,9 +105,15 @@ public sealed class PlayerActionAnimator
         animator.SetFloat(dodgeXHash, direction.x);
         animator.SetFloat(dodgeYHash, direction.y);
 
-        string stateName = IsCombatAnimationActive()
-            ? profile.DodgeCombatStateName
-            : profile.DodgeNormalStateName;
+        dodgeUsesCombatStance = IsCombatAnimationActive();
+        string stateName = GetDodgeStateName(continueToFastRun);
+        int requestedHash = Animator.StringToHash($"{animator.GetLayerName(profile.AnimatorLayer)}.{stateName}");
+        if (continueToFastRun && !animator.HasState(profile.AnimatorLayer, requestedHash))
+        {
+            continueToFastRun = false;
+            stateName = GetDodgeStateName(false);
+        }
+        dodgeContinuesToFastRun = continueToFastRun;
         if (!TryCrossFade(stateName, out int stateHash))
         {
             return false;
@@ -124,6 +124,39 @@ public sealed class PlayerActionAnimator
         hasEnteredDodgeAnimation = false;
         isDodgeAnimationPlaying = true;
         return true;
+    }
+
+    private string GetDodgeStateName(bool continueToFastRun)
+    {
+        if (continueToFastRun)
+            return dodgeUsesCombatStance ? profile.DodgeToFastRunCombatStateName : profile.DodgeToFastRunNormalStateName;
+        return dodgeUsesCombatStance ? profile.DodgeCombatStateName : profile.DodgeNormalStateName;
+    }
+
+    public bool TryGetDodgeElapsedTime(out float seconds)
+    {
+        if (TryGetDodgeAnimationState(out AnimatorStateInfo state))
+        {
+            seconds = state.normalizedTime * state.length;
+            return true;
+        }
+        seconds = 0f;
+        return false;
+    }
+
+    public void SetDodgeContinuation(bool continueToFastRun)
+    {
+        if (continueToFastRun == dodgeContinuesToFastRun ||
+            !TryGetDodgeElapsedTime(out float seconds)) return;
+        int hash = Animator.StringToHash($"{animator.GetLayerName(profile.AnimatorLayer)}.{GetDodgeStateName(continueToFastRun)}");
+        if (!animator.HasState(profile.AnimatorLayer, hash)) return;
+        // Both authored clips contain the dodge prefix. Change the selected
+        // ending at the same source time, without blending or replaying that prefix.
+        animator.PlayInFixedTime(hash, profile.AnimatorLayer, seconds);
+        dodgeAnimationStateHash = hash;
+        dodgeAnimationRequestFrame = Time.frameCount;
+        hasEnteredDodgeAnimation = false;
+        dodgeContinuesToFastRun = continueToFastRun;
     }
 
     public bool TryGetDodgeNormalizedTime(out float normalizedTime)
@@ -180,52 +213,6 @@ public sealed class PlayerActionAnimator
             ? profile.CombatLocomotionLoopStateName
             : profile.NormalLocomotionLoopStateName;
         TryCrossFade(stateName, duration, out _);
-    }
-
-    public void UpdateLocomotionRecovery()
-    {
-        if (!ValidateAnimatorLayer() || animator.IsInTransition(profile.AnimatorLayer))
-        {
-            return;
-        }
-
-        AnimatorStateInfo current = animator.GetCurrentAnimatorStateInfo(profile.AnimatorLayer);
-        if ((current.fullPathHash == dodgeToFastRunNormalHash ||
-             current.fullPathHash == dodgeToFastRunCombatHash) && current.normalizedTime >= 0.9f)
-        {
-            // A fixed-time cross-fade can advance the incoming non-looping clip
-            // past its exit time. Check the level, not only the Animator's exit
-            // crossing, so late entries and long frames cannot strand recovery.
-            PlayLocomotionLoop(profile.DodgeToFastRunBlendDuration);
-        }
-    }
-
-    public bool TryPlayDodgeToFastRun()
-    {
-        if (!isDodgeAnimationPlaying || !ValidateAnimatorLayer())
-        {
-            return false;
-        }
-
-        string stateName = IsCombatAnimationActive()
-            ? profile.DodgeToFastRunCombatStateName
-            : profile.DodgeToFastRunNormalStateName;
-        int stateHash = Animator.StringToHash($"{animator.GetLayerName(profile.AnimatorLayer)}.{stateName}");
-        // Controllers without authored recovery states keep their direct return.
-        if (!animator.HasState(profile.AnimatorLayer, stateHash))
-        {
-            return false;
-        }
-
-        // These clips include the initial dodge. Continue at the elapsed clip
-        // time instead of replaying it; late inputs still get the recovery tail.
-        float fixedTimeOffset = TryGetDodgeAnimationState(out AnimatorStateInfo dodgeState)
-            ? Mathf.Clamp(dodgeState.normalizedTime * dodgeState.length,
-                0f, profile.DodgeToFastRunLatestStartTime)
-            : profile.DodgeToFastRunLatestStartTime;
-        return PlayerAnimatorTransition.TryCrossFade(
-            animator, profile.AnimatorLayer, stateHash,
-            profile.DodgeToFastRunBlendDuration, fixedTimeOffset, logContext);
     }
 
     private bool TryGetDodgeAnimationState(out AnimatorStateInfo stateInfo)

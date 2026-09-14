@@ -33,7 +33,7 @@ using UnityEngine;
 	    float EvaluateCurve(float normalizedTime)
 	    {
 	        EnsureCurve();
-	        return Mathf.Clamp01(SpeedCurve.Evaluate(Mathf.Clamp01(normalizedTime)));
+	        return Mathf.Max(0f, SpeedCurve.Evaluate(Mathf.Clamp01(normalizedTime)));
 	    }
 
 	    void EnsureCurve()

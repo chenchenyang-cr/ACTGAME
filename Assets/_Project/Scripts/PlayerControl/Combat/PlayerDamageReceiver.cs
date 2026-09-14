@@ -32,6 +32,10 @@ public sealed class PlayerDamageReceiver : MonoBehaviour, ICombatDamageReceiver
     {
         resolution = CombatHitResolution.Rejected;
         if (!isActiveAndEnabled || machine == null || !machine.enabled || CurrentHealth <= 0f) return false;
+        // The accepted parry consumes its window. Subsequent hits must not fall
+        // through to damage while the successful deflection is still playing.
+        if (machine.CurrentState is ParryState parry &&
+            parry.CurrentPhase == ParryState.Phase.Success) return false;
         if (machine.CurrentState == machine.ParryState &&
             machine.ParryState.TryParry(in request, out float duration))
         {

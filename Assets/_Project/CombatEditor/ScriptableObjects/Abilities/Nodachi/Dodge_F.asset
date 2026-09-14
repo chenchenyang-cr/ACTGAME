@@ -120,6 +120,8 @@ MonoBehaviour:
   Clip: {fileID: 7400000, guid: d23ea6f9b28c084458d3b5aeb18bddc4, type: 2}
   AdditionalClips:
   - {fileID: 7400000, guid: 9714542593179574f83db66c638e5410, type: 2}
+  - {fileID: 7400000, guid: db2cc4473c1f95142b7b09007a3e3912, type: 2}
+  - {fileID: 7400000, guid: 2a0c9aefb21eee14ab0d7dde58d86a88, type: 2}
   PreviewPercentageRange: {x: 0, y: 1}
   loopCount: 0
   events:

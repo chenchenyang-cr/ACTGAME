@@ -57,7 +57,10 @@ public sealed class ParryState : PlayerState
             Machine.ActionAnimator.TryGetTrackedActionTime(out float startTime) &&
             startTime >= Machine.AnimationProfile.ParryStartEndTransitionTime;
         if (!startReadyToEnd && !Machine.ActionAnimator.IsTrackedActionComplete()) return;
-        if (CurrentPhase == Phase.End) Machine.ReturnToControllableState();
+        // Successful deflections already include recovery. Only a missed
+        // attempt needs the separate block-end animation.
+        if (CurrentPhase == Phase.End || CurrentPhase == Phase.Success)
+            Machine.ReturnToControllableState();
         else
         {
             consumed = true;

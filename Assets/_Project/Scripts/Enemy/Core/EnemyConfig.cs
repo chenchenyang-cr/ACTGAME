@@ -9,6 +9,8 @@ namespace UnityLearning.EnemySystem
     {
         [SerializeField] private string displayName = "Light Attack";
         [SerializeField] private AbilityScriptableObject ability;
+        [SerializeField] private AbilityScriptableObject followUpAbility;
+        [SerializeField, Range(0f, 1f)] private float followUpChance = 0.5f;
         [SerializeField, Min(0f)] private float minimumRange = 0.8f;
         [SerializeField, Min(0f)] private float maximumRange = 2.3f;
         [SerializeField, Min(0f)] private float cooldown = 1.2f;
@@ -18,6 +20,8 @@ namespace UnityLearning.EnemySystem
 
         public string DisplayName => displayName;
         public AbilityScriptableObject Ability => ability;
+        public AbilityScriptableObject FollowUpAbility => followUpAbility;
+        public float FollowUpChance => Mathf.Clamp01(followUpChance);
         public float MinimumRange => minimumRange;
         public float MaximumRange => Mathf.Max(minimumRange, maximumRange);
         public float PreferredRange => (minimumRange + MaximumRange) * 0.5f;

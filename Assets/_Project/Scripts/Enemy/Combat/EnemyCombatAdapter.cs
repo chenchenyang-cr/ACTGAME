@@ -14,6 +14,8 @@ namespace UnityLearning.EnemySystem
         private bool requestedAnimation;
         private bool enteredAnimation;
         private bool exitRequested;
+        private bool followUpAttempted;
+        private AbilityScriptableObject activeAbility;
 
         public EnemyAttackConfig CurrentAttack { get; private set; }
         public bool IsAttacking => CurrentAttack != null;
@@ -33,16 +35,37 @@ namespace UnityLearning.EnemySystem
                 return false;
 
             CurrentAttack = attack;
-            activeStateShortHash = Animator.StringToHash(attack.Ability.Clip.name);
+            followUpAttempted = false;
+            PlayAttackAbility(attack.Ability);
+            return true;
+        }
+
+        public bool TryBeginFollowUp()
+        {
+            if (CurrentAttack == null || followUpAttempted || animator == null) return false;
+            followUpAttempted = true;
+            AbilityScriptableObject followUp = CurrentAttack.FollowUpAbility;
+            if (followUp == null || followUp.Clip == null ||
+                CurrentAttack.FollowUpChance <= 0f ||
+                (CurrentAttack.FollowUpChance < 1f && Random.value >= CurrentAttack.FollowUpChance))
+                return false;
+
+            PlayAttackAbility(followUp);
+            return true;
+        }
+
+        private void PlayAttackAbility(AbilityScriptableObject ability)
+        {
+            activeAbility = ability;
+            activeStateShortHash = Animator.StringToHash(ability.Clip.name);
             requestedAnimation = true;
             enteredAnimation = false;
             exitRequested = false;
             animator.CrossFadeInFixedTime(
-                attack.Ability.Clip.name,
+                ability.Clip.name,
                 attackBlendDuration,
                 0,
                 0f);
-            return true;
         }
 
         public bool IsAttackComplete()
@@ -75,6 +98,8 @@ namespace UnityLearning.EnemySystem
         public void EndAttack()
         {
             CurrentAttack = null;
+            activeAbility = null;
+            followUpAttempted = false;
             requestedAnimation = false;
             enteredAnimation = false;
             exitRequested = false;
@@ -87,7 +112,7 @@ namespace UnityLearning.EnemySystem
 
         public void OnCombatWindowEntered(in CombatGameplayWindowContext context)
         {
-            if (CurrentAttack == null || context.Ability != CurrentAttack.Ability)
+            if (CurrentAttack == null || context.Ability != activeAbility)
                 return;
 
             if (context.Window is AbilityEventObj_ExitWindow exit &&

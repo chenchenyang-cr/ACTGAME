@@ -19,6 +19,7 @@ public static class SwordEnemyPrefabBuilder
     private const string HumanoidAnimationRoot = SourceRoot + "/Animation/Humanoid";
     private const string OutputRoot = "Assets/_Project/Enemies/SwordEnemy";
     private const string AbilityPath = OutputRoot + "/Abilities/SwordEnemy_Attack_01.asset";
+    private const string FollowUpAbilityPath = OutputRoot + "/Abilities/SwordEnemy_Attack_02.asset";
     private const string ConfigPath = OutputRoot + "/Config/SwordEnemyConfig.asset";
     private const string ControllerPath = OutputRoot + "/Animators/SwordEnemy.controller";
     private const string PrefabPath = OutputRoot + "/Prefabs/SwordEnemy.prefab";
@@ -34,12 +35,14 @@ public static class SwordEnemyPrefabBuilder
         AnimationClip[] locomotionStart = FindDirectionalClips("Walk_Combat_Start");
         AnimationClip[] locomotionLoop = FindDirectionalClips("Walk_Combat_Loop");
         AnimationClip[] locomotionStop = FindDirectionalClips("Walk_Combat_Stop");
-        AnimationClip attack = FindClip("Combo_Attack_01_01");
+        AnimationClip attack = FindClip("Combo_Attack_03_01");
         AnimationClip hit = FindClip("Hit_Combat_F");
         AnimationClip death = FindClip("Hit_Combat_Death");
 
         AbilityScriptableObject ability = CreateAbility(attack);
-        EnemyConfig config = CreateConfig(ability);
+        AnimationClip followUpClip = FindClip("Combo_Attack_03_02");
+        AbilityScriptableObject followUp = CreateAbility(followUpClip, FollowUpAbilityPath);
+        EnemyConfig config = CreateConfig(ability, followUp);
         AnimatorController animatorController = CreateAnimatorController(
             idle,
             alert,
@@ -49,7 +52,9 @@ public static class SwordEnemyPrefabBuilder
             attack,
             hit,
             death);
-        CreatePrefab(config, ability, animatorController);
+        animatorController.layers[0].stateMachine.AddState(followUpClip.name).motion = followUpClip;
+        EditorUtility.SetDirty(animatorController);
+        CreatePrefab(config, ability, followUp, animatorController);
 
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
@@ -129,20 +134,20 @@ public static class SwordEnemyPrefabBuilder
         };
     }
 
-    private static AbilityScriptableObject CreateAbility(AnimationClip attackClip)
+    private static AbilityScriptableObject CreateAbility(AnimationClip attackClip, string path = AbilityPath)
     {
-        DeleteGeneratedAsset(AbilityPath);
+        DeleteGeneratedAsset(path);
         AbilityScriptableObject ability = ScriptableObject.CreateInstance<AbilityScriptableObject>();
-        ability.name = "SwordEnemy_Attack_01";
+        ability.name = Path.GetFileNameWithoutExtension(path);
         ability.AbilityType = AbilityScriptableObject.AbilityTypes.OneShot;
         ability.Clip = attackClip;
         ability.PreviewPercentageRange = new Vector2(0f, 1f);
         ability.events = new List<AbilityEvent>();
-        AssetDatabase.CreateAsset(ability, AbilityPath);
+        AssetDatabase.CreateAsset(ability, path);
         return ability;
     }
 
-    private static EnemyConfig CreateConfig(AbilityScriptableObject ability)
+    private static EnemyConfig CreateConfig(AbilityScriptableObject ability, AbilityScriptableObject followUp)
     {
         DeleteGeneratedAsset(ConfigPath);
         EnemyConfig config = ScriptableObject.CreateInstance<EnemyConfig>();
@@ -185,6 +190,8 @@ public static class SwordEnemyPrefabBuilder
         SerializedProperty firstAttack = attacks.GetArrayElementAtIndex(0);
         firstAttack.FindPropertyRelative("displayName").stringValue = "基础斩击";
         firstAttack.FindPropertyRelative("ability").objectReferenceValue = ability;
+        firstAttack.FindPropertyRelative("followUpAbility").objectReferenceValue = followUp;
+        firstAttack.FindPropertyRelative("followUpChance").floatValue = 0.5f;
         firstAttack.FindPropertyRelative("minimumRange").floatValue = 0.8f;
         firstAttack.FindPropertyRelative("maximumRange").floatValue = 2.25f;
         firstAttack.FindPropertyRelative("cooldown").floatValue = 1.15f;
@@ -406,6 +413,7 @@ public static class SwordEnemyPrefabBuilder
     private static void CreatePrefab(
         EnemyConfig config,
         AbilityScriptableObject ability,
+        AbilityScriptableObject followUp,
         RuntimeAnimatorController animatorController)
     {
         GameObject source = AssetDatabase.LoadAssetAtPath<GameObject>(SourceModelPath);
@@ -467,7 +475,7 @@ public static class SwordEnemyPrefabBuilder
                 new CombatGroup
                 {
                     Label = "Enemy Attacks",
-                    CombatObjs = new List<AbilityScriptableObject> { ability }
+                    CombatObjs = new List<AbilityScriptableObject> { ability, followUp }
                 }
             };
 
