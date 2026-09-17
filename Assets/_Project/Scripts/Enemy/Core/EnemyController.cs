@@ -34,6 +34,7 @@ namespace UnityLearning.EnemySystem
             : config.ArrivalTolerance;
         public EnemyStateMachine StateMachine => stateMachine;
         public float PendingStaggerDuration { get; private set; }
+        public Vector2 PendingHitDirection { get; private set; } = Vector2.up;
         public EnemyLifeState LifeState { get; private set; } = EnemyLifeState.Alive;
 
         private void OnEnable()
@@ -171,7 +172,8 @@ namespace UnityLearning.EnemySystem
             stateMachine.ChangeState(stateMachine.AlertState);
         }
 
-        public void NotifyStagger(float duration = -1f)
+        public void NotifyStagger(float duration = -1f, Vector3 attackDirection = default,
+            Transform attacker = null)
         {
             if (LifeState == EnemyLifeState.Dead || stateMachine == null)
                 return;
@@ -179,19 +181,45 @@ namespace UnityLearning.EnemySystem
             PendingStaggerDuration = duration >= 0f
                 ? duration
                 : config.DefaultStaggerDuration;
+            PendingHitDirection = CalculateHitDirection(transform.rotation, attackDirection,
+                attacker != null ? attacker.position - transform.position : Vector3.zero);
             stateMachine.ChangeState(stateMachine.StaggerState, true);
         }
 
-        public void PlayHitVisualShake()
+        internal static Vector2 CalculateHitDirection(Quaternion facing,
+            Vector3 attackDirection, Vector3 towardAttacker)
+        {
+            // Hit_F means hit FROM the front; attack velocity points the other way.
+            Vector3 incoming = -attackDirection;
+            incoming.y = 0f;
+            if (incoming.sqrMagnitude < 0.0001f)
+            {
+                incoming = towardAttacker;
+                incoming.y = 0f;
+            }
+            if (incoming.sqrMagnitude < 0.0001f)
+                return Vector2.up;
+
+            Vector3 local = Quaternion.Inverse(facing) * incoming;
+            return new Vector2(local.x, local.z).normalized;
+        }
+
+        public void PlayHitVisualShake(in CombatHitRequest request)
         {
             if (config == null || !config.EnableHitVisualShake || hitVisualShake == null)
                 return;
 
+            Vector3 direction = request.AttackDirection;
+            direction.y = 0f;
+            if (direction.sqrMagnitude < 0.0001f)
+                direction = request.Attacker != null
+                    ? transform.position - request.Attacker.transform.position
+                    : -transform.forward;
             hitVisualShake.Play(
                 config.HitShakeDuration,
                 config.HitShakeFrequency,
                 config.HitShakeAmplitude,
-                config.HitShakeDecayCurve);
+                config.HitShakeDecayCurve, direction);
         }
 
         public void PlayHitRecoil(Transform attacker, Vector3 attackDirection)
@@ -268,6 +296,8 @@ namespace UnityLearning.EnemySystem
             if (animator == null || string.IsNullOrWhiteSpace(config.StaggerState))
                 return;
 
+            animator.SetFloat(config.HitXParameter, PendingHitDirection.x);
+            animator.SetFloat(config.HitYParameter, PendingHitDirection.y);
             animator.CrossFadeInFixedTime(
                 config.StaggerState,
                 config.AnimationBlendDuration,

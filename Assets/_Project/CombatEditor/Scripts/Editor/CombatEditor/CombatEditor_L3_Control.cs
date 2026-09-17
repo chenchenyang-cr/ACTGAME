@@ -92,8 +92,9 @@ namespace CombatEditor
         public void OnDragEventTimePoint()
         {
             UpdateAsset(SelectedAbilityObj);
+            if (!EditorApplication.isPlaying)
+                HardResetPreviewToCurrentFrame();
             Repaint();
-            //OnPreviewAnimationAtFrame(CurrentFrame);
         }
         public void OnResetMultiStatesCount(AbilityEventObj Obj)
         {

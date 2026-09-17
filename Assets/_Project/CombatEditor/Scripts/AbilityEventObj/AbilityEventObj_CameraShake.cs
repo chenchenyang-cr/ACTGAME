@@ -136,6 +136,15 @@ namespace CombatEditor
 
         public AbilityEventPreview_CameraShake(AbilityEventObj obj) : base(obj) { }
 
+        public override void PreviewRunning(float currentTimePercentage)
+        {
+            int previousFrame = LastFrame;
+            base.PreviewRunning(currentTimePercentage);
+            // Settings and preview toggles can change without moving the playhead.
+            if (LastFrame == previousFrame)
+                PreviewUpdateFrame(currentTimePercentage);
+        }
+
         public override void PreviewUpdateFrame(float currentTimePercentage)
         {
             if (eve == null || !eve.Previewable)

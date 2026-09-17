@@ -82,7 +82,7 @@ MonoBehaviour:
   IsActive: 1
   Priority: 0
   AcquireRadius: 3
---- !u!114 &-3655251904635478690
+--- !u!114 &-3911143693524003523
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -102,13 +102,37 @@ MonoBehaviour:
   StopMultiplier: 4
   TrailSubs: 2
   AirDistortionAxis: 0
-  TrailColor: {r: 1, g: 0.038993325, b: 0, a: 0.5}
+  TrailColor: {r: 1, g: 0, b: 0.012804031, a: 0.5}
   Brightness: 1.5
+  BrightnessCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
   TrailTexture: {fileID: 0}
   TextureTiling: {x: 1, y: 1}
   TextureScrollSpeed: 0.8
-  TailFade: 1
-  Opacity: 1
+  TailFade: 0.25
+  Opacity: 0.72
   AirTintStrength: 0.35
   NUM_VERTICES: 12
 --- !u!114 &11400000
@@ -173,15 +197,6 @@ MonoBehaviour:
     - 0.6
     - 0.8
     Previewable: 0
-    Obj: {fileID: -3655251904635478690}
-  - EventTime: 0
-    EventRange: {x: 0.15454546, y: 0.3181818}
-    EventMultiRange:
-    - 0.2
-    - 0.4
-    - 0.6
-    - 0.8
-    Previewable: 0
     Obj: {fileID: -5653400401893947626}
   - EventTime: 0
     EventRange: {x: 0.15454546, y: 0.3181818}
@@ -210,6 +225,24 @@ MonoBehaviour:
     - 0.8
     Previewable: 0
     Obj: {fileID: 7335254943570530704}
+  - EventTime: 0
+    EventRange: {x: 0.15454546, y: 0.3272727}
+    EventMultiRange:
+    - 0.2
+    - 0.4
+    - 0.6
+    - 0.8
+    Previewable: 0
+    Obj: {fileID: 6563863428975230643}
+  - EventTime: 0
+    EventRange: {x: 0.14545454, y: 0.3272727}
+    EventMultiRange:
+    - 0.2
+    - 0.4
+    - 0.6
+    - 0.8
+    Previewable: 0
+    Obj: {fileID: -3911143693524003523}
 --- !u!114 &1332543811848941583
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -242,9 +275,9 @@ MonoBehaviour:
   ObjData:
     TargetObj: {fileID: 2557966978344939087, guid: cf086f7d0aab02340bc2140423f5fd3a, type: 3}
     controlType: 0
-    Offset: {x: -0.000000070238585, y: 1.1778493, z: -0.0000011277741}
+    Offset: {x: 0.0055801757, y: 1.1778537, z: 0.004986155}
     Rot: {x: 0, y: 0, z: 0, w: 1}
-    Scale: {x: 0.28, y: 1.62, z: 0.26}
+    Scale: {x: 0.09032403, y: 1.62, z: 0.0916867}
     TargetNode: 12
     FollowNode: 1
     RotateByNode: 1
@@ -269,6 +302,8 @@ MonoBehaviour:
     TraumaPerPulse: 0.65
     TraumaExponent: 2
     EnablePosition: 1
+    PositionWaveform: 0
+    PositionPhase: {x: 0, y: 0, z: 0}
     PositionAmplitude: {x: 0.6, y: 0.6, z: 0.6}
     PositionFrequency: 80
     PositionCurve:
@@ -342,6 +377,8 @@ MonoBehaviour:
       m_RotationOrder: 4
     PositionSeed: 137
     EnableRotation: 1
+    RotationWaveform: 0
+    RotationPhase: {x: 0, y: 0, z: 0}
     RotationAmplitude: {x: 1, y: 1, z: 1}
     RotationFrequency: 80
     RotationCurve:
@@ -477,49 +514,56 @@ MonoBehaviour:
       m_RotationOrder: 4
   PreviewHitCameraShake: 1
   EnableHitAnimationSpeed: 1
-  HitAnimationSpeedDuration: 0.01
-  HitAnimationSpeedUseUnscaledTime: 1
-  HitAnimationSpeedCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0.4
-      inSlope: -0.03657967
-      outSlope: -0.03657967
-      tangentMode: 34
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 0.9566657
-      value: 0.3650055
-      inSlope: -0.03657967
-      outSlope: 4.3102574
-      tangentMode: 5
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 1
-      value: 1
-      inSlope: 14.653391
-      outSlope: 0.06838714
-      tangentMode: 5
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
+  HitStopFrames: 6
   EnableHitVfx: 1
   HitVfxPrefab: {fileID: 1923962722205832878, guid: cd05009f07b076e4baa80b03d69fdf3b, type: 3}
   HitVfxDirection: 0
-  HitVfxPositionOffset: {x: 0, y: -0.5, z: 0}
+  HitVfxPositionMode: 1
+  HitVfxPositionOffset: {x: 0, y: 1, z: 0}
+  HitVfxRandomPositionAmplitude: {x: 0, y: 0, z: 0}
   HitVfxRotationOffset: {x: 0, y: 0, z: 0}
   HitVfxScale: 0.1
   HitVfxLifetime: 0
   HitVfxResultMask: 3
+--- !u!114 &6563863428975230643
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28e2dd982f5c43b48b940242e405acc4, type: 3}
+  m_Name: AnimSpeed
+  m_EditorClassIdentifier: 
+  IsActive: 1
+  Mode: 0
+  Speed: 1.2
+  SpeedCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!114 &7335254943570530704
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -573,7 +617,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   IsActive: 1
   Mode: 0
-  Speed: 1.6
+  Speed: 1.3
   SpeedCurve:
     serializedVersion: 2
     m_Curve:

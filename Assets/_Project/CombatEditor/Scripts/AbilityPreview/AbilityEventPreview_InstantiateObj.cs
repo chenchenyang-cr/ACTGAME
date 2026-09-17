@@ -99,19 +99,12 @@ using UnityEditor;
 	        ControllerStartPosition = CombatGlobalEditorValue.CharacterRootCenterAtCurrentFrame;
 	
 	        AnimatorRotAtStartFrame = _combatController.GetNodeTranform(CharacterNode.NodeType.Animator).rotation;
-	        if (EventObj.ObjData.TargetNode == CharacterNode.NodeType.Animator)
+	        // Sample the same world-space node pose used by NodeFollower at runtime.
+	        Transform trans = _combatController.GetNodeTranform(EventObj.ObjData.TargetNode);
+	        if (trans != null)
 	        {
-	            NodePosAtStartFrame = ControllerStartPosition;
-	            NodeRotAtStartFrame = AnimatorRotAtStartFrame;
-	        }
-	        else
-	        {
-	            Transform trans = _combatController.GetNodeTranform(EventObj.ObjData.TargetNode);
-	            if (trans != null)
-	            {
-	                NodePosAtStartFrame = CombatGlobalEditorValue.CharacterRootCenterAtCurrentFrame + (trans.position - _combatController._animator.transform.position - CombatGlobalEditorValue.CurrentRootMotionOffset);
-	                NodeRotAtStartFrame = trans.rotation;
-	            }
+	            NodePosAtStartFrame = trans.position;
+	            NodeRotAtStartFrame = trans.rotation;
 	        }
 	        if (handle != null)
 	        {

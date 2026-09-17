@@ -56,7 +56,10 @@ using UnityEngine;
 	    public override void PreviewRunning(float CurrentTime)
 	    {
 	        //Set Preview Position and Rotation
+	        int previousFrame = LastFrame;
 	        base.PreviewRunning(CurrentTime);
+	        if (LastFrame == previousFrame)
+	            UpdateHitShakePreview(CurrentTime);
 	        ApplyColliderSettings();
 	    }
 

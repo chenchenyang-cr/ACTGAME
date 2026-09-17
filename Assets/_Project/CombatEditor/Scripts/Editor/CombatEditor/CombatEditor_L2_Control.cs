@@ -156,6 +156,7 @@ namespace CombatEditor
                 AbilityEvent e = new AbilityEvent();
                 e.Obj = obj;
                 if (obj is AbilityEventObj_CreateHitBox ||
+                    obj is AbilityEventObj_MaterialPropertyCurve ||
                     obj is AbilityEventObj_TargetAssistWindow)
                 {
                     e.Previewable = true;

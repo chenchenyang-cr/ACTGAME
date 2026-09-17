@@ -3,6 +3,12 @@ using UnityEngine;
 
 namespace CombatCamera
 {
+    public enum CameraShakeWaveform
+    {
+        Perlin = 0,
+        Sine = 1
+    }
+
     public enum CameraShakeChannel
     {
         Impact,
@@ -14,6 +20,11 @@ namespace CombatCamera
     [Serializable]
     public sealed class CameraShakeSettings
     {
+        [Header("Amplitude Envelope")]
+        [InspectorName("振幅衰减曲线")]
+        [Tooltip("X：震动生命周期 0~1；Y：整体振幅倍率。1 为原始幅度，0 为无震动；与各分项曲线相乘。")]
+        public AnimationCurve AmplitudeDecayCurve = AnimationCurve.Linear(0f, 1f, 1f, 0f);
+
         [Header("Channel And Trauma")]
         public CameraShakeChannel Channel = CameraShakeChannel.Impact;
         [Range(0f, 1f)] public float TraumaPerPulse = 0.65f;
@@ -21,6 +32,9 @@ namespace CombatCamera
 
         [Header("Position (Camera Local Space)")]
         public bool EnablePosition = true;
+        public CameraShakeWaveform PositionWaveform = CameraShakeWaveform.Perlin;
+        [Tooltip("Sine initial phase per axis in degrees.")]
+        public Vector3 PositionPhase;
         public Vector3 PositionAmplitude = new Vector3(0.08f, 0.05f, 0.03f);
         [Min(0f)] public float PositionFrequency = 24f;
         public AnimationCurve PositionCurve = AnimationCurve.EaseInOut(0f, 1f, 1f, 0f);
@@ -28,6 +42,9 @@ namespace CombatCamera
 
         [Header("Rotation (Degrees)")]
         public bool EnableRotation = true;
+        public CameraShakeWaveform RotationWaveform = CameraShakeWaveform.Perlin;
+        [Tooltip("Sine initial phase per axis in degrees.")]
+        public Vector3 RotationPhase;
         public Vector3 RotationAmplitude = new Vector3(1.2f, 0.8f, 0.5f);
         [Min(0f)] public float RotationFrequency = 20f;
         public AnimationCurve RotationCurve = AnimationCurve.EaseInOut(0f, 1f, 1f, 0f);
@@ -71,7 +88,7 @@ namespace CombatCamera
             float intensityScale = 1f)
         {
             normalizedTime = Mathf.Clamp01(normalizedTime);
-            intensityScale = Mathf.Max(0f, intensityScale);
+            intensityScale = Mathf.Max(0f, intensityScale) * EvaluateAmplitudeDecay(normalizedTime);
             if (intensityScale <= 0f)
                 return default;
 
@@ -81,17 +98,17 @@ namespace CombatCamera
             Vector3 position = Vector3.zero;
             if (EnablePosition)
             {
-                position.x = SampleNoise(sampleTime, PositionFrequency, PositionSeed + 11) * PositionAmplitude.x;
-                position.y = SampleNoise(sampleTime, PositionFrequency, PositionSeed + 29) * PositionAmplitude.y;
-                position.z = SampleNoise(sampleTime, PositionFrequency, PositionSeed + 47) * PositionAmplitude.z;
+                position.x = SampleWave(PositionWaveform, sampleTime, PositionFrequency, PositionSeed + 11, PositionPhase.x) * PositionAmplitude.x;
+                position.y = SampleWave(PositionWaveform, sampleTime, PositionFrequency, PositionSeed + 29, PositionPhase.y) * PositionAmplitude.y;
+                position.z = SampleWave(PositionWaveform, sampleTime, PositionFrequency, PositionSeed + 47, PositionPhase.z) * PositionAmplitude.z;
             }
 
             Vector3 rotation = Vector3.zero;
             if (EnableRotation)
             {
-                rotation.x = SampleNoise(sampleTime, RotationFrequency, RotationSeed + 11) * RotationAmplitude.x;
-                rotation.y = SampleNoise(sampleTime, RotationFrequency, RotationSeed + 29) * RotationAmplitude.y;
-                rotation.z = SampleNoise(sampleTime, RotationFrequency, RotationSeed + 47) * RotationAmplitude.z;
+                rotation.x = SampleWave(RotationWaveform, sampleTime, RotationFrequency, RotationSeed + 11, RotationPhase.x) * RotationAmplitude.x;
+                rotation.y = SampleWave(RotationWaveform, sampleTime, RotationFrequency, RotationSeed + 29, RotationPhase.y) * RotationAmplitude.y;
+                rotation.z = SampleWave(RotationWaveform, sampleTime, RotationFrequency, RotationSeed + 47, RotationPhase.z) * RotationAmplitude.z;
             }
 
             float fovCurveValue = FovCurve != null
@@ -104,15 +121,27 @@ namespace CombatCamera
                 rotation * rotationWeight, fov);
         }
 
+        public float EvaluateAmplitudeDecay(float normalizedTime)
+        {
+            normalizedTime = Mathf.Clamp01(normalizedTime);
+            return AmplitudeDecayCurve != null && AmplitudeDecayCurve.length > 0
+                ? Mathf.Max(0f, AmplitudeDecayCurve.Evaluate(normalizedTime))
+                : 1f - normalizedTime;
+        }
+
         private static float EvaluateCurve(AnimationCurve curve, float normalizedTime)
         {
             return curve != null ? curve.Evaluate(normalizedTime) : 1f;
         }
 
-        private static float SampleNoise(float time, float frequency, int seed)
+        private static float SampleWave(CameraShakeWaveform waveform, float time,
+            float frequency, int seed, float phase)
         {
             if (frequency <= 0f)
                 return 0f;
+
+            if (waveform == CameraShakeWaveform.Sine)
+                return Mathf.Sin(2f * Mathf.PI * time * frequency + phase * Mathf.Deg2Rad);
 
             uint hash = unchecked((uint)seed * 747796405u + 2891336453u);
             float xOffset = (hash & 0xffffu) * (1f / 997f) + 0.123f;

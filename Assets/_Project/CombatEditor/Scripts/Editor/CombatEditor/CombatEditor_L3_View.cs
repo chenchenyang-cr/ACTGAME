@@ -95,6 +95,7 @@ namespace CombatEditor
             string trackStyle = GetTrackStyleName(AnimEventTracks[i].eve);
 
             int StartFrame = Mathf.RoundToInt((AnimEventTracks[i].eve.EventTime * AnimFrameCount));
+            bool finishedDrag = false;
             StartFrame = AnimEventTracks[i].helper.DrawHorizontalDraggablePoint(
                   StartFrame,
                   AnimFrameCount,
@@ -106,13 +107,14 @@ namespace CombatEditor
                   true,false,null
                   , () =>
                   {
-                      OnDragEventTimePoint();
+                      finishedDrag = true;
                   }
                       );
             if (AnimFrameCount != 0)
             {
                 AnimEventTracks[i].eve.EventTime = (float)StartFrame / (float)AnimFrameCount;
             }
+            if (finishedDrag) OnDragEventTimePoint();
 
 
         }
@@ -126,6 +128,7 @@ namespace CombatEditor
 
             int StartFrame = Mathf.RoundToInt(AnimEventTracks[i].eve.EventRange.x * AnimFrameCount);
             int EndFrame = Mathf.RoundToInt(AnimEventTracks[i].eve.EventRange.y * AnimFrameCount);
+            bool finishedDrag = false;
             int[] TimeRange =
                 AnimEventTracks[i].helper.DrawHorizontalDraggableRange(
                     StartFrame,
@@ -137,7 +140,7 @@ namespace CombatEditor
                     5,
                       () =>
                       {
-                          OnDragEventTimePoint();
+                          finishedDrag = true;
                       }
                       );
 
@@ -146,6 +149,7 @@ namespace CombatEditor
                 AnimEventTracks[i].eve.EventRange.x = (float)TimeRange[0] / (float)AnimFrameCount;
                 AnimEventTracks[i].eve.EventRange.y = (float)TimeRange[1] / (float)AnimFrameCount;
             }
+            if (finishedDrag) OnDragEventTimePoint();
         }
 
         public void PaintMultiRangeRect(int i)
@@ -164,11 +168,13 @@ namespace CombatEditor
             {
             }
             string[] names = (AnimEventTracks[i].eve.Obj as AbilityEventObj_States).States;
-            int[] Targets = AnimEventTracks[i].helper.DrawHorizontalMultiDraggable(TargetFrames, names, AnimFrameCount, AvilableTrackRect, trackColor, trackStyle, TimePointWidth, OnDragEventTimePoint);
+            bool finishedDrag = false;
+            int[] Targets = AnimEventTracks[i].helper.DrawHorizontalMultiDraggable(TargetFrames, names, AnimFrameCount, AvilableTrackRect, trackColor, trackStyle, TimePointWidth, () => finishedDrag = true);
             for(int j =0; j < Targets.Length; j++)
             {
                 AnimEventTracks[i].eve.EventMultiRange[j] = (float)Targets[j] / (float)AnimFrameCount;
             }
+            if (finishedDrag) OnDragEventTimePoint();
         }
 
 

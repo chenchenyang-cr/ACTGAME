@@ -54,9 +54,11 @@ namespace UnityLearning.EnemySystem
 
         [Header("Hit Feedback")]
         [SerializeField] private bool enableHitVisualShake = true;
-        [SerializeField, Min(0f)] private float hitShakeDuration = 0.12f;
-        [SerializeField, Min(0f)] private float hitShakeFrequency = 32f;
-        [SerializeField, Min(0f)] private float hitShakeAmplitude = 0.025f;
+        [Tooltip("Shake duration in real seconds, independent of animation hit-stop so the return stroke remains visible.")]
+        [SerializeField, Min(0f)] private float hitShakeDuration = 0.15f;
+        [Tooltip("Directional oscillations per real second (Hz). High frequencies may appear slower when undersampled by the rendering frame rate.")]
+        [SerializeField, Min(0f)] private float hitShakeFrequency = 15f;
+        [SerializeField, Min(0f)] private float hitShakeAmplitude = 0.08f;
         [SerializeField] private AnimationCurve hitShakeDecayCurve =
             AnimationCurve.EaseInOut(0f, 1f, 1f, 0f);
         [SerializeField] private bool enableHitRecoil = true;
@@ -78,6 +80,8 @@ namespace UnityLearning.EnemySystem
         [SerializeField] private string locomotionStartState = "LocomotionStart";
         [SerializeField] private string locomotionStopState = "LocomotionStop";
         [SerializeField] private string staggerState = "Hit";
+        [SerializeField] private string hitXParameter = "HitX";
+        [SerializeField] private string hitYParameter = "HitY";
         [SerializeField] private string deathState = "Death";
         [SerializeField] private string moveSpeedParameter = "MoveSpeed";
         [SerializeField] private string moveXParameter = "MoveX";
@@ -120,6 +124,8 @@ namespace UnityLearning.EnemySystem
         public string LocomotionStartState => locomotionStartState;
         public string LocomotionStopState => locomotionStopState;
         public string StaggerState => staggerState;
+        public string HitXParameter => hitXParameter;
+        public string HitYParameter => hitYParameter;
         public string DeathState => deathState;
         public string MoveSpeedParameter => moveSpeedParameter;
         public string MoveXParameter => moveXParameter;

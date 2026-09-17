@@ -92,7 +92,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   IsActive: 1
   ObjData:
-    TargetObj: {fileID: 1893033738566276, guid: 3e04efdf8ee665d48962b33b06e8e3d3, type: 3}
+    TargetObj: {fileID: 401893583521884870, guid: 34beaece3ddeff54f8f0588c16906626, type: 3}
     controlType: 0
     Offset: {x: 0, y: 0.5216433, z: -0.5530586}
     Rot: {x: 0, y: 0, z: 0, w: 1}

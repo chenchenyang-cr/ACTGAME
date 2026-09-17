@@ -23,12 +23,9 @@ namespace CombatEditor
 
             if (property.propertyType == SerializedPropertyType.AnimationCurve)
             {
-                EditorGUI.BeginChangeCheck();
-                AnimationCurve curve = EditorGUI.CurveField(position, label,
-                    property.animationCurveValue, Color.green,
-                    new Rect(0f, -1f, 1f, 2f));
-                if (EditorGUI.EndChangeCheck())
-                    property.animationCurveValue = curve;
+                // Bind directly to the serialized field so the popup retains its editing target.
+                EditorGUI.CurveField(position, property, Color.green,
+                    new Rect(0f, -1f, 1f, 2f), label);
 
                 if (Event.current.type == EventType.Repaint)
                 {

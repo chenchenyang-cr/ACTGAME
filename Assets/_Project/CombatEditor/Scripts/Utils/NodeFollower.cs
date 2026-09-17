@@ -4,6 +4,7 @@ using UnityEngine;
 
  namespace CombatEditor
 {	
+	[DefaultExecutionOrder(100)]
 	public class NodeFollower : MonoBehaviour
 	{
 	    public Transform NodeTrans;
@@ -37,13 +38,15 @@ using UnityEngine;
 	        {
 	            transform.position = NodeTrans.position + NodeTrans.rotation * PosOffset;
 	        }
-	        if (FollowRotation && FollowPos)
+	        if (FollowPos)
 	        {
-	            transform.rotation = NodeTrans.rotation * RotOverNode;
+	            transform.rotation = (FollowRotation ? NodeTrans.rotation :
+	                _controller.GetNodeTranform(CharacterNode.NodeType.Animator).rotation) * RotOverNode;
 	        }
 	    }
 	
-	    private void Update()
+	    // Follow the evaluated bone pose after animation and root-motion application.
+	    private void LateUpdate()
 	    {
 	        SetTransform();
 	    }

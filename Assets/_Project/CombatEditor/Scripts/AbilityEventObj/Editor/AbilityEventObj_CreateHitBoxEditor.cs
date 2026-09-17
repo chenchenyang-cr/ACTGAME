@@ -15,6 +15,16 @@ namespace CombatEditor
             bool previewDataChanged = EditorGUI.EndChangeCheck();
 
             var config = (AbilityEventObj_CreateHitBox)target;
+            if (config.EnableHitCameraShake && config.PreviewHitCameraShake)
+            {
+                var ability = AssetDatabase.LoadAssetAtPath<AbilityScriptableObject>(
+                    AssetDatabase.GetAssetPath(config));
+                var previewEvent = ability?.events.Find(entry => entry != null && entry.Obj == config);
+                if (previewEvent != null && !previewEvent.Previewable)
+                    EditorGUILayout.HelpBox(
+                        "命中震动预览已勾选，但 Hitbox 轨道的预览开关仍关闭。请打开该轨道的预览图标，再在 Game 视图查看震动。",
+                        MessageType.Info);
+            }
             if (config.HitMode == CombatHitMode.Repeated)
             {
                 EditorGUILayout.HelpBox(
@@ -50,7 +60,7 @@ namespace CombatEditor
             if (config.EnableHitAnimationSpeed)
             {
                 EditorGUILayout.HelpBox(
-                    "命中确认后，攻击者和被击中者会同时使用该曲线变速。横轴是效果时间（0~1），纵轴直接作为速度倍率；连续命中会刷新效果，不会重复叠乘。",
+                    $"命中确认后，攻击者立即顿帧，受击者延迟 1 个游戏帧开始顿帧。各自暂停 {Mathf.Max(0, config.HitStopFrames)} 帧（按 60 FPS 计时）后恢复，延迟不占暂停时长。0 帧表示不顿帧；连续命中会刷新持续时间。",
                     MessageType.Info);
             }
 
@@ -63,7 +73,9 @@ namespace CombatEditor
             else if (config.EnableHitVfx)
             {
                 EditorGUILayout.HelpBox(
-                    "特效会在确认命中后生成于 HitPoint。默认 Attack Direction 适合血液和火花；位置与旋转偏移按最终特效朝向计算。",
+                    config.HitVfxPositionMode == CombatHitVfxPositionMode.TargetPosition
+                        ? "生成位置 = 对手受击组件所在对象的位置 + 固定偏移 + 随机偏移。偏移使用世界坐标；随机幅度为各轴的正负上限，每次命中独立取值。角色原点在脚底时，可将固定偏移 Y 设为胸口高度。"
+                        : "特效会在确认命中后生成于 HitPoint，固定位置偏移按特效最终朝向计算；随机位置偏移在此模式下不生效。",
                     MessageType.Info);
             }
 

@@ -55,6 +55,19 @@ public sealed class PlayerCombatAdapter : MonoBehaviour, ICombatGameplayWindowLi
         CurrentAbility = ability;
     }
 
+    public AbilityScriptableObject FindAbilityByAnimationName(string stateName)
+    {
+        if (combatController == null || combatController.CombatDatas == null) return null;
+        foreach (CombatGroup group in combatController.CombatDatas)
+        {
+            if (group?.CombatObjs == null) continue;
+            foreach (AbilityScriptableObject ability in group.CombatObjs)
+                if (ability != null && ability.Clip != null && ability.Clip.name == stateName)
+                    return ability;
+        }
+        return null;
+    }
+
     public void EndAbility()
     {
         ClearWindows();

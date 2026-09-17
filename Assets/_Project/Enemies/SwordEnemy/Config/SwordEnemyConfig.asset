@@ -35,47 +35,29 @@ MonoBehaviour:
     facingTolerance: 18
     entryTolerance: 0.3
   enableHitVisualShake: 1
-  hitShakeDuration: 0.15
+  hitShakeDuration: 0.2
   hitShakeFrequency: 15
-  hitShakeAmplitude: 0.1
+  hitShakeAmplitude: 0.15
   hitShakeDecayCurve:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
-      time: -0.0099983215
-      value: 0.0047035217
-      inSlope: 0
-      outSlope: 0
+      time: 0
+      value: 1
+      inSlope: -1
+      outSlope: -1
       tangentMode: 0
       weightedMode: 0
       inWeight: 0
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 0.2399238
-      value: 0.9924638
-      inSlope: 0.3047198
-      outSlope: 0.3047198
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.48058027
-    - serializedVersion: 3
-      time: 0.5868854
-      value: 0.95561564
-      inSlope: -1.4783856
-      outSlope: -1.4783856
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
+      outWeight: 0
     - serializedVersion: 3
       time: 1
       value: 0
-      inSlope: 0
-      outSlope: 0
+      inSlope: -1
+      outSlope: -1
       tangentMode: 0
       weightedMode: 0
-      inWeight: 0.33333334
+      inWeight: 0
       outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
@@ -135,6 +117,8 @@ MonoBehaviour:
   locomotionStartState: LocomotionStart
   locomotionStopState: LocomotionStop
   staggerState: Hit
+  hitXParameter: HitX
+  hitYParameter: HitY
   deathState: Death
   moveSpeedParameter: MoveSpeed
   moveXParameter: MoveX

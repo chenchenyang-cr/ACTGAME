@@ -36,7 +36,8 @@ public static class SwordEnemyPrefabBuilder
         AnimationClip[] locomotionLoop = FindDirectionalClips("Walk_Combat_Loop");
         AnimationClip[] locomotionStop = FindDirectionalClips("Walk_Combat_Stop");
         AnimationClip attack = FindClip("Combo_Attack_03_01");
-        AnimationClip hit = FindClip("Hit_Combat_F");
+        AnimationClip[] hit = new[] { FindClip("Hit_Combat_F"), FindClip("Hit_Combat_B"),
+            FindClip("Hit_Combat_L"), FindClip("Hit_Combat_R") };
         AnimationClip death = FindClip("Hit_Combat_Death");
 
         AbilityScriptableObject ability = CreateAbility(attack);
@@ -211,7 +212,7 @@ public static class SwordEnemyPrefabBuilder
         AnimationClip[] locomotionLoop,
         AnimationClip[] locomotionStop,
         AnimationClip attack,
-        AnimationClip hit,
+        AnimationClip[] hit,
         AnimationClip death)
     {
         DeleteGeneratedAsset(ControllerPath);
@@ -224,6 +225,9 @@ public static class SwordEnemyPrefabBuilder
         controller.AddParameter("StopX", AnimatorControllerParameterType.Float);
         controller.AddParameter("StopY", AnimatorControllerParameterType.Float);
         controller.AddParameter("IsMoving", AnimatorControllerParameterType.Bool);
+        controller.AddParameter("HitX", AnimatorControllerParameterType.Float);
+        controller.AddParameter(new AnimatorControllerParameter
+        { name = "HitY", type = AnimatorControllerParameterType.Float, defaultFloat = 1f });
 
         AnimatorStateMachine stateMachine = controller.layers[0].stateMachine;
         AnimatorState idleState = stateMachine.AddState("Idle", new Vector3(200f, 0f));
@@ -268,7 +272,20 @@ public static class SwordEnemyPrefabBuilder
             locomotionState,
             locomotionStopState);
         stateMachine.AddState(attack.name, new Vector3(640f, 40f)).motion = attack;
-        stateMachine.AddState("Hit", new Vector3(640f, -80f)).motion = hit;
+        BlendTree hitTree = new BlendTree
+        {
+            name = "Enemy_Hit_4Way",
+            blendType = BlendTreeType.SimpleDirectional2D,
+            blendParameter = "HitX",
+            blendParameterY = "HitY",
+            useAutomaticThresholds = false
+        };
+        AssetDatabase.AddObjectToAsset(hitTree, controller);
+        hitTree.AddChild(hit[0], Vector2.up);
+        hitTree.AddChild(hit[1], Vector2.down);
+        hitTree.AddChild(hit[2], Vector2.left);
+        hitTree.AddChild(hit[3], Vector2.right);
+        stateMachine.AddState("Hit", new Vector3(640f, -80f)).motion = hitTree;
         stateMachine.AddState("Death", new Vector3(860f, -80f)).motion = death;
         EditorUtility.SetDirty(controller);
         return controller;

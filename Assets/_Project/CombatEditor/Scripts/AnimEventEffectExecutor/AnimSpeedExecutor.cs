@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -58,11 +58,53 @@ using UnityEngine;
 	    public CombatController _combatController;
 	    public void Execute()
 	    {
+	        if (_pendingHitStopFrames > 0 && Time.frameCount >= _hitStopStartFrame)
+	        {
+	            StartHitStop(_pendingHitStopFrames);
+	            _pendingHitStopFrames = 0;
+	        }
 	        _combatController._animator.speed = GetCurrentSpeedModifier();
 	    }
 	
 	    public List<CharacterAnimSpeedModifier> _animSpeedModifiers = new List<CharacterAnimSpeedModifier>();
 	    private CharacterAnimSpeedModifier _hitSpeedModifier;
+	    private CharacterAnimSpeedModifier _hitStopModifier;
+	    private int _pendingHitStopFrames;
+	    private int _hitStopStartFrame;
+
+	    public void PlayHitStop(int frames, bool delayOneFrame = false)
+	    {
+	        if (frames <= 0)
+	            return;
+
+	        if (delayOneFrame)
+	        {
+	            // Repeated hits refresh the duration without postponing the pending start.
+	            if (_pendingHitStopFrames == 0)
+	                _hitStopStartFrame = Time.frameCount + 1;
+	            _pendingHitStopFrames = frames;
+	            return;
+	        }
+
+	        _pendingHitStopFrames = 0;
+	        StartHitStop(frames);
+	        Execute();
+	    }
+
+	    private void StartHitStop(int frames)
+	    {
+	        if (_hitStopModifier != null)
+	            _animSpeedModifiers.Remove(_hitStopModifier);
+
+	        // Count real time independently of the frozen animation and game time scale.
+	        _hitStopModifier = new CharacterAnimSpeedModifier(0f,
+	            frames / CombatTimeline.FramesPerSecond)
+	        {
+	            UseUnscaledTime = true,
+	            StartTime = Time.unscaledTime
+	        };
+	        _animSpeedModifiers.Add(_hitStopModifier);
+	    }
 	    public void AddSpeedModifiers(float SpeedScale, float time)
 	    {
 	        _animSpeedModifiers.Add(new CharacterAnimSpeedModifier(SpeedScale, time));
@@ -103,6 +145,8 @@ using UnityEngine;
 	            {
 	                if (modifier == _hitSpeedModifier)
 	                    _hitSpeedModifier = null;
+	                if (modifier == _hitStopModifier)
+	                    _hitStopModifier = null;
 	                _animSpeedModifiers.RemoveAt(i);
 	                i -= 1;
 	                continue;

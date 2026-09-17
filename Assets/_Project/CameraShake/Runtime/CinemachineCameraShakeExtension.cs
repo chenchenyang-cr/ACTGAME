@@ -20,6 +20,14 @@ namespace CombatCamera
             if (stage != CinemachineCore.Stage.Finalize || vcam != VirtualCamera)
                 return;
 
+            var shot = GetComponent<CinemachineCameraShotExtension>();
+            if (shot != null && shot.IsSolvingReturn) return;
+            shot?.Apply(ref state);
+            ApplyShake(ref state);
+        }
+
+        public void ApplyShake(ref CameraState state)
+        {
             CameraShakeSample sample = CameraShakeRuntime.EvaluateCurrent();
             Vector3 worldPosition = state.CorrectedOrientation * sample.Position +
                                     sample.WorldPosition;

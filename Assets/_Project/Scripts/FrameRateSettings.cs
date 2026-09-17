@@ -2,7 +2,7 @@ using UnityEngine;
 
 public static class FrameRateSettings
 {
-    private const int TargetFrameRate = 60;
+    private const int TargetFrameRate = 120;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     private static void Apply()

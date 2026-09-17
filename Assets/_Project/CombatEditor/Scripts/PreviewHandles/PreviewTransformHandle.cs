@@ -145,14 +145,10 @@ using UnityEngine;
 	        //Is !FollowRot, rot by AnimatorFront, else rot by joint rotation.
 	        else
 	        {
-	            //Need To Add RootMotion cause root motion dont move the animator in editor mode
+	            // The preview controller already applies root motion to the character.
 	            Transform trans = _combatController.GetNodeTranform(InsObjData.TargetNode);
 	            Vector3 NodePos = trans.position;
 	            TargetPos = NodePos + trans.rotation * InsObjData.Offset;
-	            if (InsObjData.TargetNode == CharacterNode.NodeType.Animator)
-	            {
-	                TargetPos += trans.rotation * CombatGlobalEditorValue.CurrentMotionTAtGround;
-	            }
 	
 	            if (InsObjData.RotateByNode)
 	            {
@@ -188,10 +184,6 @@ using UnityEngine;
 	        {
 	            Transform trans = _combatController.GetNodeTranform(InsObjData.TargetNode);
 	            Vector3 OffsetWithRotation = PreviewTransform.position - trans.position;
-	            if (InsObjData.TargetNode == CharacterNode.NodeType.Animator)
-	            {
-	                OffsetWithRotation -= trans.rotation * CombatGlobalEditorValue.CurrentMotionTAtGround;
-	            }
 	            InsObjData.Offset = Quaternion.Inverse(trans.rotation) * OffsetWithRotation;
 	        }
 	    }

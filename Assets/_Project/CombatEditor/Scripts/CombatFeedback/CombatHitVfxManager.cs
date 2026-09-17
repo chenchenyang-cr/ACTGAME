@@ -2,6 +2,14 @@ using UnityEngine;
 
 namespace CombatEditor
 {
+    public enum CombatHitVfxPositionMode
+    {
+        [InspectorName("命中点 + 偏移")]
+        HitPoint = 0,
+        [InspectorName("对手位置 + 固定偏移 + 随机偏移")]
+        TargetPosition = 1
+    }
+
     public enum CombatHitVfxDirectionMode
     {
         AttackDirection,
@@ -46,8 +54,7 @@ namespace CombatEditor
             Vector3 direction = ResolveDirection(config.HitVfxDirection, hitEvent);
             Quaternion rotation = Quaternion.LookRotation(direction, ResolveUp(direction)) *
                                   Quaternion.Euler(config.HitVfxRotationOffset);
-            Vector3 position = hitEvent.HitPoint +
-                               rotation * config.HitVfxPositionOffset;
+            Vector3 position = ResolvePosition(config, hitEvent, rotation);
 
             GameObject instance = Object.Instantiate(config.HitVfxPrefab, position,
                 rotation);
@@ -62,6 +69,23 @@ namespace CombatEditor
                 ? config.HitVfxLifetime
                 : EstimateLifetime(particles);
             Object.Destroy(instance, lifetime);
+        }
+
+        private static Vector3 ResolvePosition(AbilityEventObj_CreateHitBox config,
+            CombatHitConfirmedEvent hitEvent, Quaternion rotation)
+        {
+            if (config.HitVfxPositionMode != CombatHitVfxPositionMode.TargetPosition)
+                return hitEvent.HitPoint + rotation * config.HitVfxPositionOffset;
+
+            Vector3 targetPosition = hitEvent.Target != null
+                ? hitEvent.Target.transform.position
+                : hitEvent.HitPoint;
+            Vector3 amplitude = Vector3.Max(Vector3.zero, config.HitVfxRandomPositionAmplitude);
+            Vector3 randomOffset = new Vector3(
+                Random.Range(-amplitude.x, amplitude.x),
+                Random.Range(-amplitude.y, amplitude.y),
+                Random.Range(-amplitude.z, amplitude.z));
+            return targetPosition + config.HitVfxPositionOffset + randomOffset;
         }
 
         private static Vector3 ResolveDirection(CombatHitVfxDirectionMode mode,

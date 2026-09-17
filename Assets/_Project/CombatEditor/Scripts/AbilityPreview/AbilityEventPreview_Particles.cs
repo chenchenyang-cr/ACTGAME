@@ -97,15 +97,18 @@ using UnityEngine;
 	            {
 	                IsInRange = true;
 	            }
-	            //ParticleSystem need 1/60f to start simulate
+	            // Sample elapsed event time without advancing one extra animation frame.
 	            if (IsInRange)
 	            {
-                    SimulateAllParticles(1 / 60f + (ScaledPercentage - StartTimeScaledPercentage) * AnimLength);
+                    SimulateAllParticles(Mathf.Max(0f, (ScaledPercentage - StartTimeScaledPercentage) * AnimLength));
                     SceneView.RepaintAll();
 	            }
 	            else
 	            {
-                    SimulateAllParticles(0f);
+                    // Simulate(0, restart:true) can emit a burst at time zero.
+                    // Before the event, clear without restarting the system.
+                    for (int i = 0; i < particles.Length; i++)
+                        particles[i].Stop(false, ParticleSystemStopBehavior.StopEmittingAndClear);
                     SceneView.RepaintAll();
 	            }
 	        }

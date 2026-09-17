@@ -63,7 +63,7 @@ namespace UnityLearning.EnemySystem
             }
 
             bool killed = currentHealth <= 0f;
-            controller.PlayHitVisualShake();
+            controller.PlayHitVisualShake(in request);
             controller.PlayHitRecoil(
                 request.Attacker != null ? request.Attacker.transform : null,
                 request.AttackDirection);
@@ -76,7 +76,8 @@ namespace UnityLearning.EnemySystem
                 float duration = request.StaggerDuration > 0f
                     ? request.StaggerDuration
                     : controller.Config.DefaultStaggerDuration;
-                controller.NotifyStagger(duration);
+                controller.NotifyStagger(duration, request.AttackDirection,
+                    request.Attacker != null ? request.Attacker.transform : null);
             }
 
             resolution = new CombatHitResolution(true, CombatHitResultType.Normal,

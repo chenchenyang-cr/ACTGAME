@@ -50,6 +50,13 @@ using UnityEngine;
 	    }
 	
 	    
+	    public override void PreviewRunning(float currentTimePercentage)
+	    {
+	        trail?.SetNormalizedTime(Mathf.InverseLerp(StartTimePercentage,
+	            EndTimePercentage, currentTimePercentage));
+	        base.PreviewRunning(currentTimePercentage);
+	    }
+
 	    public override void PreviewUpdateFrame(float CurrentTimePercentage)
 	    {
 	        if(trail == null)

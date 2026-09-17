@@ -22,6 +22,30 @@ MonoBehaviour:
   AirDistortionAxis: 0
   TrailColor: {r: 1, g: 0, b: 0.045158386, a: 0.5}
   Brightness: 1.5
+  BrightnessCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
   TrailTexture: {fileID: 0}
   TextureTiling: {x: 1, y: 1}
   TextureScrollSpeed: 0.8
@@ -59,7 +83,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   IsActive: 1
   Mode: 0
-  Speed: 1.6
+  Speed: 1.3
   SpeedCurve:
     serializedVersion: 2
     m_Curve:
@@ -412,6 +436,8 @@ MonoBehaviour:
     TraumaPerPulse: 0.65
     TraumaExponent: 2
     EnablePosition: 1
+    PositionWaveform: 0
+    PositionPhase: {x: 0, y: 0, z: 0}
     PositionAmplitude: {x: 0.08, y: 0.05, z: 0.03}
     PositionFrequency: 70
     PositionCurve:
@@ -485,6 +511,8 @@ MonoBehaviour:
       m_RotationOrder: 4
     PositionSeed: 137
     EnableRotation: 1
+    RotationWaveform: 0
+    RotationPhase: {x: 0, y: 0, z: 0}
     RotationAmplitude: {x: 1.2, y: 0.8, z: 0.5}
     RotationFrequency: 70
     RotationCurve:
@@ -620,45 +648,13 @@ MonoBehaviour:
       m_RotationOrder: 4
   PreviewHitCameraShake: 1
   EnableHitAnimationSpeed: 1
-  HitAnimationSpeedDuration: 0.01
-  HitAnimationSpeedUseUnscaledTime: 1
-  HitAnimationSpeedCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0.4
-      inSlope: -0.03657967
-      outSlope: -0.03657967
-      tangentMode: 34
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 0.9566657
-      value: 0.3650055
-      inSlope: -0.03657967
-      outSlope: 4.3102574
-      tangentMode: 5
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 1
-      value: 1
-      inSlope: 14.653391
-      outSlope: 0.06838714
-      tangentMode: 5
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
+  HitStopFrames: 6
   EnableHitVfx: 1
   HitVfxPrefab: {fileID: 1923962722205832878, guid: cd05009f07b076e4baa80b03d69fdf3b, type: 3}
   HitVfxDirection: 0
-  HitVfxPositionOffset: {x: 0, y: -0.5, z: 0}
+  HitVfxPositionMode: 1
+  HitVfxPositionOffset: {x: 0, y: 1, z: 0}
+  HitVfxRandomPositionAmplitude: {x: 0, y: 0, z: 0}
   HitVfxRotationOffset: {x: 0, y: 0, z: 0}
   HitVfxScale: 1
   HitVfxLifetime: 0

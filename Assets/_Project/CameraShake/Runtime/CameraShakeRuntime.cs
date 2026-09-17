@@ -90,17 +90,28 @@ namespace CombatCamera
                 DirectionalIntensityScale = Mathf.Max(0f,
                     directionalIntensityScale)
             };
+            RefreshEditorCamera();
         }
 
         public static void Remove(int handle)
         {
-            if (handle != 0)
-                ContinuousSources.Remove(handle);
+            if (handle != 0 && ContinuousSources.Remove(handle))
+                RefreshEditorCamera();
         }
 
         public static void ClearContinuousSources()
         {
             ContinuousSources.Clear();
+            RefreshEditorCamera();
+        }
+
+        private static void RefreshEditorCamera()
+        {
+#if UNITY_EDITOR
+            // Repainting alone does not run Cinemachine's edit-mode LateUpdate.
+            if (!Application.isPlaying)
+                UnityEditor.EditorApplication.QueuePlayerLoopUpdate();
+#endif
         }
 
         public static void Pulse(CameraShakeSettings settings, float duration,
@@ -252,7 +263,7 @@ namespace CombatCamera
                 ? settings.DirectionalImpulseCurve.Evaluate(Mathf.Clamp01(normalizedTime))
                 : 1f - Mathf.Clamp01(normalizedTime);
             return worldDirection.normalized * settings.DirectionalPositionAmplitude *
-                   curve * intensityScale;
+                   curve * intensityScale * settings.EvaluateAmplitudeDecay(normalizedTime);
         }
 
         private static void Advance(float scaledDeltaTime, float unscaledDeltaTime)

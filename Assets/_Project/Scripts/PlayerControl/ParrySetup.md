@@ -4,8 +4,8 @@
 
 ## 操作
 
-- 键盘 E / 手柄 RB：只读取按下，触发一次 Start → End；成功则 Start → Success → End。长按与短按相同，松开不改变动作。
-- 起手、收刀或成功反馈期间，再次按下立即重新起手并开始新一轮弹反判定。一次起手最多成功一次；没有 Hold/Loop 阶段，持续按住不会重复触发。
+- 键盘 E / 手柄 RB：只读取按下，触发一次 Start → End；成功则 Start → Success，成功动画结束后恢复控制。长按与短按相同，松开不改变动作。
+- 起手或收刀期间，再次按下可立即重新起手。成功触发 Parry_L / Parry_R 后，可在对应动作的 InterruptWindow 内按 AllowedCommandIds 取消到 Dodge、LightAttack 或 Parry，AllowMovement 控制移动取消；窗口外必须等动画播放完才能再次格挡；接近结束时按下的输入可在现有缓存有效期内于动画结束后执行。一次起手最多成功一次；没有 Hold/Loop 阶段，持续按住不会重复触发。
 - 成功播放左右 Parry 动画，并触发火花、金属音和动画顿帧；敌人停止本次攻击并进入硬直。
 - 窗口外、背后或不可弹反攻击走普通受击。默认玩家生命 100，归零停止控制；复活流程不在本次功能内。
 - 攻击的原有 Dodge 取消窗口也允许 Parry；闪避和受击中不能立即弹反。
@@ -13,7 +13,7 @@
 
 ## 调整手感
 
-Start 播放到 75% 时开始融合到 End，混合时长为 0.18 秒。可通过 `PlayerAnimationProfile → Parry Start End Transition Time` 调整开始融合的进度；成功弹反仍播放 Success 后再收刀。
+Start 播放到 75% 时开始融合到 End，混合时长为 0.18 秒。可通过 `PlayerAnimationProfile → Parry Start End Transition Time` 调整开始融合的进度；成功弹反默认等待 Success 动画完整结束，也可通过该动作的打断窗口提前取消。窗口按实际动画进度判断，顿帧和变速会相应延后窗口到达的时机。
 
 1. 在战斗编辑器选择玩家的 Parry 分组，打开 `Parry_Start`。
 2. 拖动 `Parry Window` 的起止位置。默认归一化区间 `[0.1, 0.5)`；起手动画长 0.5 秒，正常速度下对应 0.05～0.25 秒（60 FPS 时间轴第 3～15 帧）。实际判定在命中时读取 Animator 进度；松开不影响本次窗口，再次按下从新的起手进度重新计算。

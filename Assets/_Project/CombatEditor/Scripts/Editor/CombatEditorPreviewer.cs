@@ -150,7 +150,8 @@ using UnityEngine.SceneManagement;
 	
 	    public void OnPlayModeStart()
 	    {
-	        DestroyPreviewGroupObj();
+	        // Restore renderer overrides as well as removing preview objects.
+	        OnDestroyPreview();
 	    }
 	
 	    //The currentRunning percentage.
@@ -182,6 +183,14 @@ using UnityEngine.SceneManagement;
 	        }
 	        AbilityObj = editor.SelectedAbilityObj;
 	    }
+
+        public void RefreshMaterialPropertyPreview(AbilityEventObj_MaterialPropertyCurve config)
+        {
+            if (EditorApplication.isPlaying || previews == null) return;
+            foreach (AbilityEventPreview preview in previews)
+                if (preview._EventObj == config && preview is AbilityEventPreview_MaterialPropertyCurve materialPreview)
+                    materialPreview.RefreshProperties(PercentageTime);
+        }
 	
 	    public int DebugAnimFrame;
 	
@@ -460,8 +469,15 @@ using UnityEngine.SceneManagement;
 	                //Used for running preview.Static particle need to reset position because of the motion event.
 	                else
 	                {
-	                    if (preview.NeedStartFrameValue() && preview.IsOnStartFrame)
+	                    int startFrame = Mathf.RoundToInt(preview.StartTimePercentage *
+	                        AbilityObj.Clip.length * CombatTimeline.FramesPerSecond);
+	                    int currentFrame = Mathf.RoundToInt(percentage *
+	                        AbilityObj.Clip.length * CombatTimeline.FramesPerSecond);
+	                    if (preview.NeedStartFrameValue() &&
+	                        preview.LastFrame < startFrame && currentFrame >= startFrame)
 	                    {
+	                        // Capture the authored start pose even when playback skips over it.
+	                        UpdateAnimationInEditMode(preview.StartTimePercentage);
 	                        preview.GetStartFrameDataBeforePreview();
 	                    }
 	                }
@@ -541,9 +557,10 @@ using UnityEngine.SceneManagement;
 
 	        // This differs in unity versions.
 	        // Old version should be "Window/Hierarchy."
-	        EditorApplication.ExecuteMenuItem("Window/General/Hierarchy");
-
-	        EditorWindow hierarchyWindow = EditorWindow.GetWindow(type);
+	        // Never open or focus another window while editing a curve popup.
+	        EditorWindow hierarchyWindow = null;
+	        foreach (EditorWindow window in Resources.FindObjectsOfTypeAll<EditorWindow>())
+	            if (type.IsInstanceOfType(window)) { hierarchyWindow = window; break; }
 	        if (hierarchyWindow == null || !type.IsInstanceOfType(hierarchyWindow))
 	        {
 	            return;

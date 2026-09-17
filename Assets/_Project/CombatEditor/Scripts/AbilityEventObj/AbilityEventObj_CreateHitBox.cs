@@ -66,25 +66,13 @@ using UnityEngine;
 	            : HitCameraShakeUseUnscaledTime;
 	    }
 
-	    [Header("Confirmed Hit Animation Speed")]
-	    [Tooltip("Apply the same animation-speed curve to both the attacker and the accepted hit target.")]
+	    [Header("命中顿帧")]
+	    [InspectorName("启用命中顿帧")]
+	    [Tooltip("命中确认后，攻击者和被击中者的动画速度同时设为 0。")]
 	    public bool EnableHitAnimationSpeed;
-	    [Min(0.01f)] public float HitAnimationSpeedDuration = 0.08f;
-	    [Tooltip("Use real time so a curve value of 0 cannot prevent the effect from ending.")]
-	    public bool HitAnimationSpeedUseUnscaledTime = true;
-	    [Tooltip("Horizontal axis is normalized effect time; vertical axis is the direct animation-speed multiplier. 1 = normal, 0 = stopped.")]
-	    [MyAnimationCurve]
-	    public AnimationCurve HitAnimationSpeedCurve = new AnimationCurve(
-	        new Keyframe(0f, 0f), new Keyframe(1f, 1f));
-
-	    public float EvaluateHitAnimationSpeed(float normalizedTime)
-	    {
-	        if (HitAnimationSpeedCurve == null || HitAnimationSpeedCurve.length == 0)
-	            return 1f;
-
-	        return Mathf.Max(0f,
-	            HitAnimationSpeedCurve.Evaluate(Mathf.Clamp01(normalizedTime)));
-	    }
+	    [InspectorName("顿帧帧数")]
+	    [Tooltip("按动作时间线 60 FPS 换算实际暂停时间，6 帧 = 0.1 秒。0 表示不顿帧；不受游戏帧率和动画速度影响。")]
+	    [Min(0)] public int HitStopFrames = 5;
 
 	    [Header("Confirmed Hit VFX")]
 	    [Tooltip("Spawn this effect only after the hit has been accepted by the target.")]
@@ -92,8 +80,14 @@ using UnityEngine;
 	    public GameObject HitVfxPrefab;
 	    public CombatHitVfxDirectionMode HitVfxDirection =
 	        CombatHitVfxDirectionMode.AttackDirection;
-	    [Tooltip("Local-space offset after applying the resolved hit-effect rotation.")]
+	    [InspectorName("粒子生成位置模式")]
+	    public CombatHitVfxPositionMode HitVfxPositionMode = CombatHitVfxPositionMode.HitPoint;
+	    [InspectorName("固定位置偏移")]
+	    [Tooltip("命中点模式：按特效朝向计算偏移。对手位置模式：世界坐标偏移，不随特效旋转。")]
 	    public Vector3 HitVfxPositionOffset;
+	    [InspectorName("随机位置偏移幅度")]
+	    [Tooltip("仅对手位置模式生效。每次生成时，各世界坐标轴独立在 [-幅度, +幅度] 内随机取值；0 表示该轴不随机，负数按 0 处理。")]
+	    public Vector3 HitVfxRandomPositionAmplitude;
 	    public Vector3 HitVfxRotationOffset;
 	    [Min(0f)] public float HitVfxScale = 1f;
 	    [Tooltip("Seconds before the spawned object is destroyed. 0 automatically estimates particle duration.")]

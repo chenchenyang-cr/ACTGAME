@@ -14,7 +14,7 @@ Material:
   m_ValidKeywords:
   - _EMISSION
   m_InvalidKeywords: []
-  m_LightmapFlags: 0
+  m_LightmapFlags: 2
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: 2000
@@ -171,7 +171,7 @@ Material:
     - _BaseColor: {r: 1, g: 0, b: 0, a: 1}
     - _CameraFadeParams: {r: 0, g: Infinity, b: 0, a: 0}
     - _Color: {r: 1, g: 0, b: 0, a: 1}
-    - _EmissionColor: {r: 1.9766748, g: 0, b: 0, a: 1}
+    - _EmissionColor: {r: 0.21763763, g: 0, b: 0, a: 1}
     - _FresnelColor2: {r: 0, g: 0, b: 0, a: 0}
     - _IntersectionColor: {r: 0.4338235, g: 0.4377282, b: 1, a: 0}
     - _MainOffset: {r: -0.07, g: 0, b: 0, a: 0}

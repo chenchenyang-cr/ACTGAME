@@ -1,6 +1,7 @@
 #if UNITY_EDITOR
 using UnityEditor;
 using UnityEngine;
+using CombatCamera;
 
 namespace CombatEditor
 {
@@ -20,15 +21,20 @@ namespace CombatEditor
         private SerializedProperty previewHitTime;
         private SerializedProperty previewHitIntensityScale;
 
+        private SerializedProperty amplitudeDecayCurve;
         private SerializedProperty channel;
         private SerializedProperty traumaPerPulse;
         private SerializedProperty traumaExponent;
         private SerializedProperty enablePosition;
+        private SerializedProperty positionWaveform;
+        private SerializedProperty positionPhase;
         private SerializedProperty positionAmplitude;
         private SerializedProperty positionFrequency;
         private SerializedProperty positionCurve;
         private SerializedProperty positionSeed;
         private SerializedProperty enableRotation;
+        private SerializedProperty rotationWaveform;
+        private SerializedProperty rotationPhase;
         private SerializedProperty rotationAmplitude;
         private SerializedProperty rotationFrequency;
         private SerializedProperty rotationCurve;
@@ -55,15 +61,20 @@ namespace CombatEditor
             previewHitTime = serializedObject.FindProperty("PreviewHitTime");
             previewHitIntensityScale = serializedObject.FindProperty("PreviewHitIntensityScale");
 
+            amplitudeDecayCurve = settings.FindPropertyRelative("AmplitudeDecayCurve");
             channel = settings.FindPropertyRelative("Channel");
             traumaPerPulse = settings.FindPropertyRelative("TraumaPerPulse");
             traumaExponent = settings.FindPropertyRelative("TraumaExponent");
             enablePosition = settings.FindPropertyRelative("EnablePosition");
+            positionWaveform = settings.FindPropertyRelative("PositionWaveform");
+            positionPhase = settings.FindPropertyRelative("PositionPhase");
             positionAmplitude = settings.FindPropertyRelative("PositionAmplitude");
             positionFrequency = settings.FindPropertyRelative("PositionFrequency");
             positionCurve = settings.FindPropertyRelative("PositionCurve");
             positionSeed = settings.FindPropertyRelative("PositionSeed");
             enableRotation = settings.FindPropertyRelative("EnableRotation");
+            rotationWaveform = settings.FindPropertyRelative("RotationWaveform");
+            rotationPhase = settings.FindPropertyRelative("RotationPhase");
             rotationAmplitude = settings.FindPropertyRelative("RotationAmplitude");
             rotationFrequency = settings.FindPropertyRelative("RotationFrequency");
             rotationCurve = settings.FindPropertyRelative("RotationCurve");
@@ -101,6 +112,13 @@ namespace CombatEditor
             EditorGUIUtility.labelWidth = previousLabelWidth;
 
             var config = (AbilityEventObj_CameraShake)target;
+            var ability = AssetDatabase.LoadAssetAtPath<AbilityScriptableObject>(
+                AssetDatabase.GetAssetPath(config));
+            var previewEvent = ability?.events.Find(entry => entry != null && entry.Obj == config);
+            if (previewEvent != null && !previewEvent.Previewable)
+                EditorGUILayout.HelpBox(
+                    "此轨道的预览开关已关闭。请先打开动作编辑器中该轨道的预览图标，再在 Game 视图播放或拖动时间线查看震动。",
+                    MessageType.Info);
             if (config.TriggerMode == CameraShakeTriggerMode.OnConfirmedHit)
             {
                 EditorGUILayout.HelpBox(
@@ -122,6 +140,9 @@ namespace CombatEditor
 
         private void DrawShakeSettings()
         {
+            EditorGUILayout.PropertyField(amplitudeDecayCurve,
+                new GUIContent("振幅衰减曲线", "X：生命周期 0~1；Y：整体振幅倍率。与下方分项曲线相乘。"));
+            EditorGUILayout.Space(3f);
             EditorGUILayout.LabelField("Mixing", EditorStyles.boldLabel);
             EditorGUILayout.PropertyField(channel, new GUIContent("Channel"));
             EditorGUILayout.PropertyField(traumaPerPulse,
@@ -133,28 +154,40 @@ namespace CombatEditor
             DrawChannelHeader("Position", enablePosition);
             using (new EditorGUI.DisabledScope(!enablePosition.boolValue))
             {
+                EditorGUILayout.PropertyField(positionWaveform,
+                    new GUIContent("Waveform", "Perlin：噪声震动；Sine：正弦函数震动。"));
                 EditorGUILayout.PropertyField(positionAmplitude,
                     new GUIContent("Amplitude", "Local camera-space position amplitude."));
                 EditorGUILayout.PropertyField(positionFrequency,
-                    new GUIContent("Frequency", "Perlin noise frequency in Hz."));
+                    new GUIContent("Frequency", "Sampling frequency; Sine uses cycles per second (Hz)."));
                 EditorGUILayout.PropertyField(positionCurve,
                     new GUIContent("Curve", "Position strength over normalized event time."));
-                EditorGUILayout.PropertyField(positionSeed,
-                    new GUIContent("Seed", "Changes the deterministic Position noise pattern."));
+                if (positionWaveform.intValue == (int)CameraShakeWaveform.Sine)
+                    EditorGUILayout.PropertyField(positionPhase,
+                        new GUIContent("Phase (deg)", "各轴正弦初相位（度）。0 从中心开始，90 从最大偏移开始。"));
+                else
+                    EditorGUILayout.PropertyField(positionSeed,
+                        new GUIContent("Seed", "Changes the deterministic Position noise pattern."));
             }
 
             EditorGUILayout.Space(3f);
             DrawChannelHeader("Rotation", enableRotation);
             using (new EditorGUI.DisabledScope(!enableRotation.boolValue))
             {
+                EditorGUILayout.PropertyField(rotationWaveform,
+                    new GUIContent("Waveform", "Perlin：噪声震动；Sine：正弦函数震动。"));
                 EditorGUILayout.PropertyField(rotationAmplitude,
                     new GUIContent("Amplitude", "Local rotation amplitude in degrees."));
                 EditorGUILayout.PropertyField(rotationFrequency,
-                    new GUIContent("Frequency", "Perlin noise frequency in Hz."));
+                    new GUIContent("Frequency", "Sampling frequency; Sine uses cycles per second (Hz)."));
                 EditorGUILayout.PropertyField(rotationCurve,
                     new GUIContent("Curve", "Rotation strength over normalized event time."));
-                EditorGUILayout.PropertyField(rotationSeed,
-                    new GUIContent("Seed", "Changes the deterministic Rotation noise pattern."));
+                if (rotationWaveform.intValue == (int)CameraShakeWaveform.Sine)
+                    EditorGUILayout.PropertyField(rotationPhase,
+                        new GUIContent("Phase (deg)", "各轴正弦初相位（度）。0 从中心开始，90 从最大偏移开始。"));
+                else
+                    EditorGUILayout.PropertyField(rotationSeed,
+                        new GUIContent("Seed", "Changes the deterministic Rotation noise pattern."));
             }
 
             EditorGUILayout.Space(3f);

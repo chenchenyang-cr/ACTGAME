@@ -154,29 +154,26 @@ namespace CombatEditor
             }
             if (resolution.ResultType != CombatHitResultType.Parried && SourceEvent != null && SourceEvent.EnableHitAnimationSpeed)
             {
-                PlayHitAnimationSpeed(Owner);
+                PlayHitStop(Owner);
                 CombatController targetController =
                     receiverBehaviour.GetComponentInParent<CombatController>();
                 if (targetController == null)
                     targetController = receiverBehaviour.transform.root
                         .GetComponentInChildren<CombatController>(true);
                 if (targetController != Owner)
-                    PlayHitAnimationSpeed(targetController);
+                    PlayHitStop(targetController, delayOneFrame: true);
             }
             CombatHitEventBus.Publish(new CombatHitConfirmedEvent(Owner, SourceAbility,
                 SourceEvent, this, other, receiverBehaviour.gameObject, hitPoint,
                 attackDirection, hitContext, resolution));
         }
 
-        private void PlayHitAnimationSpeed(CombatController controller)
+        private void PlayHitStop(CombatController controller, bool delayOneFrame = false)
         {
             if (controller == null || controller._animSpeedExecutor == null)
                 return;
 
-            controller._animSpeedExecutor.PlayHitSpeedCurve(
-                SourceEvent.HitAnimationSpeedCurve,
-                SourceEvent.HitAnimationSpeedDuration,
-                SourceEvent.HitAnimationSpeedUseUnscaledTime);
+            controller._animSpeedExecutor.PlayHitStop(SourceEvent.HitStopFrames, delayOneFrame);
         }
 
         private CombatHitRequest BuildRequest(Component other, Vector3 hitPoint,

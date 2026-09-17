@@ -1,0 +1,106 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7bd95711bc5b4a64b760acafecc10e11, type: 3}
+  m_Name: ParryCameraShot
+  m_EditorClassIdentifier: 
+  Composition: 2
+  TargetPosition: {x: 1, y: 1, z: -3.6093445}
+  TargetRotation: {x: -8.364258, y: -10.223541, z: 2.2499135}
+  CameraPositionOffset: {x: -0.0000018934114, y: -0.33811697, z: 0.24099514}
+  CameraRotationOffset: {x: 0, y: 0, z: 0}
+  PositionAnchor: 0
+  LookAtAnchor: 0
+  ReferenceFrame: 2
+  PositionOffset: {x: 2.1304607, y: 0.24593553, z: -0.17927249}
+  LookAtOffset: {x: -7.412218, y: 0.6009178, z: 1.5641785}
+  FollowPosition: 1
+  FollowRotation: 0
+  PositionTravel: {x: 0, y: 0, z: 0}
+  MotionCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 2
+      outSlope: 2
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  Roll: -0.2625122
+  OverrideFieldOfView: 1
+  FieldOfView: 55
+  WeightCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.24000686
+      value: 1
+      inSlope: 0.000007193855
+      outSlope: 0.000007193855
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 1
+    - serializedVersion: 3
+      time: 0.74333614
+      value: 0.99811935
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  Priority: 10
+  BlendIn: 0.2
+  BlendOut: 0.4
+  UseUnscaledTime: 1
+  LockCameraInput: 1
+  AvoidObstacles: 1
+  ObstacleLayers:
+    serializedVersion: 2
+    m_Bits: 8
+  CollisionRadius: 0.15

@@ -7,6 +7,7 @@ public sealed class ParryState : PlayerState
     public Phase CurrentPhase { get; private set; }
     private bool animationStarted;
     private bool consumed;
+    private AbilityScriptableObject successAbility;
 
     public ParryState(PlayerStateMachine machine) : base(machine) { }
 
@@ -28,6 +29,11 @@ public sealed class ParryState : PlayerState
     private void PlayPhase(Phase phase, bool left = false)
     {
         CurrentPhase = phase;
+        successAbility = phase == Phase.Success
+            ? Machine.Combat.FindAbilityByAnimationName(left
+                ? Machine.AnimationProfile.ParryLeftStateName
+                : Machine.AnimationProfile.ParryRightStateName)
+            : null;
         if (phase == Phase.Start) Machine.Combat.BeginAbility(Machine.Combat.ParryStartAbility);
         else if (phase == Phase.End) Machine.Combat.BeginAbility(Machine.Combat.ParryEndAbility);
         else Machine.Combat.EndAbility();
@@ -89,15 +95,19 @@ public sealed class ParryState : PlayerState
         if (selected == null) return false;
         consumed = true;
         staggerDuration = selected.AttackerStaggerDuration;
+        CombatCamera.CameraShotTarget.Set(Machine.gameObject,
+            request.Attacker != null ? request.Attacker.transform : null);
         PlayPhase(Phase.Success, Vector3.Dot(Machine.transform.right, direction) < 0f);
         return true;
     }
 
-    // Each fresh press can interrupt lowering the blade or the previous deflection.
+    // Success can only be interrupted by commands permitted in its authored window.
     public override bool TryHandleCommand(PlayerActionCommand command)
     {
         if (command == PlayerActionCommand.Parry)
         {
+            if (CurrentPhase == Phase.Success && !CanCancel(command.ToString(), false))
+                return false;
             BeginAttempt();
             return true;
         }
@@ -110,9 +120,12 @@ public sealed class ParryState : PlayerState
 
     private bool CanCancel(string command, bool movement)
     {
-        if (CurrentPhase != Phase.End || Machine.Combat.ParryEndAbility == null ||
+        AbilityScriptableObject ability = CurrentPhase == Phase.Success
+            ? successAbility
+            : CurrentPhase == Phase.End ? Machine.Combat.ParryEndAbility : null;
+        if (ability == null ||
             !Machine.ActionAnimator.TryGetTrackedActionTime(out float time)) return false;
-        foreach (AbilityEvent entry in Machine.Combat.ParryEndAbility.events)
+        foreach (AbilityEvent entry in ability.events)
         {
             if (entry?.Obj is AbilityEventObj_InterruptWindow window && window.IsActive &&
                 time >= entry.EventRange.x && time < entry.EventRange.y &&

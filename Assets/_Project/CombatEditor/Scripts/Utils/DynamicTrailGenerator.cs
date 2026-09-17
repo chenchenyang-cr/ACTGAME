@@ -33,6 +33,14 @@ using UnityEngine;
 	    int _trailSubs;
 	    AbilityEventObj_DynamicTrail _settings;
 	    MeshRenderer _renderer;
+	    float normalizedTime;
+	    readonly MaterialPropertyBlock appearanceProperties = new MaterialPropertyBlock();
+
+	    public void SetNormalizedTime(float time)
+	    {
+	        normalizedTime = Mathf.Clamp01(time);
+	        ApplyAppearance();
+	    }
 	
 	    static int StaticUVScale = 3;
 	    AbilityEventObj_DynamicTrail.TrailBehavior _uvMethod;
@@ -91,9 +99,13 @@ using UnityEngine;
 	            return;
 	        }
 
-	        var properties = new MaterialPropertyBlock();
+	        var properties = appearanceProperties;
+	        properties.Clear();
 	        properties.SetColor("_TintColor", _settings.TrailColor);
-	        properties.SetFloat("_Intensity", Mathf.Max(0f, _settings.Brightness));
+	        properties.SetFloat("_Intensity", _settings.EvaluateBrightness(normalizedTime));
+	        if (_trailMat != null && _trailMat.HasProperty("_EdgeGlowIntensity"))
+	            properties.SetFloat("_EdgeGlowIntensity", _trailMat.GetFloat("_EdgeGlowIntensity") *
+	                _settings.EvaluateBrightnessMultiplier(normalizedTime));
 	        properties.SetVector("_UVTiling", new Vector4(
 	            _settings.TextureTiling.x, _settings.TextureTiling.y, 0f, 0f));
 	        properties.SetFloat("_UVScrollSpeed", _settings.TextureScrollSpeed);

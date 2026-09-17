@@ -28,6 +28,8 @@ using UnityEngine.UIElements;
 	            new GUIContent("空气扭曲方向（U/V）"));
 	        EditorGUILayout.PropertyField(serializedObject.FindProperty("TrailColor"));
 	        EditorGUILayout.PropertyField(serializedObject.FindProperty("Brightness"));
+	        EditorGUILayout.PropertyField(serializedObject.FindProperty("BrightnessCurve"),
+	            new GUIContent("亮度动画曲线"));
 	        EditorGUILayout.PropertyField(serializedObject.FindProperty("TrailTexture"));
 	        EditorGUILayout.PropertyField(serializedObject.FindProperty("TextureTiling"));
 	        EditorGUILayout.PropertyField(serializedObject.FindProperty("TextureScrollSpeed"));

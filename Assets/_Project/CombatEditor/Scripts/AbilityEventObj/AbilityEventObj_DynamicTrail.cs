@@ -20,6 +20,19 @@
 	    public DistortionAxis AirDistortionAxis = DistortionAxis.U;
 	    [ColorUsage(true, true)] public Color TrailColor = new Color(0.55f, 0.85f, 1f, 0.5f);
 	    [Min(0f)] public float Brightness = 1.5f;
+	    [Tooltip("横轴为轨道区间进度 0~1，纵轴为亮度倍率。最终亮度 = Brightness × 曲线值。")]
+	    [MyAnimationCurve]
+	    public AnimationCurve BrightnessCurve = AnimationCurve.Linear(0f, 1f, 1f, 1f);
+
+	    public float EvaluateBrightness(float normalizedTime)
+	        => Mathf.Max(0f, Brightness) * EvaluateBrightnessMultiplier(normalizedTime);
+
+	    public float EvaluateBrightnessMultiplier(float normalizedTime)
+	    {
+	        float multiplier = BrightnessCurve != null && BrightnessCurve.length > 0
+	            ? Mathf.Max(0f, BrightnessCurve.Evaluate(Mathf.Clamp01(normalizedTime))) : 1f;
+	        return multiplier;
+	    }
 	    public Texture2D TrailTexture;
 	    public Vector2 TextureTiling = Vector2.one;
 	    public float TextureScrollSpeed = 0.8f;
@@ -80,10 +93,16 @@
 	    {
 	        base.EffectRunning();
 	    }
+	    public override void EffectRunning(float currentTimePercentage)
+	    {
+	        trail?.SetNormalizedTime(Mathf.InverseLerp(eve.GetEventStartTime(),
+	            eve.GetEventEndTime(), currentTimePercentage));
+	    }
 	    public override void EndEffect()
 	    {
 	        if (executor != null)
 	        {
+	            if (IsRunning) trail.SetNormalizedTime(1f);
 	            executor.StopTrail();
 	        }
 	        base.EndEffect();

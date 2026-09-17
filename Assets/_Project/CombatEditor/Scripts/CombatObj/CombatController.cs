@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -459,6 +459,13 @@ namespace CombatEditor
                 }
             }
             return false;
+        }
+
+        private void OnDisable()
+        {
+            // Release active visual/property overrides when a character is disabled or destroyed.
+            foreach (AbilityEventEffect effect in _abilityEventEffects)
+                if (effect.IsRunning) effect.EndEffect();
         }
 	
 	
