@@ -23,6 +23,9 @@ namespace CombatCamera
             public bool HadLifetimeOwner, Releasing, Preview, Initialized, UnscaledTime, ProgressDriven;
             public double Started, Released;
             public float Duration, Progress, ReleaseWeight, PreviewWeight;
+            public float TemporalWeight, TemporalWeightVelocity;
+            public double TemporalWeightUpdated;
+            public bool TemporalWeightInitialized;
             public Vector3 AnchorPosition, LookPosition;
             public Quaternion Frame;
             public Quaternion ActorStartFrame;
@@ -48,7 +51,8 @@ namespace CombatCamera
                 if (selected != null) return false;
                 selected = candidate;
             }
-            if (selected == null || (!selected.ProgressDriven && !selected.Preview) ||
+            if (selected == null || selected.Releasing ||
+                (!selected.ProgressDriven && !selected.Preview) ||
                 !selected.Profile.TryGetReturnBlend(selected.Progress, out float start, out blend)) return false;
             float progress = selected.Progress;
             selected.Progress = start;
@@ -158,7 +162,9 @@ namespace CombatCamera
         public static void Release(int handle, bool immediate = false)
         {
             if (!shots.TryGetValue(handle, out Shot shot)) return;
-            if (immediate || shot.Preview || shot.ProgressDriven || shot.Profile == null)
+            // Timeline-driven shots still need their BlendOut tail. The caller drops
+            // its handle, but the runtime owns the short release until it completes.
+            if (immediate || shot.Preview || shot.Profile == null)
             { shots.Remove(handle); return; }
             BeginRelease(shot, Now(shot.UnscaledTime));
         }
@@ -172,7 +178,9 @@ namespace CombatCamera
         private static void BeginRelease(Shot shot, double now)
         {
             if (shot.Releasing) return;
-            shot.ReleaseWeight = EntryWeight(shot, now);
+            shot.ReleaseWeight = shot.ProgressDriven && shot.TemporalWeightInitialized
+                ? shot.TemporalWeight
+                : EntryWeight(shot, now);
             shot.Released = now;
             shot.Releasing = true;
         }
@@ -180,7 +188,8 @@ namespace CombatCamera
         private static float Weight(Shot shot, double now)
         {
             if (shot.Preview) return shot.PreviewWeight;
-            if (shot.ProgressDriven) return shot.Profile.EvaluateWeight(shot.Progress);
+            if (shot.ProgressDriven && !shot.Releasing)
+                return shot.TemporalWeight;
             if (!shot.Releasing) return EntryWeight(shot, now);
             if (shot.Profile.BlendOut <= 0f) return 0f;
             return shot.ReleaseWeight * (1f - Mathf.SmoothStep(0f, 1f,
@@ -201,6 +210,8 @@ namespace CombatCamera
                     (shot.HadLifetimeOwner && (shot.LifetimeOwner == null || !shot.LifetimeOwner.isActiveAndEnabled));
                 if (ownerGone && (shot.Preview || shot.ProgressDriven)) { expired.Add(shot.Handle); continue; }
                 if (ownerGone) BeginRelease(shot, now);
+                if (shot.ProgressDriven && !shot.Releasing)
+                    UpdateTemporalWeight(shot, now);
                 if (!shot.Preview && !shot.ProgressDriven && shot.Duration >= 0f)
                 {
                     shot.Progress = shot.Duration > 0f ? Mathf.Clamp01((float)(now - shot.Started) / shot.Duration) : 1f;
@@ -226,6 +237,34 @@ namespace CombatCamera
                     pose.FieldOfView = Mathf.Lerp(pose.FieldOfView, target.FieldOfView, weight);
             }
             return active;
+        }
+
+        private static void UpdateTemporalWeight(Shot shot, double now)
+        {
+            float target = shot.Profile.EvaluateWeight(shot.Progress);
+            if (!shot.TemporalWeightInitialized)
+            {
+                shot.TemporalWeight = 0f;
+                shot.TemporalWeightVelocity = 0f;
+                shot.TemporalWeightUpdated = now;
+                shot.TemporalWeightInitialized = true;
+                return;
+            }
+
+            float deltaTime = Mathf.Max(0f, (float)(now - shot.TemporalWeightUpdated));
+            shot.TemporalWeightUpdated = now;
+            float blend = target >= shot.TemporalWeight
+                ? shot.Profile.BlendIn
+                : shot.Profile.BlendOut;
+            if (blend <= 0.0001f || deltaTime <= 0f)
+            {
+                if (blend <= 0.0001f) shot.TemporalWeight = target;
+                return;
+            }
+
+            shot.TemporalWeight = Mathf.SmoothDamp(
+                shot.TemporalWeight, target, ref shot.TemporalWeightVelocity,
+                blend, Mathf.Infinity, deltaTime);
         }
 
         private static Vector3 Anchor(Shot shot, CameraShotAnchor mode)

@@ -30,6 +30,7 @@ namespace CombatEditor
         private SerializedProperty positionPhase;
         private SerializedProperty positionAmplitude;
         private SerializedProperty positionFrequency;
+        private SerializedProperty positionFrequencyCurve;
         private SerializedProperty positionCurve;
         private SerializedProperty positionSeed;
         private SerializedProperty enableRotation;
@@ -37,6 +38,7 @@ namespace CombatEditor
         private SerializedProperty rotationPhase;
         private SerializedProperty rotationAmplitude;
         private SerializedProperty rotationFrequency;
+        private SerializedProperty rotationFrequencyCurve;
         private SerializedProperty rotationCurve;
         private SerializedProperty rotationSeed;
         private SerializedProperty enableFov;
@@ -70,6 +72,7 @@ namespace CombatEditor
             positionPhase = settings.FindPropertyRelative("PositionPhase");
             positionAmplitude = settings.FindPropertyRelative("PositionAmplitude");
             positionFrequency = settings.FindPropertyRelative("PositionFrequency");
+            positionFrequencyCurve = settings.FindPropertyRelative("PositionFrequencyCurve");
             positionCurve = settings.FindPropertyRelative("PositionCurve");
             positionSeed = settings.FindPropertyRelative("PositionSeed");
             enableRotation = settings.FindPropertyRelative("EnableRotation");
@@ -77,6 +80,7 @@ namespace CombatEditor
             rotationPhase = settings.FindPropertyRelative("RotationPhase");
             rotationAmplitude = settings.FindPropertyRelative("RotationAmplitude");
             rotationFrequency = settings.FindPropertyRelative("RotationFrequency");
+            rotationFrequencyCurve = settings.FindPropertyRelative("RotationFrequencyCurve");
             rotationCurve = settings.FindPropertyRelative("RotationCurve");
             rotationSeed = settings.FindPropertyRelative("RotationSeed");
             enableFov = settings.FindPropertyRelative("EnableFov");
@@ -133,6 +137,11 @@ namespace CombatEditor
 
                 DrawHitWindowValidation(config);
             }
+            else
+            {
+                EditorGUILayout.HelpBox("播放头在轨道区间内持续震动。幅度和频率曲线按轨道进度取值；频率按实际秒数计算，不乘动画速度。顿帧时保持当前曲线值继续震动。",
+                    MessageType.Info);
+            }
 
             if (changed && CombatEditorUtility.EditorExist())
                 CombatEditorUtility.GetCurrentEditor().RequirePreviewReload();
@@ -160,8 +169,10 @@ namespace CombatEditor
                     new GUIContent("Amplitude", "Local camera-space position amplitude."));
                 EditorGUILayout.PropertyField(positionFrequency,
                     new GUIContent("Frequency", "Sampling frequency; Sine uses cycles per second (Hz)."));
+                EditorGUILayout.PropertyField(positionFrequencyCurve,
+                    new GUIContent("频率曲线", "X：轨道进度；Y：Frequency 的倍率。不乘动画播放速度。"));
                 EditorGUILayout.PropertyField(positionCurve,
-                    new GUIContent("Curve", "Position strength over normalized event time."));
+                    new GUIContent("幅度曲线", "X：轨道进度；Y：Position Amplitude 的倍率。"));
                 if (positionWaveform.intValue == (int)CameraShakeWaveform.Sine)
                     EditorGUILayout.PropertyField(positionPhase,
                         new GUIContent("Phase (deg)", "各轴正弦初相位（度）。0 从中心开始，90 从最大偏移开始。"));
@@ -180,8 +191,10 @@ namespace CombatEditor
                     new GUIContent("Amplitude", "Local rotation amplitude in degrees."));
                 EditorGUILayout.PropertyField(rotationFrequency,
                     new GUIContent("Frequency", "Sampling frequency; Sine uses cycles per second (Hz)."));
+                EditorGUILayout.PropertyField(rotationFrequencyCurve,
+                    new GUIContent("频率曲线", "X：轨道进度；Y：Frequency 的倍率。不乘动画播放速度。"));
                 EditorGUILayout.PropertyField(rotationCurve,
-                    new GUIContent("Curve", "Rotation strength over normalized event time."));
+                    new GUIContent("幅度曲线", "X：轨道进度；Y：Rotation Amplitude 的倍率。"));
                 if (rotationWaveform.intValue == (int)CameraShakeWaveform.Sine)
                     EditorGUILayout.PropertyField(rotationPhase,
                         new GUIContent("Phase (deg)", "各轴正弦初相位（度）。0 从中心开始，90 从最大偏移开始。"));

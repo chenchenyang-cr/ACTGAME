@@ -83,7 +83,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   IsActive: 1
   Mode: 0
-  Speed: 1.3
+  Speed: 1.4
   SpeedCurve:
     serializedVersion: 2
     m_Curve:
@@ -120,7 +120,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 28e2dd982f5c43b48b940242e405acc4, type: 3}
   m_Name: AnimSpeed
   m_EditorClassIdentifier: 
-  IsActive: 1
+  IsActive: 0
   Mode: 1
   Speed: 1.1
   SpeedCurve:
@@ -261,7 +261,7 @@ MonoBehaviour:
     Previewable: 0
     Obj: {fileID: -2403835657417370130}
   - EventTime: 0
-    EventRange: {x: 0.14444445, y: 0.42222223}
+    EventRange: {x: 0.15555556, y: 0.34444445}
     EventMultiRange:
     - 0.2
     - 0.4
@@ -270,7 +270,7 @@ MonoBehaviour:
     Previewable: 0
     Obj: {fileID: 3931622027713726647}
   - EventTime: 0
-    EventRange: {x: 0.14444445, y: 0.4}
+    EventRange: {x: 0.15555556, y: 0.36666667}
     EventMultiRange:
     - 0.2
     - 0.4
@@ -279,7 +279,7 @@ MonoBehaviour:
     Previewable: 0
     Obj: {fileID: -5140003473789306864}
   - EventTime: 0
-    EventRange: {x: 0.14444445, y: 0.4}
+    EventRange: {x: 0.15555556, y: 0.37777779}
     EventMultiRange:
     - 0.2
     - 0.4
@@ -288,7 +288,7 @@ MonoBehaviour:
     Previewable: 0
     Obj: {fileID: 4161944851256672177}
   - EventTime: 0
-    EventRange: {x: 0.14444445, y: 0.4}
+    EventRange: {x: 0.15555556, y: 0.37777779}
     EventMultiRange:
     - 0.2
     - 0.4
@@ -297,7 +297,7 @@ MonoBehaviour:
     Previewable: 1
     Obj: {fileID: 8702645937542011431}
   - EventTime: 0
-    EventRange: {x: 0.14444445, y: 0.4}
+    EventRange: {x: 0.15555556, y: 0.24444444}
     EventMultiRange:
     - 0.2
     - 0.4
@@ -319,7 +319,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   IsActive: 1
   Mode: 1
-  Speed: 1.4
+  Speed: 1.2
   SpeedCurve:
     serializedVersion: 2
     m_Curve:
@@ -409,9 +409,9 @@ MonoBehaviour:
   ObjData:
     TargetObj: {fileID: 2557966978344939087, guid: cf086f7d0aab02340bc2140423f5fd3a, type: 3}
     controlType: 0
-    Offset: {x: 0.026902372, y: 1.2169454, z: -0.049535554}
-    Rot: {x: -0.000000023543059, y: 0.000000020877568, z: -0.000000027621288, w: 1}
-    Scale: {x: 0.23, y: 2.04, z: 0.27}
+    Offset: {x: 0.02340857, y: 1.2542883, z: -0.021225734}
+    Rot: {x: -0.000000016948363, y: 0.000000015634134, z: -0.000000022183752, w: 1.0000002}
+    Scale: {x: 0.068050236, y: 1.3816355, z: 0.123418525}
     TargetNode: 12
     FollowNode: 1
     RotateByNode: 1
@@ -432,6 +432,30 @@ MonoBehaviour:
   HitCameraShakeDuration: 0.2
   HitCameraShakeUseUnscaledTime: 1
   HitCameraShakeSettings:
+    AmplitudeDecayCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: -1
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: -1
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
     Channel: 0
     TraumaPerPulse: 0.65
     TraumaExponent: 2
@@ -440,6 +464,30 @@ MonoBehaviour:
     PositionPhase: {x: 0, y: 0, z: 0}
     PositionAmplitude: {x: 0.08, y: 0.05, z: 0.03}
     PositionFrequency: 70
+    PositionFrequencyCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
     PositionCurve:
       serializedVersion: 2
       m_Curve:
@@ -515,6 +563,30 @@ MonoBehaviour:
     RotationPhase: {x: 0, y: 0, z: 0}
     RotationAmplitude: {x: 1.2, y: 0.8, z: 0.5}
     RotationFrequency: 70
+    RotationFrequencyCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
     RotationCurve:
       serializedVersion: 2
       m_Curve:
@@ -648,7 +720,7 @@ MonoBehaviour:
       m_RotationOrder: 4
   PreviewHitCameraShake: 1
   EnableHitAnimationSpeed: 1
-  HitStopFrames: 6
+  HitStopFrames: 4
   EnableHitVfx: 1
   HitVfxPrefab: {fileID: 1923962722205832878, guid: cd05009f07b076e4baa80b03d69fdf3b, type: 3}
   HitVfxDirection: 0

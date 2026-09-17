@@ -37,6 +37,8 @@ namespace CombatCamera
         public Vector3 PositionPhase;
         public Vector3 PositionAmplitude = new Vector3(0.08f, 0.05f, 0.03f);
         [Min(0f)] public float PositionFrequency = 24f;
+        [Tooltip("X：轨道进度 0~1；Y：频率倍率。实际频率不乘动画播放速度。")]
+        public AnimationCurve PositionFrequencyCurve = AnimationCurve.Linear(0f, 1f, 1f, 1f);
         public AnimationCurve PositionCurve = AnimationCurve.EaseInOut(0f, 1f, 1f, 0f);
         public int PositionSeed = 137;
 
@@ -47,6 +49,8 @@ namespace CombatCamera
         public Vector3 RotationPhase;
         public Vector3 RotationAmplitude = new Vector3(1.2f, 0.8f, 0.5f);
         [Min(0f)] public float RotationFrequency = 20f;
+        [Tooltip("X：轨道进度 0~1；Y：频率倍率。实际频率不乘动画播放速度。")]
+        public AnimationCurve RotationFrequencyCurve = AnimationCurve.Linear(0f, 1f, 1f, 1f);
         public AnimationCurve RotationCurve = AnimationCurve.EaseInOut(0f, 1f, 1f, 0f);
         public int RotationSeed = 251;
 
@@ -87,6 +91,27 @@ namespace CombatCamera
         public CameraShakeSample Evaluate(float sampleTime, float normalizedTime,
             float intensityScale = 1f)
         {
+            return EvaluateWithPhase(sampleTime * EvaluateFrequencies(normalizedTime),
+                normalizedTime, intensityScale);
+        }
+
+        public Vector2 EvaluateFrequencies(float normalizedTime)
+        {
+            normalizedTime = Mathf.Clamp01(normalizedTime);
+            return new Vector2(
+                Mathf.Max(0f, PositionFrequency) * FrequencyMultiplier(PositionFrequencyCurve, normalizedTime),
+                Mathf.Max(0f, RotationFrequency) * FrequencyMultiplier(RotationFrequencyCurve, normalizedTime));
+        }
+
+        private static float FrequencyMultiplier(AnimationCurve curve, float progress)
+        {
+            return curve != null && curve.length > 0 ? Mathf.Max(0f, curve.Evaluate(progress)) : 1f;
+        }
+
+        // Accumulated cycles keep phase continuous when the frequency curve changes.
+        public CameraShakeSample EvaluateWithPhase(Vector2 cycles, float normalizedTime,
+            float intensityScale = 1f)
+        {
             normalizedTime = Mathf.Clamp01(normalizedTime);
             intensityScale = Mathf.Max(0f, intensityScale) * EvaluateAmplitudeDecay(normalizedTime);
             if (intensityScale <= 0f)
@@ -98,17 +123,17 @@ namespace CombatCamera
             Vector3 position = Vector3.zero;
             if (EnablePosition)
             {
-                position.x = SampleWave(PositionWaveform, sampleTime, PositionFrequency, PositionSeed + 11, PositionPhase.x) * PositionAmplitude.x;
-                position.y = SampleWave(PositionWaveform, sampleTime, PositionFrequency, PositionSeed + 29, PositionPhase.y) * PositionAmplitude.y;
-                position.z = SampleWave(PositionWaveform, sampleTime, PositionFrequency, PositionSeed + 47, PositionPhase.z) * PositionAmplitude.z;
+                position.x = SampleWave(PositionWaveform, cycles.x, PositionFrequency, PositionSeed + 11, PositionPhase.x) * PositionAmplitude.x;
+                position.y = SampleWave(PositionWaveform, cycles.x, PositionFrequency, PositionSeed + 29, PositionPhase.y) * PositionAmplitude.y;
+                position.z = SampleWave(PositionWaveform, cycles.x, PositionFrequency, PositionSeed + 47, PositionPhase.z) * PositionAmplitude.z;
             }
 
             Vector3 rotation = Vector3.zero;
             if (EnableRotation)
             {
-                rotation.x = SampleWave(RotationWaveform, sampleTime, RotationFrequency, RotationSeed + 11, RotationPhase.x) * RotationAmplitude.x;
-                rotation.y = SampleWave(RotationWaveform, sampleTime, RotationFrequency, RotationSeed + 29, RotationPhase.y) * RotationAmplitude.y;
-                rotation.z = SampleWave(RotationWaveform, sampleTime, RotationFrequency, RotationSeed + 47, RotationPhase.z) * RotationAmplitude.z;
+                rotation.x = SampleWave(RotationWaveform, cycles.y, RotationFrequency, RotationSeed + 11, RotationPhase.x) * RotationAmplitude.x;
+                rotation.y = SampleWave(RotationWaveform, cycles.y, RotationFrequency, RotationSeed + 29, RotationPhase.y) * RotationAmplitude.y;
+                rotation.z = SampleWave(RotationWaveform, cycles.y, RotationFrequency, RotationSeed + 47, RotationPhase.z) * RotationAmplitude.z;
             }
 
             float fovCurveValue = FovCurve != null
@@ -134,19 +159,19 @@ namespace CombatCamera
             return curve != null ? curve.Evaluate(normalizedTime) : 1f;
         }
 
-        private static float SampleWave(CameraShakeWaveform waveform, float time,
+        private static float SampleWave(CameraShakeWaveform waveform, float cycles,
             float frequency, int seed, float phase)
         {
             if (frequency <= 0f)
                 return 0f;
 
             if (waveform == CameraShakeWaveform.Sine)
-                return Mathf.Sin(2f * Mathf.PI * time * frequency + phase * Mathf.Deg2Rad);
+                return Mathf.Sin(2f * Mathf.PI * cycles + phase * Mathf.Deg2Rad);
 
             uint hash = unchecked((uint)seed * 747796405u + 2891336453u);
             float xOffset = (hash & 0xffffu) * (1f / 997f) + 0.123f;
             float yOffset = ((hash >> 16) & 0xffffu) * (1f / 991f) + 17.731f;
-            return Mathf.PerlinNoise(xOffset + time * frequency, yOffset) * 2f - 1f;
+            return Mathf.PerlinNoise(xOffset + cycles, yOffset) * 2f - 1f;
         }
     }
 

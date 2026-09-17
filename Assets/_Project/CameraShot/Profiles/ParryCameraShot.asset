@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: ParryCameraShot
   m_EditorClassIdentifier: 
   Composition: 2
-  TargetPosition: {x: 1, y: 1, z: -3.6093445}
-  TargetRotation: {x: -8.364258, y: -10.223541, z: 2.2499135}
+  TargetPosition: {x: 1, y: 1.2, z: -4}
+  TargetRotation: {x: -7.817108, y: -10.201843, z: 2.2468598}
   CameraPositionOffset: {x: -0.0000018934114, y: -0.33811697, z: 0.24099514}
   CameraRotationOffset: {x: 0, y: 0, z: 0}
   PositionAnchor: 0
@@ -31,8 +31,8 @@ MonoBehaviour:
     - serializedVersion: 3
       time: 0
       value: 0
-      inSlope: 0
-      outSlope: 0
+      inSlope: 2
+      outSlope: 2
       tangentMode: 0
       weightedMode: 0
       inWeight: 0
@@ -40,8 +40,8 @@ MonoBehaviour:
     - serializedVersion: 3
       time: 1
       value: 1
-      inSlope: 2
-      outSlope: 2
+      inSlope: 0
+      outSlope: 0
       tangentMode: 0
       weightedMode: 0
       inWeight: 0
@@ -58,20 +58,20 @@ MonoBehaviour:
     - serializedVersion: 3
       time: 0
       value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
+      inSlope: Infinity
+      outSlope: 4.5452433
+      tangentMode: 65
       weightedMode: 0
       inWeight: 0
       outWeight: 0
     - serializedVersion: 3
-      time: 0.24000686
+      time: 0.22001022
       value: 1
-      inSlope: 0.000007193855
-      outSlope: 0.000007193855
+      inSlope: -0.04409452
+      outSlope: -0.04409452
       tangentMode: 0
       weightedMode: 0
-      inWeight: 0
+      inWeight: 0.9696983
       outWeight: 1
     - serializedVersion: 3
       time: 0.74333614

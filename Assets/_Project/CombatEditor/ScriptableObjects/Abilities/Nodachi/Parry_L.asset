@@ -199,7 +199,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   IsActive: 1
   Mode: 0
-  Speed: 1
+  Speed: 0.5
   SpeedCurve:
     serializedVersion: 2
     m_Curve:
@@ -343,7 +343,7 @@ MonoBehaviour:
     Previewable: 0
     Obj: {fileID: -5811746822422127339}
   - EventTime: 0
-    EventRange: {x: 0, y: 0.9230769}
+    EventRange: {x: 0, y: 0.73846155}
     EventMultiRange:
     - 0.2
     - 0.4
@@ -473,7 +473,7 @@ MonoBehaviour:
     Channel: 0
     TraumaPerPulse: 0.689
     TraumaExponent: 2
-    EnablePosition: 1
+    EnablePosition: 0
     PositionWaveform: 1
     PositionPhase: {x: 0, y: 0, z: 0}
     PositionAmplitude: {x: 0.1, y: 0.1, z: 0.03}
@@ -506,7 +506,7 @@ MonoBehaviour:
     EnableRotation: 1
     RotationWaveform: 1
     RotationPhase: {x: 0, y: 0, z: 0}
-    RotationAmplitude: {x: 1.2, y: 1.2, z: 1.2}
+    RotationAmplitude: {x: 1, y: 1, z: 1}
     RotationFrequency: 15
     RotationCurve:
       serializedVersion: 2

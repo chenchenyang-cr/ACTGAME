@@ -182,7 +182,9 @@ using UnityEngine;
 	    {
 	        if (CurrentHitBox != null)
 	        {
+	            CurrentHitBox.CancelHits();
 	            GameObject.Destroy(CurrentHitBox.gameObject);
+	            CurrentHitBox = null;
 	        }
 	        base.EndEffect();
 	    }

@@ -3,6 +3,7 @@ using UnityEngine;
 
 namespace CombatEditor
 {
+    [DefaultExecutionOrder(200)] // After NodeFollower and animation pose evaluation.
     public class HitBox : MonoBehaviour
     {
         private sealed class TargetHitState
@@ -26,6 +27,20 @@ namespace CombatEditor
         private Vector3 lastMotionDirection = Vector3.forward;
         private bool hasLastSampledPosition;
         private bool hitsCancelled;
+        private Collider hitCollider;
+        private NodeFollower nodeFollower;
+        private Collider[] overlaps = new Collider[32];
+        private readonly HashSet<Collider> sampledColliders = new();
+        private Vector3 previousPosition;
+        private Quaternion previousRotation;
+        private Vector3 previousNodePosition;
+        private Quaternion previousNodeRotation;
+        private bool hasPreviousPose;
+        private bool hasSampledPose;
+
+        private bool UsesPoseQueries => hitCollider is BoxCollider ||
+                                       hitCollider is SphereCollider ||
+                                       hitCollider is CapsuleCollider;
 
         public void CancelHits() => hitsCancelled = true;
 
@@ -44,6 +59,17 @@ namespace CombatEditor
             lastSampledPosition = transform.position;
             lastMotionDirection = ResolveFallbackDirection();
             hasLastSampledPosition = true;
+            hitCollider = GetComponent<Collider>();
+            nodeFollower = GetComponent<NodeFollower>();
+            // Creation runs before animation / NodeFollower. Preserve that pose so
+            // the very first LateUpdate also sweeps the blade's movement this frame.
+            previousPosition = transform.position;
+            previousRotation = transform.rotation;
+            bool followsNode = nodeFollower != null && nodeFollower.NodeTrans != null && nodeFollower.FollowPos;
+            previousNodePosition = followsNode ? nodeFollower.NodeTrans.position : previousPosition;
+            previousNodeRotation = followsNode ? nodeFollower.NodeTrans.rotation : previousRotation;
+            hasPreviousPose = true;
+            hasSampledPose = false;
         }
 
         public void UpdateAnimationTime(float normalizedTime)
@@ -63,11 +89,15 @@ namespace CombatEditor
             }
         }
 
-        private void OnTriggerEnter(Collider other) =>
-            TryProcessHit(other, ResolveHitPoint(other));
+        private void OnTriggerEnter(Collider other)
+        {
+            if (!UsesPoseQueries) TryProcessHit(other, ResolveHitPoint(other));
+        }
 
-        private void OnTriggerStay(Collider other) =>
-            TryProcessHit(other, ResolveHitPoint(other));
+        private void OnTriggerStay(Collider other)
+        {
+            if (!UsesPoseQueries) TryProcessHit(other, ResolveHitPoint(other));
+        }
 
         private void OnTriggerEnter2D(Collider2D other)
         {
@@ -231,15 +261,147 @@ namespace CombatEditor
 
         private Vector3 ResolveHitPoint(Collider other)
         {
-            if (other == null) return transform.position;
-            if (other is BoxCollider || other is SphereCollider || other is CapsuleCollider)
-                return other.ClosestPoint(transform.position);
-            if (other is MeshCollider meshCollider && meshCollider.convex)
-                return other.ClosestPoint(transform.position);
-            return other.bounds.ClosestPoint(transform.position);
+            return ResolveHitPoint(other, transform.position);
         }
 
-        private void LateUpdate() => RefreshMotionDirection();
+        private static Vector3 ResolveHitPoint(Collider other, Vector3 samplePosition)
+        {
+            if (other == null) return samplePosition;
+            if (other is BoxCollider || other is SphereCollider || other is CapsuleCollider)
+                return other.ClosestPoint(samplePosition);
+            if (other is MeshCollider meshCollider && meshCollider.convex)
+                return other.ClosestPoint(samplePosition);
+            return other.bounds.ClosestPoint(samplePosition);
+        }
+
+        private void LateUpdate()
+        {
+            RefreshMotionDirection();
+            SampleHits();
+        }
+
+        // Trigger callbacks see the previous physics pose. Sample the displayed pose
+        // instead, including intermediate orientations so a rotating blade cannot
+        // jump from one side of a target to the other between physics ticks.
+        internal void SampleHits()
+        {
+            if (hitsCancelled || Owner == null || !UsesPoseQueries || !hitCollider.enabled ||
+                !gameObject.activeInHierarchy)
+            {
+                hasPreviousPose = false;
+                hasSampledPose = false;
+                return;
+            }
+
+            Physics.SyncTransforms();
+            sampledColliders.Clear();
+            Vector3 position = transform.position;
+            Quaternion rotation = transform.rotation;
+            bool followsNode = nodeFollower != null && nodeFollower.NodeTrans != null &&
+                               nodeFollower.FollowPos;
+            Vector3 nodePosition = followsNode ? nodeFollower.NodeTrans.position : position;
+            Quaternion nodeRotation = followsNode ? nodeFollower.NodeTrans.rotation : rotation;
+            if (!hasPreviousPose)
+            {
+                previousPosition = position;
+                previousRotation = rotation;
+                previousNodePosition = nodePosition;
+                previousNodeRotation = nodeRotation;
+            }
+
+            Vector3 scale = transform.lossyScale;
+            scale = new Vector3(Mathf.Abs(scale.x), Mathf.Abs(scale.y), Mathf.Abs(scale.z));
+            GetShape(scale, out Vector3 center, out Vector3 halfExtents,
+                out float radius, out Vector3 capsuleAxis, out float halfSegment);
+            float thickness = hitCollider is BoxCollider
+                ? Mathf.Min(halfExtents.x, Mathf.Min(halfExtents.y, halfExtents.z))
+                : radius;
+            float reach = hitCollider is BoxCollider ? halfExtents.magnitude : radius + halfSegment;
+            float travel = Vector3.Distance(previousPosition, position) +
+                           Quaternion.Angle(previousRotation, rotation) * Mathf.Deg2Rad * (reach + center.magnitude);
+            if (followsNode)
+                travel += Quaternion.Angle(previousNodeRotation, nodeRotation) * Mathf.Deg2Rad *
+                          nodeFollower.PosOffset.magnitude;
+            // At most half the narrowest half-extent per sample; no inflated hit volume.
+            int steps = Mathf.Clamp(Mathf.CeilToInt(travel / Mathf.Max(0.0025f, thickness * 0.5f)), 1, 512);
+            int layerMask = SourceEvent != null ? SourceEvent.TargetLayers.value : hitTargetLayers.value;
+            for (int layer = 0; layer < 32; layer++)
+                if (Physics.GetIgnoreLayerCollision(gameObject.layer, layer)) layerMask &= ~(1 << layer);
+
+            for (int step = hasSampledPose ? 1 : 0; step <= steps && !hitsCancelled; step++)
+            {
+                float t = step / (float)steps;
+                Quaternion sampleRotation = Quaternion.Slerp(previousRotation, rotation, t);
+                Vector3 samplePosition = followsNode
+                    ? Vector3.Lerp(previousNodePosition, nodePosition, t) +
+                      Quaternion.Slerp(previousNodeRotation, nodeRotation, t) * nodeFollower.PosOffset
+                    : Vector3.Lerp(previousPosition, position, t);
+                Vector3 sampleCenter = samplePosition + sampleRotation * center;
+                int count;
+                do
+                {
+                    if (hitCollider is BoxCollider)
+                        count = Physics.OverlapBoxNonAlloc(sampleCenter, halfExtents, overlaps,
+                            sampleRotation, layerMask, QueryTriggerInteraction.Collide);
+                    else if (hitCollider is SphereCollider)
+                        count = Physics.OverlapSphereNonAlloc(sampleCenter, radius, overlaps,
+                            layerMask, QueryTriggerInteraction.Collide);
+                    else
+                    {
+                        Vector3 axis = sampleRotation * capsuleAxis * halfSegment;
+                        count = Physics.OverlapCapsuleNonAlloc(sampleCenter - axis, sampleCenter + axis,
+                            radius, overlaps, layerMask, QueryTriggerInteraction.Collide);
+                    }
+                    if (count < overlaps.Length) break;
+                    System.Array.Resize(ref overlaps, overlaps.Length * 2);
+                } while (true);
+
+                for (int i = 0; i < count && !hitsCancelled; i++)
+                {
+                    Collider other = overlaps[i];
+                    if (other == null || other == hitCollider || !sampledColliders.Add(other) ||
+                        Physics.GetIgnoreCollision(hitCollider, other)) continue;
+                    TryProcessHit(other, ResolveHitPoint(other, sampleCenter));
+                }
+            }
+            previousPosition = position;
+            previousRotation = rotation;
+            previousNodePosition = nodePosition;
+            previousNodeRotation = nodeRotation;
+            hasPreviousPose = true;
+            hasSampledPose = true;
+        }
+
+        private void GetShape(Vector3 scale, out Vector3 center, out Vector3 halfExtents,
+            out float radius, out Vector3 capsuleAxis, out float halfSegment)
+        {
+            halfExtents = Vector3.zero;
+            radius = halfSegment = 0f;
+            capsuleAxis = Vector3.up;
+            Vector3 localCenter;
+            if (hitCollider is BoxCollider box)
+            {
+                localCenter = box.center;
+                halfExtents = Vector3.Scale(box.size, scale) * 0.5f;
+            }
+            else if (hitCollider is SphereCollider sphere)
+            {
+                localCenter = sphere.center;
+                radius = sphere.radius * Mathf.Max(scale.x, Mathf.Max(scale.y, scale.z));
+            }
+            else
+            {
+                var capsule = (CapsuleCollider)hitCollider;
+                localCenter = capsule.center;
+                int direction = capsule.direction;
+                capsuleAxis = direction == 0 ? Vector3.right : direction == 1 ? Vector3.up : Vector3.forward;
+                float axisScale = scale[direction];
+                radius = capsule.radius * Mathf.Max(scale[(direction + 1) % 3], scale[(direction + 2) % 3]);
+                halfSegment = Mathf.Max(0f, capsule.height * axisScale * 0.5f - radius);
+            }
+            // Preserve signed center offsets under mirrored transforms.
+            center = Vector3.Scale(localCenter, transform.lossyScale);
+        }
 
         private void RefreshMotionDirection()
         {

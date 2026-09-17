@@ -10,6 +10,7 @@ using UnityEngine;
 	public class AbilityEventPreview_CreateHitBox : AbilityEventPreview_CreateObjWithHandle
 	{
 	    private int hitShakePreviewHandle;
+	    private CameraShakePreviewClock hitShakeClock;
 	    public AbilityEventObj_CreateHitBox Obj => (AbilityEventObj_CreateHitBox)_EventObj;
 	    public AbilityEventPreview_CreateHitBox(AbilityEventObj Obj) : base(Obj)
 	    {
@@ -95,14 +96,18 @@ using UnityEngine;
 	            ? _combatController._animator.transform.forward
 	            : Vector3.forward;
 	        float normalizedTime = elapsed / duration;
-	        CameraShakeRuntime.Update(hitShakePreviewHandle, settings, elapsed,
-	            normalizedTime, noiseIntensity, previewForceDirection, 1f);
+	        bool isPlaying = CombatGlobalEditorValue.IsPlaying || CombatGlobalEditorValue.IsLooping;
+	        float sampleTime = hitShakeClock.Sample(elapsed, isPlaying,
+	            EditorApplication.timeSinceStartup, out bool resetPhase);
+	        CameraShakeRuntime.Update(hitShakePreviewHandle, settings, sampleTime,
+	            normalizedTime, noiseIntensity, previewForceDirection, 1f, resetPhase);
 	    }
 
 	    private void ReleaseHitShakePreview()
 	    {
 	        CameraShakeRuntime.Remove(hitShakePreviewHandle);
 	        hitShakePreviewHandle = 0;
+	        hitShakeClock = default;
 	    }
 
 	    public override void BackToStart()

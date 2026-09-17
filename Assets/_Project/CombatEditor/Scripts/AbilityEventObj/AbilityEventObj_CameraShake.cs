@@ -57,6 +57,7 @@ namespace CombatEditor
     {
         private int shakeHandle;
         private int hitBindingHandle;
+        private double shakeStartTime;
         private AbilityEventObj_CameraShake Config =>
             (AbilityEventObj_CameraShake)_EventObj;
 
@@ -69,6 +70,7 @@ namespace CombatEditor
 
             if (Config.TriggerMode == CameraShakeTriggerMode.Direct)
             {
+                shakeStartTime = Time.unscaledTimeAsDouble;
                 shakeHandle = CameraShakeRuntime.Add(Config.Settings);
                 return;
             }
@@ -98,8 +100,9 @@ namespace CombatEditor
 
             float localTime = Mathf.InverseLerp(eve.GetEventStartTime(),
                 eve.GetEventEndTime(), currentTimePercentage);
-            float duration = GetEventDurationSeconds();
-            CameraShakeRuntime.Update(shakeHandle, Config.Settings, localTime * duration,
+            // The timeline controls the envelope, but frequency is measured in real seconds.
+            float sampleTime = (float)(Time.unscaledTimeAsDouble - shakeStartTime);
+            CameraShakeRuntime.Update(shakeHandle, Config.Settings, sampleTime,
                 localTime);
         }
 
@@ -107,15 +110,6 @@ namespace CombatEditor
         {
             Release();
             base.EndEffect();
-        }
-
-        private float GetEventDurationSeconds()
-        {
-            float clipLength = AnimObj != null && AnimObj.Clip != null
-                ? AnimObj.Clip.length
-                : 1f;
-            return Mathf.Max(0.01f,
-                (eve.GetEventEndTime() - eve.GetEventStartTime()) * clipLength);
         }
 
         private void Release()
@@ -128,9 +122,37 @@ namespace CombatEditor
     }
 
 #if UNITY_EDITOR
+    // Shared by timeline shakes and hit-box previews. A stationary playhead during
+    // playback (hit stop / zero speed) must not stop the wave clock.
+    internal struct CameraShakePreviewClock
+    {
+        private bool initialized;
+        private double lastTime;
+        private float lastTimelineTime;
+        private float elapsed;
+        private bool wasPlaying;
+
+        public float Sample(float timelineTime, bool isPlaying, double now, out bool resetPhase)
+        {
+            resetPhase = !initialized || timelineTime < lastTimelineTime ||
+                         (!isPlaying && timelineTime != lastTimelineTime);
+            if (resetPhase)
+                elapsed = isPlaying ? 0f : timelineTime;
+            else if (isPlaying && wasPlaying)
+                elapsed += (float)System.Math.Max(0d, now - lastTime);
+
+            initialized = true;
+            lastTime = now;
+            lastTimelineTime = timelineTime;
+            wasPlaying = isPlaying;
+            return elapsed;
+        }
+    }
+
     public sealed class AbilityEventPreview_CameraShake : AbilityEventPreview
     {
         private int shakeHandle;
+        private CameraShakePreviewClock waveClock;
         private AbilityEventObj_CameraShake Config =>
             (AbilityEventObj_CameraShake)_EventObj;
 
@@ -164,7 +186,7 @@ namespace CombatEditor
 
         private void PreviewDirect(float currentTimePercentage)
         {
-            if (!PreviewInRange(currentTimePercentage))
+            if (currentTimePercentage < StartTimePercentage || currentTimePercentage >= EndTimePercentage)
             {
                 Release();
                 return;
@@ -194,16 +216,20 @@ namespace CombatEditor
 
         private void UpdateShake(float sampleTime, float normalizedTime, float intensityScale)
         {
+            bool isPlaying = CombatGlobalEditorValue.IsPlaying || CombatGlobalEditorValue.IsLooping;
             if (shakeHandle == 0)
                 shakeHandle = CameraShakeRuntime.Add(Config.Settings, intensityScale);
-            CameraShakeRuntime.Update(shakeHandle, Config.Settings, sampleTime, normalizedTime,
-                intensityScale);
+            float waveTime = waveClock.Sample(sampleTime, isPlaying,
+                UnityEditor.EditorApplication.timeSinceStartup, out bool resetPhase);
+            CameraShakeRuntime.Update(shakeHandle, Config.Settings, waveTime, normalizedTime,
+                intensityScale, resetPhase: resetPhase);
         }
 
         private void Release()
         {
             CameraShakeRuntime.Remove(shakeHandle);
             shakeHandle = 0;
+            waveClock = default;
         }
     }
 #endif

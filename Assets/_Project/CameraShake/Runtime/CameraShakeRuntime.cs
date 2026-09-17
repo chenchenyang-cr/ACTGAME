@@ -8,6 +8,7 @@ namespace CombatCamera
         private struct ContinuousSource
         {
             public CameraShakeSettings Settings;
+            public Vector2 WaveCycles;
             public float SampleTime;
             public float NormalizedTime;
             public float IntensityScale;
@@ -20,7 +21,7 @@ namespace CombatCamera
             public CameraShakeSettings Settings;
             public float Trauma;
             public float DecayPerSecond;
-            public float SampleTime;
+            public Vector2 WaveCycles;
             public float TimeSincePulse;
             public float PulseDuration;
             public bool UseUnscaledTime;
@@ -72,15 +73,23 @@ namespace CombatCamera
         public static void Update(int handle, CameraShakeSettings settings, float sampleTime,
             float normalizedTime, float intensityScale = 1f,
             Vector3 worldForceDirection = default,
-            float directionalIntensityScale = 0f)
+            float directionalIntensityScale = 0f, bool resetPhase = false)
         {
             if (handle == 0 || settings == null ||
-                !ContinuousSources.ContainsKey(handle))
+                !ContinuousSources.TryGetValue(handle, out ContinuousSource previous))
                 return;
 
+            sampleTime = Mathf.Max(0f, sampleTime);
+            normalizedTime = Mathf.Clamp01(normalizedTime);
+            Vector2 frequencies = settings.EvaluateFrequencies(normalizedTime);
+            // Only elapsed clock time advances the wave. Timeline progress selects Hz.
+            Vector2 cycles = resetPhase || sampleTime < previous.SampleTime
+                ? sampleTime * frequencies
+                : previous.WaveCycles + (sampleTime - previous.SampleTime) * frequencies;
             ContinuousSources[handle] = new ContinuousSource
             {
                 Settings = settings,
+                WaveCycles = cycles,
                 SampleTime = Mathf.Max(0f, sampleTime),
                 NormalizedTime = Mathf.Clamp01(normalizedTime),
                 IntensityScale = Mathf.Max(0f, intensityScale),
@@ -149,7 +158,7 @@ namespace CombatCamera
             {
                 if (source.Settings == null)
                     continue;
-                CameraShakeSample sample = source.Settings.Evaluate(source.SampleTime,
+                CameraShakeSample sample = source.Settings.EvaluateWithPhase(source.WaveCycles,
                     source.NormalizedTime, source.IntensityScale);
                 Vector3 worldOffset = EvaluateDirectionalOffset(source.Settings,
                     source.WorldForceDirection, source.NormalizedTime,
@@ -170,7 +179,7 @@ namespace CombatCamera
                 float normalizedTime = Mathf.Clamp01(layer.TimeSincePulse /
                                                       Mathf.Max(0.01f,
                                                           layer.PulseDuration));
-                AddToChannel(pair.Key, layer.Settings.Evaluate(layer.SampleTime,
+                AddToChannel(pair.Key, layer.Settings.EvaluateWithPhase(layer.WaveCycles,
                     normalizedTime, intensity));
             }
 
@@ -224,7 +233,7 @@ namespace CombatCamera
                     Settings = settings,
                     Trauma = amount,
                     DecayPerSecond = decayPerSecond,
-                    SampleTime = 0f,
+                    WaveCycles = Vector2.zero,
                     TimeSincePulse = 0f,
                     PulseDuration = duration,
                     UseUnscaledTime = useUnscaledTime
@@ -237,7 +246,7 @@ namespace CombatCamera
             layer.DecayPerSecond = layer.DecayPerSecond > 0f
                 ? Mathf.Min(layer.DecayPerSecond, decayPerSecond)
                 : decayPerSecond;
-            layer.SampleTime = 0f;
+            layer.WaveCycles = Vector2.zero;
             layer.TimeSincePulse = 0f;
             layer.PulseDuration = Mathf.Max(layer.PulseDuration, duration);
             layer.UseUnscaledTime = useUnscaledTime;
@@ -275,7 +284,8 @@ namespace CombatCamera
                 float deltaTime = layer.UseUnscaledTime
                     ? unscaledDeltaTime
                     : scaledDeltaTime;
-                layer.SampleTime += deltaTime;
+                float progress = Mathf.Clamp01(layer.TimeSincePulse / Mathf.Max(0.01f, layer.PulseDuration));
+                layer.WaveCycles += deltaTime * layer.Settings.EvaluateFrequencies(progress);
                 layer.TimeSincePulse += deltaTime;
                 layer.Trauma = Mathf.Max(0f,
                     layer.Trauma - layer.DecayPerSecond * deltaTime);
