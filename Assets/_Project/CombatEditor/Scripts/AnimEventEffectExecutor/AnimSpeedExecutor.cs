@@ -60,7 +60,7 @@ using UnityEngine;
 	    {
 	        if (_pendingHitStopFrames > 0 && Time.frameCount >= _hitStopStartFrame)
 	        {
-	            StartHitStop(_pendingHitStopFrames);
+	            StartHitStop(_pendingHitStopFrames, _pendingHitStopSpeed);
 	            _pendingHitStopFrames = 0;
 	        }
 	        _combatController._animator.speed = GetCurrentSpeedModifier();
@@ -70,12 +70,14 @@ using UnityEngine;
 	    private CharacterAnimSpeedModifier _hitSpeedModifier;
 	    private CharacterAnimSpeedModifier _hitStopModifier;
 	    private int _pendingHitStopFrames;
+	    private float _pendingHitStopSpeed;
 	    private int _hitStopStartFrame;
 
-	    public void PlayHitStop(int frames, bool delayOneFrame = false)
+	    public void PlayHitStop(int frames, bool delayOneFrame = false, float animationSpeed = 0f)
 	    {
 	        if (frames <= 0)
 	            return;
+	        animationSpeed = Mathf.Clamp01(animationSpeed);
 
 	        if (delayOneFrame)
 	        {
@@ -83,21 +85,22 @@ using UnityEngine;
 	            if (_pendingHitStopFrames == 0)
 	                _hitStopStartFrame = Time.frameCount + 1;
 	            _pendingHitStopFrames = frames;
+	            _pendingHitStopSpeed = animationSpeed;
 	            return;
 	        }
 
 	        _pendingHitStopFrames = 0;
-	        StartHitStop(frames);
+	        StartHitStop(frames, animationSpeed);
 	        Execute();
 	    }
 
-	    private void StartHitStop(int frames)
+	    private void StartHitStop(int frames, float animationSpeed)
 	    {
 	        if (_hitStopModifier != null)
 	            _animSpeedModifiers.Remove(_hitStopModifier);
 
 	        // Count real time independently of the frozen animation and game time scale.
-	        _hitStopModifier = new CharacterAnimSpeedModifier(0f,
+	        _hitStopModifier = new CharacterAnimSpeedModifier(animationSpeed,
 	            frames / CombatTimeline.FramesPerSecond)
 	        {
 	            UseUnscaledTime = true,

@@ -95,8 +95,6 @@ public sealed class ParryState : PlayerState
         if (selected == null) return false;
         consumed = true;
         staggerDuration = selected.AttackerStaggerDuration;
-        CombatCamera.CameraShotTarget.Set(Machine.gameObject,
-            request.Attacker != null ? request.Attacker.transform : null);
         PlayPhase(Phase.Success, Vector3.Dot(Machine.transform.right, direction) < 0f);
         return true;
     }

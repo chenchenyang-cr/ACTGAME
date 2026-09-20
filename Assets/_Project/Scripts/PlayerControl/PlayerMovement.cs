@@ -56,6 +56,15 @@ public class PlayerMovement : MonoBehaviour
         AnimationCurve.Linear(0f, 0.15f, 1f, 1f);
     [SerializeField, Range(90f, 180f)]
     private float turn180Threshold = 135f;
+    [SerializeField] private bool turn180RequiresFastMovement = true;
+    [SerializeField, Min(0f)] private float rotationSmoothTime;
+    [Header("Target Matched Turn")]
+    [SerializeField] private bool matchTurn180ToInput;
+    [Tooltip("Signed horizontal rotation of the source turn clip.")]
+    [SerializeField] private float authoredTurn180Angle = 180f;
+    [Tooltip("Normalized yaw progress sampled from the source clip, not a linear turn.")]
+    [SerializeField] private AnimationCurve turn180YawProgress = AnimationCurve.Linear(0f, 0f, 1f, 1f);
+    [SerializeField, Min(0.01f)] private float turn180RecoveryTime = 0.18f;
     [Header("Animation")]
     [SerializeField]
     private Animator animator;
@@ -95,6 +104,13 @@ public class PlayerMovement : MonoBehaviour
     private bool isCombatMovement;
     private bool isFastMovementActive;
     private float verticalVelocity;
+    private bool matchedTurnActive;
+    private bool matchedTurnStateSeen;
+    private int matchedTurnRequestFrame;
+    private Quaternion matchedTurnStartRotation;
+    private float matchedTurnAngle;
+    private float turnRecoveryRemaining;
+    private float angularVelocity;
 
     public bool IsGrounded { get; private set; }
 
@@ -132,6 +148,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void OnDisable()
     {
+        ResetMatchedTurn();
         turn180RootMotionHandler?.SetTurn180RootMotionActive(false);
         rootMotionApplier?.SetRootRotationProcessor(null);
         rootMotionApplier?.SetRootMotionTranslationScale(1f);
@@ -139,11 +156,13 @@ public class PlayerMovement : MonoBehaviour
 
     private void BindRootRotationProcessor()
     {
-        rootMotionApplier?.SetRootRotationProcessor(ProcessRootRotation);
+        rootMotionApplier?.SetRootRotationProcessor(ProcessRootRotation, matchTurn180ToInput);
     }
 
     public void Tick(Vector2 input, bool hasMoveInput, bool allowTurn180 = true)
     {
+        if (!allowTurn180 || rotationMode != PlayerRotationMode.MovementDirection)
+            ResetMatchedTurn();
         UpdateVerticalMotion();
         moveInput = Vector2.ClampMagnitude(input, 1f);
         UpdateMoveDirection();
@@ -230,6 +249,7 @@ public class PlayerMovement : MonoBehaviour
 
     public void SetRotationMode(PlayerRotationMode mode)
     {
+        if (mode != rotationMode) ResetMatchedTurn();
         rotationMode = mode;
     }
 
@@ -248,7 +268,7 @@ public class PlayerMovement : MonoBehaviour
     public void EndFastMovement()
     {
         isFastMovementActive = false;
-        turn180RootMotionHandler?.SetTurn180RootMotionActive(false);
+        if (!matchedTurnActive) turn180RootMotionHandler?.SetTurn180RootMotionActive(false);
         smoothedAnimatorMoveAmount = Mathf.Min(
             smoothedAnimatorMoveAmount,
             RunGaitSample);
@@ -262,19 +282,25 @@ public class PlayerMovement : MonoBehaviour
             return;
         }
 
+        ResetMatchedTurn();
         transform.rotation = Quaternion.LookRotation(worldDirection.normalized, Vector3.up);
     }
 
     private bool UpdateTurn180()
     {
-        if (animator == null || !isFastMovementActive)
+        if (rotationMode != PlayerRotationMode.MovementDirection) return false;
+        if (matchedTurnActive) return true;
+        if (matchTurn180ToInput && turnRecoveryRemaining > 0f) return false;
+        if (animator == null || (turn180RequiresFastMovement && !isFastMovementActive))
         {
             return false;
         }
 
         if (IsTurn180AnimationActive())
         {
-            return true;
+            // The recovery pose may keep playing after steering is released.
+            // Do not restart another turn while this state is still active.
+            return !matchTurn180ToInput;
         }
 
         if (worldMoveDirection.sqrMagnitude < MoveInputThreshold * MoveInputThreshold)
@@ -283,7 +309,9 @@ public class PlayerMovement : MonoBehaviour
         }
 
         float angle = Vector3.Angle(transform.forward, worldMoveDirection);
-        if (angle < turn180Threshold)
+        // Signed directions reconstructed from input can round just below the
+        // threshold on one side (for example -150 becomes 149.99998).
+        if (angle + 0.01f < turn180Threshold)
         {
             return false;
         }
@@ -297,7 +325,21 @@ public class PlayerMovement : MonoBehaviour
         int turnStateHash = isCombatMovement
             ? CombatTurn180StateHash
             : Turn180StateHash;
-        PlayerAnimatorTransition.TryCrossFade(animator, 0, turnStateHash, 0.08f);
+        if (!PlayerAnimatorTransition.TryCrossFade(animator, 0, turnStateHash, 0.08f))
+            return false;
+        if (matchTurn180ToInput)
+        {
+            matchedTurnStartRotation = transform.rotation;
+            // A single Generic clip cannot safely mirror its skeleton. Keep its
+            // authored side and adjust only the amount (150..210 degrees).
+            float authoredSign = authoredTurn180Angle < 0f ? -1f : 1f;
+            matchedTurnAngle = signedAngle;
+            if (matchedTurnAngle * authoredSign < 0f) matchedTurnAngle += authoredSign * 360f;
+            matchedTurnActive = true;
+            matchedTurnStateSeen = false;
+            matchedTurnRequestFrame = Time.frameCount;
+            angularVelocity = 0f;
+        }
         return true;
     }
 
@@ -318,7 +360,51 @@ public class PlayerMovement : MonoBehaviour
             return Quaternion.identity;
         }
 
+        if (matchTurn180ToInput && matchedTurnActive)
+            return CalculateMatchedTurnRotation();
         return CalculateMovementRotation();
+    }
+
+    private Quaternion CalculateMatchedTurnRotation()
+    {
+        AnimatorStateInfo state = animator.GetCurrentAnimatorStateInfo(0);
+        if (animator.IsInTransition(0))
+        {
+            var next = animator.GetNextAnimatorStateInfo(0);
+            if (next.IsTag("LocomotionTurn180")) state = next;
+        }
+        if (state.IsTag("LocomotionTurn180"))
+        {
+            matchedTurnStateSeen = true;
+            float progress = Mathf.Clamp01(turn180YawProgress.Evaluate(Mathf.Clamp01(state.normalizedTime)));
+            bool pivotComplete = progress >= 0.999f;
+            if (pivotComplete) progress = 1f;
+            Quaternion desired = Quaternion.AngleAxis(matchedTurnAngle * progress, Vector3.up) *
+                                 matchedTurnStartRotation;
+            if (pivotComplete) ReleaseMatchedTurn();
+            return Quaternion.Inverse(transform.rotation) * desired;
+        }
+        if (!matchedTurnStateSeen && Time.frameCount <= matchedTurnRequestFrame + 2)
+            return Quaternion.identity;
+
+        // Preserve the pose reached by the animation. New input takes ownership
+        // gradually; there is no final LookRotation/instant correction.
+        ReleaseMatchedTurn();
+        return Quaternion.identity;
+    }
+
+    private void ReleaseMatchedTurn()
+    {
+        matchedTurnActive = false;
+        angularVelocity = 0f;
+        turnRecoveryRemaining = turn180RecoveryTime;
+    }
+
+    private void ResetMatchedTurn()
+    {
+        matchedTurnActive = matchedTurnStateSeen = false;
+        turnRecoveryRemaining = 0f;
+        angularVelocity = 0f;
     }
 
     private bool IsTurn180AnimationActive()
@@ -363,8 +449,15 @@ public class PlayerMovement : MonoBehaviour
     }
     private Quaternion CalculateMovementRotation()
     {
+        float recoveryWeight = 1f;
+        if (turnRecoveryRemaining > 0f)
+        {
+            turnRecoveryRemaining = Mathf.Max(0f, turnRecoveryRemaining - Time.deltaTime);
+            recoveryWeight = Mathf.SmoothStep(0f, 1f, 1f - turnRecoveryRemaining / turn180RecoveryTime);
+        }
         if (worldMoveDirection.sqrMagnitude < 0.001f)
         {
+            angularVelocity = 0f;
             return Quaternion.identity;
         }
 
@@ -378,6 +471,16 @@ public class PlayerMovement : MonoBehaviour
         float angularSpeed = IsTurn180AnimationActive()
             ? rotationSpeed
             : rotationSpeed * speedMultiplier;
+        if (rotationSmoothTime > 0f)
+        {
+            float signedAngle = Vector3.SignedAngle(transform.forward, worldMoveDirection, Vector3.up);
+            float maximumSpeed = rotationSpeed * Mathf.Clamp01(speedMultiplier) * recoveryWeight;
+            float step = Mathf.SmoothDampAngle(0f, signedAngle, ref angularVelocity,
+                rotationSmoothTime, maximumSpeed, Time.deltaTime);
+            step = Mathf.Clamp(step, -maximumSpeed * Time.deltaTime, maximumSpeed * Time.deltaTime);
+            angularVelocity = Mathf.Clamp(angularVelocity, -maximumSpeed, maximumSpeed);
+            return Quaternion.AngleAxis(step, Vector3.up);
+        }
 
         Quaternion nextRotation = Quaternion.RotateTowards(
             currentRotation,

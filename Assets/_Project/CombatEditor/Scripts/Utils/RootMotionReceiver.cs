@@ -18,6 +18,7 @@ namespace CombatEditor
         public float CurrentTurn180Weight { get; private set; }
         public int LastRootMotionFrame { get; private set; }
         private Func<Quaternion, Quaternion> rootRotationProcessor;
+        private bool processorOwnsTurn180;
         private bool turn180RootMotionActive;
         private const string Turn180Tag = "LocomotionTurn180";
 
@@ -39,7 +40,7 @@ namespace CombatEditor
                 Quaternion regularDeltaRotation =
                     rootRotationProcessor(animationDeltaRotation);
                 float easedTurnWeight = SmoothStep01(CurrentTurn180Weight);
-                deltaRotation = Quaternion.Slerp(
+                deltaRotation = processorOwnsTurn180 ? regularDeltaRotation : Quaternion.Slerp(
                     regularDeltaRotation,
                     animationDeltaRotation,
                     easedTurnWeight);
@@ -87,9 +88,10 @@ namespace CombatEditor
             return value * value * (3f - 2f * value);
         }
 
-        public void SetRootRotationProcessor(Func<Quaternion, Quaternion> processor)
+        public void SetRootRotationProcessor(Func<Quaternion, Quaternion> processor, bool ownsTurn180 = false)
         {
             rootRotationProcessor = processor;
+            processorOwnsTurn180 = ownsTurn180;
         }
 
         public Vector3 ConsumeRootMotion()

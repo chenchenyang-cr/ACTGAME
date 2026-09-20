@@ -3,16 +3,15 @@ using UnityEngine;
 public sealed class AttackState : PlayerState
 {
     private bool consumeLastHandledCommand = true;
+    private bool recovering;
 
     public AttackState(PlayerStateMachine machine) : base(machine) { }
 
     private void BeginAttack()
     {
         PlayerCombatAdapter combatAdapter = Machine.Combat;
-        if (combatAdapter != null && combatAdapter.FirstLightAttack != null)
-        {
-            Machine.BeginAttackAbility(combatAdapter.FirstLightAttack);
-        }
+        recovering = false;
+        if (combatAdapter == null || !Machine.BeginAttackAbility(combatAdapter.FirstLightAttack)) Complete();
     }
 
     public override void Enter()
@@ -28,12 +27,6 @@ public sealed class AttackState : PlayerState
     public override void Tick(Vector2 moveInput, bool hasMoveInput)
     {
         PlayerCombatAdapter combatAdapter = Machine.Combat;
-        if (combatAdapter != null && combatAdapter.ConsumeExitRequest())
-        {
-            Complete();
-            return;
-        }
-
         if (hasMoveInput &&combatAdapter != null &&combatAdapter.CanInterruptWithMovement())
         {
             Complete();
@@ -42,6 +35,12 @@ public sealed class AttackState : PlayerState
         }
 
         Machine.Movement.Tick(Vector2.zero, false);
+        var recovery = combatAdapter?.FindAttackRecovery(combatAdapter.CurrentAbility);
+        bool atRecovery = !recovering && recovery != null &&
+            Machine.ActionAnimator.TryGetTrackedActionTime(out float time) && time >= recovery.StartTime;
+        if (atRecovery || (combatAdapter != null && combatAdapter.ConsumeExitRequest()) ||
+            Machine.ActionAnimator.IsTrackedActionComplete())
+            FinishPhase();
     }
 
     public override bool TryHandleCommand(PlayerActionCommand command)
@@ -55,6 +54,7 @@ public sealed class AttackState : PlayerState
                     out bool consumeBufferedInput) &&
                 Machine.BeginAttackAbility(nextAbility))
             {
+                recovering = false;
                 consumeLastHandledCommand = consumeBufferedInput;
                 return true;
             }
@@ -64,6 +64,10 @@ public sealed class AttackState : PlayerState
             consumeLastHandledCommand = true;
             switch (command)
             {
+                case PlayerActionCommand.LightAttack when recovering:
+                    if (!Machine.BeginAttackAbility(combatAdapter.FirstLightAttack)) return false;
+                    recovering = false;
+                    return true;
                 case PlayerActionCommand.Parry:
                     return Machine.TryEnterParry();
                 case PlayerActionCommand.Dodge:
@@ -84,12 +88,25 @@ public sealed class AttackState : PlayerState
 
     public override bool TryCompleteAction()
     {
-        return Complete();
+        return FinishPhase();
     }
 
     public override void Exit()
     {
         Machine.Combat?.EndAbility();
+        Machine.ActionAnimator?.StopTrackingAction();
+    }
+
+    private bool FinishPhase()
+    {
+        var recovery = Machine.Combat?.FindAttackRecovery(Machine.Combat.CurrentAbility);
+        if (!recovering && recovery != null && recovery.End != null &&
+            Machine.BeginAttackAbility(recovery.End, recovery.BlendDuration))
+        {
+            recovering = true;
+            return true;
+        }
+        return Complete();
     }
 
     private bool Complete()

@@ -12,17 +12,65 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a7c02e95b03d48b6821befd404d085c1, type: 3}
   m_Name: HeavyShakeProfile 1
   m_EditorClassIdentifier: 
-  Duration: 0.25
+  Duration: 0.2
   UseUnscaledTime: 1
   Settings:
+    AmplitudeDecayCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: -2.7787845
+        outSlope: -2.7787845
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0.04333334
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0.0120949615
+        outSlope: 0.0120949615
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.23333335
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
     Channel: 0
     TraumaPerPulse: 0.65
     TraumaExponent: 1
-    EnablePosition: 0
+    EnablePosition: 1
     PositionWaveform: 1
     PositionPhase: {x: 0, y: 0, z: 0}
-    PositionAmplitude: {x: 0.2, y: 0.2, z: 0}
-    PositionFrequency: 30
+    PositionAmplitude: {x: 0.5, y: 0.1, z: 0}
+    PositionFrequency: 10
+    PositionFrequencyCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
     PositionCurve:
       serializedVersion: 2
       m_Curve:
@@ -97,7 +145,31 @@ MonoBehaviour:
     RotationWaveform: 1
     RotationPhase: {x: 0, y: 0, z: 0}
     RotationAmplitude: {x: 1.1, y: 0.8, z: 0.3}
-    RotationFrequency: 30
+    RotationFrequency: 10
+    RotationFrequencyCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
     RotationCurve:
       serializedVersion: 2
       m_Curve:

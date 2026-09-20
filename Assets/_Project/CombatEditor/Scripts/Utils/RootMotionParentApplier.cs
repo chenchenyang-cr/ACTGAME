@@ -254,14 +254,14 @@ namespace CombatEditor
         }
 
         public bool SetRootRotationProcessor(
-            System.Func<Quaternion, Quaternion> processor)
+            System.Func<Quaternion, Quaternion> processor, bool ownsTurn180 = false)
         {
             if (!TryResolveReceiver())
             {
                 return false;
             }
 
-            receiver.SetRootRotationProcessor(processor);
+            receiver.SetRootRotationProcessor(processor, ownsTurn180);
             return true;
         }
 

@@ -60,7 +60,7 @@ namespace CombatEditor
             if (config.EnableHitAnimationSpeed)
             {
                 EditorGUILayout.HelpBox(
-                    $"命中确认后，攻击者立即顿帧，受击者延迟 1 个游戏帧开始顿帧。各自暂停 {Mathf.Max(0, config.HitStopFrames)} 帧（按 60 FPS 计时）后恢复，延迟不占暂停时长。0 帧表示不顿帧；连续命中会刷新持续时间。",
+                    $"命中确认后，攻击者立即顿帧，受击者延迟 1 个游戏帧开始顿帧。各自以当前动作速度的 {Mathf.Clamp01(config.HitStopAnimationSpeed):0.##} 倍播放，持续 {Mathf.Max(0, config.HitStopFrames)} 帧（按 60 FPS 计时）后恢复。0 倍完全暂停，1 倍保持原速；延迟不占持续时间。0 帧表示不顿帧；连续命中会刷新时长和速度。",
                     MessageType.Info);
             }
 

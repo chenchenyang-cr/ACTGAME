@@ -70,7 +70,7 @@ public static class NodachiCharacterIntegrator
 
     private static void AutoConvertMaterialsOnce()
     {
-        if (SessionState.GetBool(SessionMaterialKey, false) ||
+        if (UsesSwordmanPlayer() || SessionState.GetBool(SessionMaterialKey, false) ||
             EditorApplication.isCompiling || EditorApplication.isUpdating ||
             EditorApplication.isPlayingOrWillChangePlaymode ||
             AssetDatabase.LoadAssetAtPath<SceneAsset>(TargetScenePath) == null)
@@ -90,7 +90,7 @@ public static class NodachiCharacterIntegrator
 
     private static void AutoIntegrateOnce()
     {
-        if (SessionState.GetBool(SessionCompleteKey, false) ||
+        if (UsesSwordmanPlayer() || SessionState.GetBool(SessionCompleteKey, false) ||
             EditorApplication.isCompiling || EditorApplication.isUpdating ||
             EditorApplication.isPlayingOrWillChangePlaymode ||
             IntegrationSceneIsComplete())
@@ -106,6 +106,14 @@ public static class NodachiCharacterIntegrator
         {
             Debug.LogException(exception);
         }
+    }
+
+    private static bool UsesSwordmanPlayer()
+    {
+        // This scene can retain its filename after switching character packs.
+        // Never rebuild the Nodachi integration over an intentional Swordman setup.
+        return File.Exists(TargetScenePath) &&
+               File.ReadAllText(TargetScenePath).Contains("m_Name: Player_Swordman");
     }
 
     public static void CreateIntegration()

@@ -36,8 +36,8 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 1.2, y: 1.2, z: 1.2}
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 7936760358210587952}
   m_Father: {fileID: 0}
@@ -82,10 +82,10 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.26371267
+  m_Radius: 0.39370263
   m_Height: 1.8282349
   m_Direction: 1
-  m_Center: {x: 0.008069664, y: 0.91411746, z: 0.0070984066}
+  m_Center: {x: -0.04393339, y: 0.91411746, z: 0.0030094632}
 --- !u!195 &3355315742283074004
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -129,6 +129,9 @@ MonoBehaviour:
     CombatObjs:
     - {fileID: 11400000, guid: d6dffb344daa61244a34f0853a5062ae, type: 2}
     - {fileID: 11400000, guid: aec78409291540988e5d4e717f499bc0, type: 2}
+  - IsFolded: 1
+    Label: F2_Rename
+    CombatObjs: []
   clip: {fileID: 0}
   Nodes:
   - type: 11

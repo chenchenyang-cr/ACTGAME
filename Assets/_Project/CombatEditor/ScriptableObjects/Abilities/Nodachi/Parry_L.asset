@@ -316,7 +316,7 @@ MonoBehaviour:
     Previewable: 0
     Obj: {fileID: -6714606395581427652}
   - EventTime: 0
-    EventRange: {x: 0, y: 0.7846154}
+    EventRange: {x: 0, y: 0.33846155}
     EventMultiRange:
     - 0.2
     - 0.4
@@ -473,11 +473,35 @@ MonoBehaviour:
     Channel: 0
     TraumaPerPulse: 0.689
     TraumaExponent: 2
-    EnablePosition: 0
+    EnablePosition: 1
     PositionWaveform: 1
     PositionPhase: {x: 0, y: 0, z: 0}
     PositionAmplitude: {x: 0.1, y: 0.1, z: 0.03}
-    PositionFrequency: 30
+    PositionFrequency: 10
+    PositionFrequencyCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
     PositionCurve:
       serializedVersion: 2
       m_Curve:
@@ -508,6 +532,30 @@ MonoBehaviour:
     RotationPhase: {x: 0, y: 0, z: 0}
     RotationAmplitude: {x: 1, y: 1, z: 1}
     RotationFrequency: 15
+    RotationFrequencyCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
     RotationCurve:
       serializedVersion: 2
       m_Curve:

@@ -11,13 +11,16 @@ namespace CombatCamera.Editor
     {
         [SerializeField] private CameraShotProfile profile;
         [SerializeField] private AbilityEventObj_CameraShot actionEvent;
-        [SerializeField] private Transform actor, target;
+        [SerializeField] private Transform actor;
         [SerializeField] private Camera source;
         [SerializeField] private bool timeline = true, handles = true;
         [SerializeField] private bool rotateCamera;
         [SerializeField] private float progress, duration = .5f, elapsed;
         private readonly CameraShotRuntime.PreviewSession session = new();
-        private readonly CameraShotReturnPreview returnPreview = new();
+        private readonly CameraShotOrbitSolver returnPreview = new();
+        private readonly CameraShotOrbitSolver targetSolver = new();
+        private CinemachineFreeLook SourceRig => source != null ? source.GetComponent<CinemachineBrain>()?.ActiveVirtualCamera as CinemachineFreeLook : null;
+        private bool ConstrainTarget(CameraShotPose desired, out CameraShotPose constrained) => targetSolver.Evaluate(SourceRig, desired, out constrained, true);
         private Camera previewCamera;
         private RenderTexture texture;
         private UnityEditor.Editor profileEditor;
@@ -26,6 +29,7 @@ namespace CombatCamera.Editor
         private Quaternion initialRotation = Quaternion.identity;
         private float initialFov = 55;
         private bool initialized, playing;
+        private bool previewSettings;
         private double previousTime, renderTime;
         private Vector2 scroll;
         private string renderError;
@@ -34,7 +38,7 @@ namespace CombatCamera.Editor
         [System.Serializable]
         private sealed class WindowSettings
         {
-            public string actorId, targetId, sourceId, eventId;
+            public string actorId, sourceId, eventId;
             public bool timeline = true, handles = true, rotateCamera;
             public float duration = .5f, elapsed;
         }
@@ -52,7 +56,7 @@ namespace CombatCamera.Editor
             if (profile == null || !AssetDatabase.Contains(profile) || Application.isPlaying) return;
             EditorPrefs.SetString(SettingsPrefix + "LastProfile", ObjectId(profile));
             EditorPrefs.SetString(SettingsKey, JsonUtility.ToJson(new WindowSettings {
-                actorId = ObjectId(actor), targetId = ObjectId(target), sourceId = ObjectId(source), eventId = ObjectId(actionEvent),
+                actorId = ObjectId(actor), sourceId = ObjectId(source), eventId = ObjectId(actionEvent),
                 timeline = timeline, handles = handles, rotateCamera = rotateCamera,
                 duration = duration, elapsed = elapsed
             }));
@@ -61,7 +65,7 @@ namespace CombatCamera.Editor
         {
             if (profile == null || !EditorPrefs.HasKey(SettingsKey)) return;
             var saved = JsonUtility.FromJson<WindowSettings>(EditorPrefs.GetString(SettingsKey));
-            actor = Resolve<Transform>(saved.actorId); target = Resolve<Transform>(saved.targetId);
+            actor = Resolve<Transform>(saved.actorId);
             source = Resolve<Camera>(saved.sourceId); actionEvent = Resolve<AbilityEventObj_CameraShot>(saved.eventId);
             timeline = saved.timeline; handles = saved.handles; rotateCamera = saved.rotateCamera;
             duration = Mathf.Max(.001f, saved.duration); elapsed = saved.elapsed;
@@ -79,7 +83,7 @@ namespace CombatCamera.Editor
             {
                 window.SaveSettings(); CameraShotProfileEditor.FlushPendingSaves();
                 window.profile = p;
-                window.actor = window.target = null; window.source = null;
+                window.actor = null; window.source = null;
                 window.actionEvent = null;
                 window.RestoreSettings();
                 if (e != null) window.actionEvent = e;
@@ -111,13 +115,13 @@ namespace CombatCamera.Editor
         private void PlayModeChanged(PlayModeStateChange state) { playing = false; Cleanup(); ResetBasis(); }
         private void Cleanup()
         {
-            returnPreview.Dispose();
+            returnPreview.Dispose(); targetSolver.Dispose();
             if (previewCamera != null) DestroyImmediate(previewCamera.gameObject);
             if (texture != null) { texture.Release(); DestroyImmediate(texture); }
         }
         private void ResetBasis()
         {
-            returnPreview.Dispose();
+            returnPreview.Dispose(); targetSolver.Dispose();
             initialized = false; session.Reset(); Repaint(); SceneView.RepaintAll();
         }
         private void UndoRedo()
@@ -140,7 +144,6 @@ namespace CombatCamera.Editor
             if (p == null || p._combatController == null) return;
             actor = p._combatController.transform;
             var e = (AbilityEventObj_CameraShot)p._EventObj;
-            if (target == null) target = e.ResolveTarget(p._combatController);
             if (profile == null) profile = e.Profile;
         }
         private bool Evaluate()
@@ -151,6 +154,16 @@ namespace CombatCamera.Editor
             if (profile == null || actor == null) return false;
             if (source == null) source = Camera.main;
             if (profile.Composition == CameraShotComposition.GameCameraRelative && source == null) return false;
+            if (profile.Composition == CameraShotComposition.ActorStartPose && profile.LookAtPlayer) rotateCamera = false;
+            if (profile.Composition == CameraShotComposition.ActorStartPose && profile.LimitToGameCameraOrbit)
+            {
+                rotateCamera = false;
+                if (SourceRig == null || SourceRig.Follow == null)
+                {
+                    renderError = "限制目标机位需要游戏相机上正在使用的 FreeLook，并绑定 Follow。";
+                    return false;
+                }
+            }
             if (!initialized)
             {
                 if (source == null) source = Camera.main;
@@ -161,18 +174,15 @@ namespace CombatCamera.Editor
                 initialActorPosition = actor.position;
                 initialized = true;
             }
-            Quaternion referenceRotation = profile.FollowRotation && source != null ? source.transform.rotation : initialRotation;
             var action = timeline ? TimelinePreview : null;
             if (action != null && action.HasStartPose && profile.Composition != CameraShotComposition.GameCameraRelative)
             {
-                var actionTarget = ((AbilityEventObj_CameraShot)action._EventObj).ResolveTarget(action._combatController);
-                session.CaptureStart(profile, actor, target, action.StartPosition, action.StartForward,
-                    target != null ? (target == actionTarget ? action.StartTarget ?? target.position : target.position) : null, initialRotation);
+                session.CaptureStart(profile, actor, action.StartPosition, action.StartForward);
             }
             var basis = SourcePose();
-            pose = session.Evaluate(profile, actor, target,
-                profile.Composition == CameraShotComposition.GameCameraRelative ? basis.Rotation : referenceRotation,
-                basis.FieldOfView, progress, basis.Position);
+            pose = session.Evaluate(profile, actor,
+                profile.Composition == CameraShotComposition.GameCameraRelative ? basis.Rotation : initialRotation,
+                basis.FieldOfView, progress, basis.Position, ConstrainTarget);
             return true;
         }
         private CameraShotPose SourcePose()
@@ -215,7 +225,7 @@ namespace CombatCamera.Editor
             }
             if (now - renderTime < 1.0 / 30.0) return;
             renderTime = now;
-            if (!Evaluate()) return;
+            if (!Evaluate()) { Repaint(); return; }
             Render(); Repaint();
         }
         private float Weight() => profile != null &&
@@ -241,26 +251,26 @@ namespace CombatCamera.Editor
             float weight = Weight();
             var state = CameraState.Default;
             var basis = SourcePose();
-            Vector3 basePosition = basis.Position;
-            Quaternion baseRotation = basis.Rotation;
-            float baseFov = basis.FieldOfView;
-            state.RawPosition = Vector3.Lerp(basePosition, pose.Position, weight);
-            state.RawOrientation = Quaternion.Slerp(baseRotation, pose.Rotation, weight);
-            var lens = state.Lens; lens.FieldOfView = Mathf.Lerp(baseFov, pose.FieldOfView, weight); state.Lens = lens;
+            var composed = CameraShotRuntime.Blend(basis, pose, weight, actor.position + Vector3.up * 1.2f,
+                profile.OrbitBlend && profile.Composition != CameraShotComposition.GameCameraRelative);
+            state.RawPosition = composed.Position;
+            state.RawOrientation = composed.Rotation;
+            var lens = state.Lens; lens.FieldOfView = composed.FieldOfView; state.Lens = lens;
             if (profile.TryGetReturnBlend(progress, out float returnStart, out float returnBlend))
             {
                 var brain = source != null ? source.GetComponent<CinemachineBrain>() : null;
                 var rig = brain != null ? brain.ActiveVirtualCamera as CinemachineFreeLook : null;
-                var startPose = session.Evaluate(profile, actor, target, basis.Rotation, basis.FieldOfView, returnStart, basis.Position);
-                var from = CameraShotReturnPreview.Blend(basis, startPose, profile.EvaluateWeight(returnStart));
+                var startPose = session.Evaluate(profile, actor, basis.Rotation, basis.FieldOfView, returnStart, basis.Position, ConstrainTarget);
+                var from = CameraShotRuntime.Blend(basis, startPose, profile.EvaluateWeight(returnStart), actor.position + Vector3.up * 1.2f,
+                    profile.OrbitBlend && profile.Composition != CameraShotComposition.GameCameraRelative);
                 if (returnPreview.Evaluate(rig, from, out var destination))
                 {
-                    var returning = CameraShotReturnPreview.Blend(from, destination, returnBlend);
+                    var returning = CameraShotRuntime.Blend(from, destination, returnBlend, rig.Follow.position + Vector3.up * 1.2f, true);
                     state.RawPosition = returning.Position; state.RawOrientation = returning.Rotation;
                     lens.FieldOfView = returning.FieldOfView; state.Lens = lens;
                 }
                 // Keep gizmos at the selected frame after evaluating the exit start.
-                session.Evaluate(profile, actor, target, basis.Rotation, basis.FieldOfView, progress, basis.Position);
+                session.Evaluate(profile, actor, basis.Rotation, basis.FieldOfView, progress, basis.Position, ConstrainTarget);
             }
             if (timeline)
             {
@@ -305,16 +315,19 @@ namespace CombatCamera.Editor
                     AssetDatabase.SaveAssetIfDirty(actionEvent);
                 }
             }
-            actor = (Transform)EditorGUILayout.ObjectField("玩家 / 预览角色", actor, typeof(Transform), true);
-            target = (Transform)EditorGUILayout.ObjectField("敌人 / 目标", target, typeof(Transform), true);
-            source = (Camera)EditorGUILayout.ObjectField("原游戏相机（融合起点）", source, typeof(Camera), true);
+            previewSettings = EditorGUILayout.Foldout(previewSettings, "预览绑定", true);
+            if (previewSettings || actor == null || source == null)
+            {
+                actor = (Transform)EditorGUILayout.ObjectField("预览角色", actor, typeof(Transform), true);
+                source = (Camera)EditorGUILayout.ObjectField("游戏相机", source, typeof(Camera), true);
+            }
             if (EditorGUI.EndChangeCheck()) ResetBasis();
             timeline = EditorGUILayout.Toggle("跟随动作时间轴", timeline);
             if (timeline && TimelinePreview == null)
                 EditorGUILayout.HelpBox("打开含 CameraShot 的动作预览，或关闭时间轴联动并手动指定角色。", MessageType.Info);
             EditorGUI.BeginChangeCheck();
             handles = EditorGUILayout.Toggle("Scene 拖拽手柄", handles);
-            if (handles && profile != null && profile.Composition != CameraShotComposition.ActorAnchored)
+            if (handles && profile != null && !(profile.Composition == CameraShotComposition.ActorStartPose && (profile.LimitToGameCameraOrbit || profile.LookAtPlayer)))
                 rotateCamera = GUILayout.Toolbar(rotateCamera ? 1 : 0, new[] { "移动目标相机", "旋转目标相机" }) == 1;
             if (EditorGUI.EndChangeCheck()) SceneView.RepaintAll();
             using (new EditorGUI.DisabledScope(profile == null || actor == null))
@@ -332,7 +345,7 @@ namespace CombatCamera.Editor
             if (profile != null && Weight() < .001f)
                 EditorGUILayout.HelpBox("当前权重为 0，画面显示游戏相机。将时间轴拖到曲线高处查看目标构图；Scene 手柄仍可编辑。", MessageType.Info);
             Rect rect = GUILayoutUtility.GetAspectRect(PreviewAspect, GUILayout.MinHeight(140));
-            if (texture != null && profile != null && actor != null) GUI.DrawTexture(rect, texture, ScaleMode.ScaleToFit, false);
+            if (texture != null && profile != null && actor != null && renderError == null) GUI.DrawTexture(rect, texture, ScaleMode.ScaleToFit, false);
             else GUI.Box(rect, "指定镜头配置和玩家后显示实时画面");
             if (renderError != null) EditorGUILayout.HelpBox(renderError, MessageType.Error);
             using (new EditorGUI.DisabledScope(profile == null || actor == null))
@@ -342,7 +355,7 @@ namespace CombatCamera.Editor
                 if (profile != null && profile.Composition != CameraShotComposition.ActorStartPose &&
                     GUILayout.Button("转换为玩家固定构图")) BakeCurrentTarget();
             }
-            EditorGUILayout.HelpBox("配置修改自动保存，支持 Undo。采用游戏相机构图或转换构图会重置位移路径。", MessageType.None);
+            EditorGUILayout.LabelField("自动保存 · 支持 Undo", EditorStyles.miniLabel);
             if (source == null) EditorGUILayout.HelpBox("请指定原游戏相机；相机相对模式不会使用 Scene 视图作为替代。", MessageType.Warning);
             if (profile != null)
             {
@@ -387,9 +400,9 @@ namespace CombatCamera.Editor
             var view = SceneView.lastActiveSceneView != null ? SceneView.lastActiveSceneView : GetWindow<SceneView>();
             float motion = profile.MotionCurve != null ? profile.MotionCurve.Evaluate(progress) : progress;
             Vector3 offset = profile.Composition == CameraShotComposition.ActorStartPose ? profile.TargetPosition :
-                profile.Composition == CameraShotComposition.GameCameraRelative ? profile.CameraPositionOffset : profile.PositionOffset;
+                profile.CameraPositionOffset;
             Vector3 position = session.PositionAnchor + session.Frame * (offset + profile.PositionTravel * motion);
-            view.Frame(new Bounds(position, Vector3.one * 2f), false);
+            view.Frame(new Bounds(profile.LimitToGameCameraOrbit && profile.Composition == CameraShotComposition.ActorStartPose ? pose.Position : position, Vector3.one * 2f), false);
             view.Focus(); view.Repaint(); Repaint();
         }
         private void DrawHandles(SceneView view)
@@ -423,12 +436,9 @@ namespace CombatCamera.Editor
             if (!handles || Application.isPlaying || !Evaluate()) return;
             float motion = profile.MotionCurve != null ? profile.MotionCurve.Evaluate(progress) : progress;
             bool fixedPose = profile.Composition == CameraShotComposition.ActorStartPose;
-            bool relative = profile.Composition != CameraShotComposition.ActorAnchored;
-            Vector3 offset = fixedPose ? profile.TargetPosition : relative ? profile.CameraPositionOffset : profile.PositionOffset;
+            Vector3 offset = fixedPose ? profile.TargetPosition : profile.CameraPositionOffset;
             Vector3 rawPosition = session.PositionAnchor + session.Frame * (offset + profile.PositionTravel * motion);
-            Vector3 look = session.LookAt;
             Handles.color = Color.cyan;
-            if (relative)
             {
                 Handles.Label(rawPosition, "融合目标相机");
                 Handles.DrawDottedLine(session.PositionAnchor, rawPosition, 4);
@@ -453,20 +463,11 @@ namespace CombatCamera.Editor
                     EditorUtility.SetDirty(profile); CameraShotProfileEditor.QueueSave(profile); Repaint();
                 }
             }
-            else
+            if (fixedPose && profile.LimitToGameCameraOrbit)
             {
-            Handles.DrawLine(rawPosition, look);
-            Handles.Label(rawPosition, "CameraShot 相机"); Handles.Label(look, "注视点");
-            EditorGUI.BeginChangeCheck();
-            Vector3 moved = Handles.PositionHandle(rawPosition, session.Frame);
-            Vector3 aim = Handles.PositionHandle(look, session.Frame);
-            if (EditorGUI.EndChangeCheck())
-            {
-                Undo.RecordObject(profile, "Move relative CameraShot handles");
-                profile.PositionOffset = session.ToPositionOffset(moved) - profile.PositionTravel * motion;
-                profile.LookAtOffset = session.ToLookOffset(aim);
-                EditorUtility.SetDirty(profile); CameraShotProfileEditor.QueueSave(profile); Repaint();
-            }
+                Handles.color = Color.yellow;
+                Handles.DrawDottedLine(rawPosition, pose.Position, 4);
+                Handles.Label(pose.Position, "常态轨道目标机位");
             }
             var oldMatrix = Handles.matrix;
             Handles.matrix = Matrix4x4.TRS(pose.Position, pose.Rotation, Vector3.one);
@@ -518,34 +519,64 @@ namespace CombatCamera.Editor
             if (GUILayout.Button("打开 CameraShot 可视化编辑器")) CameraShotWindow.Open((CameraShotProfile)target);
             DrawFields();
         }
+        private bool advanced, motion;
+        private void Field(string name, string label) =>
+            EditorGUILayout.PropertyField(serializedObject.FindProperty(name), new GUIContent(label));
         public void DrawFields()
         {
             serializedObject.Update();
-            EditorGUILayout.PropertyField(serializedObject.FindProperty("Composition"), new GUIContent("构图模式"));
-            bool relative = serializedObject.FindProperty("Composition").enumValueIndex == 1;
-            bool fixedPose = serializedObject.FindProperty("Composition").enumValueIndex == 2;
+            EditorGUILayout.Space(6);
+            EditorGUILayout.LabelField("构图", EditorStyles.boldLabel);
+            Field("Composition", "构图模式");
+            bool relative = serializedObject.FindProperty("Composition").intValue == (int)CameraShotComposition.GameCameraRelative;
+            bool fixedPose = serializedObject.FindProperty("Composition").intValue == (int)CameraShotComposition.ActorStartPose;
             if (fixedPose)
             {
-                EditorGUILayout.PropertyField(serializedObject.FindProperty("TargetPosition"), new GUIContent("目标位置（玩家触发坐标系）"));
-                EditorGUILayout.PropertyField(serializedObject.FindProperty("TargetRotation"), new GUIContent("目标角度（玩家触发坐标系）"));
+                Field("TargetPosition", "位置");
+                Field("LimitToGameCameraOrbit", "限制目标机位到常态轨道");
+                Field("LookAtPlayer", "始终看向玩家");
+                bool lookAtPlayer = serializedObject.FindProperty("LookAtPlayer").boolValue;
+                bool limited = serializedObject.FindProperty("LimitToGameCameraOrbit").boolValue;
+                if (!limited && !lookAtPlayer) Field("TargetRotation", "角度");
+                if (lookAtPlayer) EditorGUILayout.LabelField("自动朝向玩家上身；同时开启轨道限制时，位置受限，朝向以玩家为准。", EditorStyles.wordWrappedMiniLabel);
+                else if (limited) EditorGUILayout.LabelField("角度采用常态相机构图；FOV 可调，过渡路径不受限制。", EditorStyles.wordWrappedMiniLabel);
             }
             else if (relative)
             {
-                EditorGUILayout.PropertyField(serializedObject.FindProperty("CameraPositionOffset"), new GUIContent("相机位置偏移"));
-                EditorGUILayout.PropertyField(serializedObject.FindProperty("CameraRotationOffset"), new GUIContent("相机角度偏移"));
+                Field("CameraPositionOffset", "位置偏移");
+                Field("CameraRotationOffset", "角度偏移");
             }
-            else
-                foreach (string name in new[] { "PositionAnchor", "LookAtAnchor", "ReferenceFrame", "PositionOffset", "LookAtOffset", "FollowPosition", "FollowRotation", "Roll" })
-                    EditorGUILayout.PropertyField(serializedObject.FindProperty(name));
+            if (!fixedPose) Field("OverrideFieldOfView", "调整视野");
+            if (fixedPose || serializedObject.FindProperty("OverrideFieldOfView").boolValue) Field("FieldOfView", "视野 FOV");
+            EditorGUILayout.Space(6);
+            EditorGUILayout.LabelField("节奏", EditorStyles.boldLabel);
             EditorGUILayout.CurveField(serializedObject.FindProperty("WeightCurve"), Color.cyan,
-                new Rect(0, 0, 1, 1), new GUIContent("进入 / 退出权重"), GUILayout.Height(50));
-            EditorGUILayout.HelpBox("横轴是轨道进度，纵轴是镜头权重。0 为游戏镜头，1 为目标构图；起点和终点设为 0 可平顺进入、退出。拉长轨道会同比拉长整个镜头过程。", MessageType.None);
-            foreach (string name in new[] { "PositionTravel", "MotionCurve", "OverrideFieldOfView", "FieldOfView", "Priority", "LockCameraInput", "AvoidObstacles", "ObstacleLayers", "CollisionRadius" })
+                new Rect(0, 0, 1, 1), new GUIContent("入场 / 保持"), GUILayout.Height(45));
+            Field("ReturnStart", "回程起点（轨道比例）");
+            EditorGUILayout.LabelField("回程前使用权重曲线，回程后平滑交还游戏镜头。", EditorStyles.wordWrappedMiniLabel);
+            motion = EditorGUILayout.Foldout(motion, "运镜", true);
+            if (motion)
             {
-                if (fixedPose && name == "OverrideFieldOfView") continue;
-                if (name == "FieldOfView" && !fixedPose && !serializedObject.FindProperty("OverrideFieldOfView").boolValue) continue;
-                if ((name == "ObstacleLayers" || name == "CollisionRadius") && !serializedObject.FindProperty("AvoidObstacles").boolValue) continue;
-                EditorGUILayout.PropertyField(serializedObject.FindProperty(name));
+                EditorGUI.indentLevel++;
+                Field("PositionTravel", "位移");
+                Field("MotionCurve", "位移曲线");
+                EditorGUI.indentLevel--;
+            }
+            advanced = EditorGUILayout.Foldout(advanced, "高级设置", true);
+            if (advanced)
+            {
+                EditorGUI.indentLevel++;
+                if (!relative) { Field("FollowDamping", "跟随缓冲（秒）"); Field("OrbitBlend", "围绕角色过渡"); }
+                Field("Priority", "优先级"); Field("LockCameraInput", "锁定镜头输入");
+                Field("BlendIn", "非时间轴入场（秒）"); Field("BlendOut", "中断退出（秒）");
+                Field("UseUnscaledTime", "缓冲不受慢动作影响");
+                Field("AvoidObstacles", "避障");
+                if (serializedObject.FindProperty("AvoidObstacles").boolValue)
+                {
+                    Field("ObstacleLayers", "障碍物层"); Field("CollisionRadius", "检测半径");
+                    Field("ObstacleRecovery", "避障恢复（秒）");
+                }
+                EditorGUI.indentLevel--;
             }
             if (serializedObject.ApplyModifiedProperties()) QueueSave((CameraShotProfile)target);
         }

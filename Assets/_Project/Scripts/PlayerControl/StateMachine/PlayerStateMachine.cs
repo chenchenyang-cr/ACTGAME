@@ -23,6 +23,8 @@ public sealed class PlayerStateMachine : MonoBehaviour
     [Header("Dodge Movement")]
     [SerializeField, Min(0f)]
     private float dodgeRootMotionMultiplier = 1.2f;
+    [Header("Available Actions")]
+    [SerializeField] private bool locomotionOnly;
 
     public PlayerState CurrentState { get; private set; }
     public IdleState IdleState { get; private set; }
@@ -118,6 +120,11 @@ public sealed class PlayerStateMachine : MonoBehaviour
 
     private void ProcessBufferedCommand(PlayerInputBuffer inputBuffer)
     {
+        if (locomotionOnly)
+        {
+            inputBuffer?.Clear();
+            return;
+        }
         if (CurrentState != null && inputBuffer != null && inputBuffer.TryPeekParry(out _) &&
             CurrentState.TryHandleCommand(PlayerActionCommand.Parry))
         {
@@ -138,6 +145,10 @@ public sealed class PlayerStateMachine : MonoBehaviour
 
     public void ChangeState(PlayerState nextState)
     {
+        if (locomotionOnly && nextState != IdleState && nextState != LocomotionState)
+        {
+            return;
+        }
         if (nextState == null || nextState == CurrentState)
         {
             return;
@@ -208,16 +219,16 @@ public sealed class PlayerStateMachine : MonoBehaviour
         CurrentState?.TryCompleteAction();
     }
 
-    internal bool BeginAttackAbility(AbilityScriptableObject ability)
+    internal bool BeginAttackAbility(AbilityScriptableObject ability, float blendDuration = -1f)
     {
         if (ability == null || combatAdapter == null)
         {
             return false;
         }
 
+        if (ActionAnimator == null || !ActionAnimator.PlayAbility(ability, blendDuration)) return false;
         combatAdapter.BeginAbility(ability);
         combatStanceAnimator?.NotifyCombatActivity();
-        ActionAnimator?.PlayAbility(ability);
         return true;
     }
 
@@ -225,6 +236,7 @@ public sealed class PlayerStateMachine : MonoBehaviour
 
     public bool TryEnterParry()
     {
+        if (locomotionOnly) return false;
         if (combatAdapter == null || combatAdapter.ParryStartAbility == null ||
             combatAdapter.ParryStartAbility.Clip == null || !IsGrounded) return false;
         ChangeState(ParryState);

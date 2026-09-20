@@ -203,7 +203,8 @@ namespace CombatEditor
             if (controller == null || controller._animSpeedExecutor == null)
                 return;
 
-            controller._animSpeedExecutor.PlayHitStop(SourceEvent.HitStopFrames, delayOneFrame);
+            controller._animSpeedExecutor.PlayHitStop(SourceEvent.HitStopFrames, delayOneFrame,
+                SourceEvent.HitStopAnimationSpeed);
         }
 
         private CombatHitRequest BuildRequest(Component other, Vector3 hitPoint,

@@ -18,11 +18,6 @@ namespace CombatEditor
         public override bool PreviewExist() => true;
 #endif
 
-        public Transform ResolveTarget(CombatController owner)
-        {
-            var context = owner != null ? owner.GetComponentInParent<CameraShotTarget>() : null;
-            return context != null ? context.Target : null;
-        }
     }
 
     public sealed class AbilityEventEffect_CameraShot : AbilityEventEffect
@@ -36,7 +31,7 @@ namespace CombatEditor
             CameraShotRuntime.Release(handle, true);
             if (_combatController == null) return;
             handle = CameraShotRuntime.Begin(Config.Profile, _combatController.transform,
-                Config.ResolveTarget(_combatController), channel: Config.Channel, lifetimeOwner: _combatController);
+                channel: Config.Channel, lifetimeOwner: _combatController);
             CameraShotRuntime.SetProgress(handle, 0f);
         }
         public override void EffectRunning(float time) => CameraShotRuntime.SetProgress(handle,
@@ -69,15 +64,12 @@ namespace CombatEditor
         public bool HasStartPose { get; private set; }
         public Vector3 StartPosition { get; private set; }
         public Vector3 StartForward { get; private set; }
-        public Vector3? StartTarget { get; private set; }
         public override bool NeedStartFrameValue() => true;
         public override void GetStartFrameDataBeforePreview()
         {
             if (_combatController == null) return;
             StartPosition = _combatController.transform.position;
             StartForward = _combatController.transform.forward;
-            var target = Config.ResolveTarget(_combatController);
-            StartTarget = target != null ? target.position : (Vector3?)null;
             HasStartPose = true;
         }
         private int handle;
@@ -89,7 +81,7 @@ namespace CombatEditor
                 !PreviewInRange(time) || Config.Profile == null || _combatController == null)
             { Release(); return; }
             if (handle == 0) handle = CameraShotRuntime.Begin(Config.Profile,
-                _combatController.transform, Config.ResolveTarget(_combatController), channel: Config.Channel);
+                _combatController.transform, channel: Config.Channel);
             float t = Mathf.InverseLerp(StartTimePercentage, EndTimePercentage, time);
             CameraShotRuntime.SetPreview(handle, t, Config.Profile.EvaluateWeight(t));
             UnityEditor.EditorApplication.QueuePlayerLoopUpdate();

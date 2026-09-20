@@ -277,7 +277,7 @@ MonoBehaviour:
     controlType: 0
     Offset: {x: 0.005579896, y: 1.2845278, z: 0.0049844463}
     Rot: {x: 0, y: 0, z: 0, w: 1}
-    Scale: {x: 0.09032403, y: 1.3990595, z: 0.0916867}
+    Scale: {x: 0.09032403, y: 1.0847652, z: 0.0916867}
     TargetNode: 12
     FollowNode: 1
     RotateByNode: 1
@@ -587,6 +587,7 @@ MonoBehaviour:
   PreviewHitCameraShake: 1
   EnableHitAnimationSpeed: 1
   HitStopFrames: 4
+  HitStopAnimationSpeed: 0.15
   EnableHitVfx: 1
   HitVfxPrefab: {fileID: 1923962722205832878, guid: cd05009f07b076e4baa80b03d69fdf3b, type: 3}
   HitVfxDirection: 0
@@ -689,7 +690,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   IsActive: 1
   Mode: 0
-  Speed: 1.4
+  Speed: 1.5
   SpeedCurve:
     serializedVersion: 2
     m_Curve:

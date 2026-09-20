@@ -68,11 +68,14 @@ using UnityEngine;
 
 	    [Header("命中顿帧")]
 	    [InspectorName("启用命中顿帧")]
-	    [Tooltip("命中确认后，攻击者和被击中者的动画速度同时设为 0。")]
+	    [Tooltip("命中确认后，攻击者立即应用顿帧，受击者延迟 1 个游戏帧应用。")]
 	    public bool EnableHitAnimationSpeed;
 	    [InspectorName("顿帧帧数")]
-	    [Tooltip("按动作时间线 60 FPS 换算实际暂停时间，6 帧 = 0.1 秒。0 表示不顿帧；不受游戏帧率和动画速度影响。")]
+	    [Tooltip("按动作时间线 60 FPS 换算持续时间，6 帧 = 0.1 秒。0 表示不顿帧；不受游戏帧率和动画速度影响。")]
 	    [Min(0)] public int HitStopFrames = 5;
+	    [InspectorName("顿帧动画速度")]
+	    [Tooltip("相对于当前动作速度的倍率：0 完全暂停，0.5 半速，1 保持原速。只在顿帧持续时间内生效。")]
+	    [Range(0f, 1f)] public float HitStopAnimationSpeed;
 
 	    [Header("Confirmed Hit VFX")]
 	    [Tooltip("Spawn this effect only after the hit has been accepted by the target.")]

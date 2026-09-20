@@ -12,6 +12,23 @@ public sealed class PlayerCombatAdapter : MonoBehaviour, ICombatGameplayWindowLi
 {
     [SerializeField] private PlayerMovement movement;
     [SerializeField] private AbilityScriptableObject firstLightAttack;
+    [Serializable]
+    public sealed class AttackRecovery
+    {
+        public AbilityScriptableObject Attack;
+        public AbilityScriptableObject End;
+        [Range(0f, 1f)] public float StartTime = 0.95f;
+        [Min(0f)] public float BlendDuration = 0.08f;
+    }
+
+    [SerializeField] private AttackRecovery[] attackRecoveries = Array.Empty<AttackRecovery>();
+
+    public AttackRecovery FindAttackRecovery(AbilityScriptableObject ability)
+    {
+        foreach (var recovery in attackRecoveries)
+            if (recovery != null && recovery.Attack == ability) return recovery;
+        return null;
+    }
     [SerializeField] private AbilityScriptableObject dodgeAbility;
 
     [SerializeField] private AbilityScriptableObject parryStartAbility;
@@ -164,6 +181,7 @@ public sealed class PlayerCombatAdapter : MonoBehaviour, ICombatGameplayWindowLi
 
     public void OnCombatWindowEntered(in CombatGameplayWindowContext context)
     {
+        if (context.Ability != CurrentAbility) return;
         switch (context.Window)
         {
             case AbilityEventObj_RotationWindow rotation:
@@ -189,6 +207,7 @@ public sealed class PlayerCombatAdapter : MonoBehaviour, ICombatGameplayWindowLi
 
     public void OnCombatWindowUpdated(in CombatGameplayWindowContext context)
     {
+        if (context.Ability != CurrentAbility) return;
         if (context.Window is AbilityEventObj_TargetAssistWindow assist)
         {
             if (!targetAssistTargets.TryGetValue(context.Handle, out Transform target) ||

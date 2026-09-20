@@ -73,8 +73,8 @@ MonoBehaviour:
   ObjData:
     TargetObj: {fileID: 2557966978344939087, guid: cf086f7d0aab02340bc2140423f5fd3a, type: 3}
     controlType: 0
-    Offset: {x: 0.0077531063, y: 1.1896374, z: 0.0090986155}
-    Rot: {x: -0.000000033310844, y: 0.000000002003567, z: 0.0000000600132, w: 1.0000005}
+    Offset: {x: 0.0077526406, y: 1.2587533, z: 0.009098115}
+    Rot: {x: -0.000000032684028, y: -0.0000000048088733, z: -0.000000007661344, w: 1.0000004}
     Scale: {x: 0.089136496, y: 1.3953161, z: 0.1361299}
     TargetNode: 12
     FollowNode: 1
@@ -84,7 +84,7 @@ MonoBehaviour:
   HitReaction: 1
   StaggerDuration: 0
   HitMode: 1
-  RepeatIntervalFrames: 1
+  RepeatIntervalFrames: 3
   MaximumHitsPerTarget: 4
   TargetLayers:
     serializedVersion: 2
@@ -402,7 +402,8 @@ MonoBehaviour:
       m_RotationOrder: 4
   PreviewHitCameraShake: 1
   EnableHitAnimationSpeed: 1
-  HitStopFrames: 6
+  HitStopFrames: 5
+  HitStopAnimationSpeed: 0.15
   EnableHitVfx: 1
   HitVfxPrefab: {fileID: 1923962722205832878, guid: cd05009f07b076e4baa80b03d69fdf3b, type: 3}
   HitVfxDirection: 0
@@ -460,7 +461,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   IsActive: 1
   Mode: 0
-  Speed: 1.2
+  Speed: 1.5
   SpeedCurve:
     serializedVersion: 2
     m_Curve:

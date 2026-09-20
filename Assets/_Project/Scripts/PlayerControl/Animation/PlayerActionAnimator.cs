@@ -84,14 +84,15 @@ public sealed class PlayerActionAnimator
 
     public void StopTrackingAction() => trackedActionPlaying = false;
 
-    public void PlayAbility(AbilityScriptableObject ability)
+    public bool PlayAbility(AbilityScriptableObject ability, float blendDuration = -1f)
     {
         if (ability == null || ability.Clip == null || animator == null)
         {
-            return;
+            return false;
         }
 
-        TryCrossFade(ability.Clip.name, out _);
+        return PlayTrackedAction(ability.Clip.name,
+            blendDuration < 0f ? profile.ActionBlendDuration : blendDuration);
     }
 
     public bool PlayDodge(Vector2 localDirection, bool continueToFastRun)
@@ -209,9 +210,17 @@ public sealed class PlayerActionAnimator
 
     private void PlayLocomotionLoop(float duration)
     {
-        string stateName = IsCombatAnimationActive()
-            ? profile.CombatLocomotionLoopStateName
-            : profile.NormalLocomotionLoopStateName;
+        if (!ValidateAnimatorLayer()) return;
+        string stateName = profile.NormalLocomotionLoopStateName;
+        // Characters with a single locomotion set still enter combat stance after
+        // attacking. Use the combat loop only when this controller provides it.
+        if (IsCombatAnimationActive())
+        {
+            int combatLoopHash = Animator.StringToHash(
+                $"{animator.GetLayerName(profile.AnimatorLayer)}.{profile.CombatLocomotionLoopStateName}");
+            if (animator.HasState(profile.AnimatorLayer, combatLoopHash))
+                stateName = profile.CombatLocomotionLoopStateName;
+        }
         TryCrossFade(stateName, duration, out _);
     }
 
