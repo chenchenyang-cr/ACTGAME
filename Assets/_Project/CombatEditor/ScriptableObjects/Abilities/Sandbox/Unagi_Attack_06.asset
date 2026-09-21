@@ -1,0 +1,46 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 757d9b080c65e9847b379b2a8a5ae8ab, type: 3}
+  m_Name: Unagi_Attack_06
+  m_EditorClassIdentifier: 
+  AbilityType: 0
+  Clip: {fileID: 1827226128182048838, guid: d9ff61daed1934a4999d532da7441052, type: 3}
+  AdditionalClips: []
+  PreviewPercentageRange: {x: 0, y: 1}
+  loopCount: 0
+  events:
+  - EventTime: 0
+    EventRange: {x: 0.6111111, y: 1}
+    EventMultiRange:
+    - 0.2
+    - 0.4
+    - 0.6
+    - 0.8
+    Previewable: 0
+    Obj: {fileID: 8626308511099262925}
+--- !u!114 &8626308511099262925
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1357334210a34768871b684cf97e142c, type: 3}
+  m_Name: ComboWindow
+  m_EditorClassIdentifier: 
+  IsActive: 1
+  Priority: 0
+  CommandId: LightAttack
+  NextAbility: {fileID: 11400000, guid: 5be04c49f31adee4697816338c7d492a, type: 2}
+  ConsumeBufferedInput: 1

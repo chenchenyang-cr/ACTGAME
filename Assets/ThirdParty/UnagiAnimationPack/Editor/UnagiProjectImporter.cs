@@ -48,14 +48,28 @@ public static class UnagiProjectImporter
                     importer.animationCompression = ModelImporterAnimationCompression.Off;
                     if(!modelOnly)
                     {
-                        var clips = importer.defaultClipAnimations;
+                        // Keep authored frame ranges, root-motion flags and animation events
+                        // when revalidating an already configured package.
+                        bool hasConfiguredClips = importer.clipAnimations.Length > 0;
+                        var clips = hasConfiguredClips ? importer.clipAnimations : importer.defaultClipAnimations;
                         var name = Path.GetFileNameWithoutExtension(p);
                         foreach(var clip in clips)
                         {
-                            clip.name = name;
-                            clip.loopTime = name == "Unagi_Idle" || name == "Unagi_Run" || name == "Unagi_Ghost_Idle";
+                            if (!hasConfiguredClips)
+                            {
+                                clip.name = name;
+                                clip.loopTime = name == "Unagi_Idle" || name == "Unagi_Run" || name == "Unagi_Ghost_Idle";
+                            }
                         }
                         importer.clipAnimations = clips;
+                    }
+                    if (p.StartsWith(Root + "/FBX/Main/Unagi/", StringComparison.Ordinal))
+                    {
+                        importer.globalScale = 100f;
+                        importer.motionNodeName = "Root";
+                        var settings = new SerializedObject(importer);
+                        settings.FindProperty("m_HumanDescription.m_RootMotionBoneName").stringValue = "Bip001";
+                        settings.ApplyModifiedPropertiesWithoutUndo();
                     }
                     importer.SaveAndReimport();
                     var model = AssetDatabase.LoadAssetAtPath<GameObject>(p);

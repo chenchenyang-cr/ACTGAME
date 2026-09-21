@@ -20,6 +20,14 @@ Unity 资源位置：`Assets/ThirdParty/UnagiAnimationPack`
 
 ## 检查
 
+### Swordman Main 套导入修复
+
+`FBX/Main/Unagi` 的 70 个动作统一使用 Scale Factor `100`、Motion Node `Root`、Generic Root Motion Bone `Bip001`，与当前 Swordman 待机模型一致。旧配置 Scale Factor `1` 且运动根节点为空，会造成换动画时骨架尺寸和根运动异常。MAX_Variant 与 Ghost 未套用这组设置。
+
+菜单 `Tools > Unagi > Repair Swordman Main Animations` 可修复 Main 套导入，并在同一个待机模型上采样每个动作的 5 个时间点检查骨骼比例。该工具保留资源 GUID、Clip 帧范围、循环、事件及各动作已有的根运动选项，不重配连段或保存场景。检查报告位于 `Library/SwordmanAnimationRepairReport.txt`。
+
+本次检查：70 个导入设置通过，修复 59 个；70 个片段共 350 个采样点的骨骼比例通过。此检查针对缩放异常，不代替所有动作的视觉和玩法验收。通用导入菜单也已保留现有 Clip 配置，避免重新验证资源包时覆盖调整过的事件和根运动参数。
+
 菜单 `Tools > Unagi > Configure and Validate Imported Animations` 可重新配置并检查本包。
 
 检查报告在项目的 `Library/UnagiImportReport.json`，包含每个 FBX 的蒙皮网格、动画片段和表情数量。脚本只配置本包内的模型导入设置。

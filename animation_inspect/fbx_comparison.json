@@ -1,0 +1,790 @@
+{
+  "original": {
+    "version": 7700,
+    "models": 234,
+    "global": {
+      "name": "GlobalSettings",
+      "p": [],
+      "c": [
+        {
+          "name": "Version",
+          "p": [
+            1000
+          ],
+          "c": []
+        },
+        {
+          "name": "Properties70",
+          "p": [],
+          "c": [
+            {
+              "name": "P",
+              "p": [
+                "UpAxis",
+                "int",
+                "Integer",
+                "",
+                1
+              ],
+              "c": []
+            },
+            {
+              "name": "P",
+              "p": [
+                "UpAxisSign",
+                "int",
+                "Integer",
+                "",
+                1
+              ],
+              "c": []
+            },
+            {
+              "name": "P",
+              "p": [
+                "FrontAxis",
+                "int",
+                "Integer",
+                "",
+                2
+              ],
+              "c": []
+            },
+            {
+              "name": "P",
+              "p": [
+                "FrontAxisSign",
+                "int",
+                "Integer",
+                "",
+                1
+              ],
+              "c": []
+            },
+            {
+              "name": "P",
+              "p": [
+                "CoordAxis",
+                "int",
+                "Integer",
+                "",
+                0
+              ],
+              "c": []
+            },
+            {
+              "name": "P",
+              "p": [
+                "CoordAxisSign",
+                "int",
+                "Integer",
+                "",
+                1
+              ],
+              "c": []
+            },
+            {
+              "name": "P",
+              "p": [
+                "OriginalUpAxis",
+                "int",
+                "Integer",
+                "",
+                2
+              ],
+              "c": []
+            },
+            {
+              "name": "P",
+              "p": [
+                "OriginalUpAxisSign",
+                "int",
+                "Integer",
+                "",
+                1
+              ],
+              "c": []
+            },
+            {
+              "name": "P",
+              "p": [
+                "UnitScaleFactor",
+                "double",
+                "Number",
+                "",
+                1.0
+              ],
+              "c": []
+            },
+            {
+              "name": "P",
+              "p": [
+                "OriginalUnitScaleFactor",
+                "double",
+                "Number",
+                "",
+                1.0
+              ],
+              "c": []
+            },
+            {
+              "name": "P",
+              "p": [
+                "AmbientColor",
+                "ColorRGB",
+                "Color",
+                "",
+                0.0,
+                0.0,
+                0.0
+              ],
+              "c": []
+            },
+            {
+              "name": "P",
+              "p": [
+                "DefaultCamera",
+                "KString",
+                "",
+                "",
+                "Producer Perspective"
+              ],
+              "c": []
+            },
+            {
+              "name": "P",
+              "p": [
+                "TimeMode",
+                "enum",
+                "",
+                "",
+                6
+              ],
+              "c": []
+            },
+            {
+              "name": "P",
+              "p": [
+                "TimeProtocol",
+                "enum",
+                "",
+                "",
+                2
+              ],
+              "c": []
+            },
+            {
+              "name": "P",
+              "p": [
+                "SnapOnFrameMode",
+                "enum",
+                "",
+                "",
+                0
+              ],
+              "c": []
+            },
+            {
+              "name": "P",
+              "p": [
+                "TimeSpanStart",
+                "KTime",
+                "Time",
+                "",
+                0
+              ],
+              "c": []
+            },
+            {
+              "name": "P",
+              "p": [
+                "TimeSpanStop",
+                "KTime",
+                "Time",
+                "",
+                30021002700
+              ],
+              "c": []
+            },
+            {
+              "name": "P",
+              "p": [
+                "CustomFrameRate",
+                "double",
+                "Number",
+                "",
+                -1.0
+              ],
+              "c": []
+            },
+            {
+              "name": "P",
+              "p": [
+                "TimeMarker",
+                "Compound",
+                "",
+                ""
+              ],
+              "c": []
+            },
+            {
+              "name": "P",
+              "p": [
+                "CurrentTimeMarker",
+                "int",
+                "Integer",
+                "",
+                -1
+              ],
+              "c": []
+            }
+          ]
+        }
+      ]
+    },
+    "stacks": [
+      {
+        "name": "AnimationStack",
+        "p": [
+          2239630370688,
+          "Take 001\u0000\u0001AnimStack",
+          ""
+        ],
+        "c": [
+          {
+            "name": "Properties70",
+            "p": [],
+            "c": [
+              {
+                "name": "P",
+                "p": [
+                  "LocalStop",
+                  "KTime",
+                  "Time",
+                  "",
+                  30021002700
+                ],
+                "c": []
+              },
+              {
+                "name": "P",
+                "p": [
+                  "ReferenceStop",
+                  "KTime",
+                  "Time",
+                  "",
+                  30021002700
+                ],
+                "c": []
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "curves": [
+      {
+        "track": "Lcl Translation",
+        "axis": "d|X",
+        "keys": 21,
+        "between5and6": 0,
+        "values_first": [
+          0.09925832599401474,
+          0.17648082971572876,
+          0.2587111294269562,
+          0.13364358246326447
+        ]
+      },
+      {
+        "track": "Lcl Translation",
+        "axis": "d|Y",
+        "keys": 21,
+        "between5and6": 0,
+        "values_first": [
+          0.22346337139606476,
+          0.2961858808994293,
+          0.32553502917289734,
+          0.2381095141172409
+        ]
+      },
+      {
+        "track": "Lcl Translation",
+        "axis": "d|Z",
+        "keys": 21,
+        "between5and6": 0,
+        "values_first": [
+          0.00648094154894352,
+          -0.011811370961368084,
+          -0.05495208501815796,
+          0.01617080718278885
+        ]
+      },
+      {
+        "track": "Lcl Rotation",
+        "axis": "d|X",
+        "keys": 21,
+        "between5and6": 0,
+        "values_first": [
+          77.84349822998047,
+          78.50968170166016,
+          84.36239624023438,
+          116.57125091552734
+        ]
+      },
+      {
+        "track": "Lcl Rotation",
+        "axis": "d|Y",
+        "keys": 21,
+        "between5and6": 0,
+        "values_first": [
+          151.1809539794922,
+          159.70516967773438,
+          166.57618713378906,
+          171.41567993164062
+        ]
+      },
+      {
+        "track": "Lcl Rotation",
+        "axis": "d|Z",
+        "keys": 21,
+        "between5and6": 0,
+        "values_first": [
+          19.330276489257812,
+          22.812896728515625,
+          23.6317138671875,
+          20.987548828125
+        ]
+      },
+      {
+        "track": "Lcl Scaling",
+        "axis": "d|X",
+        "keys": 21,
+        "between5and6": 0,
+        "values_first": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      {
+        "track": "Lcl Scaling",
+        "axis": "d|Y",
+        "keys": 21,
+        "between5and6": 0,
+        "values_first": [
+          1.0000001192092896,
+          1.0000001192092896,
+          1.0000001192092896,
+          1.0000001192092896
+        ]
+      },
+      {
+        "track": "Lcl Scaling",
+        "axis": "d|Z",
+        "keys": 21,
+        "between5and6": 0,
+        "values_first": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      }
+    ]
+  },
+  "export": {
+    "version": 7700,
+    "models": 234,
+    "global": {
+      "name": "GlobalSettings",
+      "p": [],
+      "c": [
+        {
+          "name": "Version",
+          "p": [
+            1000
+          ],
+          "c": []
+        },
+        {
+          "name": "Properties70",
+          "p": [],
+          "c": [
+            {
+              "name": "P",
+              "p": [
+                "UpAxis",
+                "int",
+                "Integer",
+                "",
+                1
+              ],
+              "c": []
+            },
+            {
+              "name": "P",
+              "p": [
+                "UpAxisSign",
+                "int",
+                "Integer",
+                "",
+                1
+              ],
+              "c": []
+            },
+            {
+              "name": "P",
+              "p": [
+                "FrontAxis",
+                "int",
+                "Integer",
+                "",
+                2
+              ],
+              "c": []
+            },
+            {
+              "name": "P",
+              "p": [
+                "FrontAxisSign",
+                "int",
+                "Integer",
+                "",
+                1
+              ],
+              "c": []
+            },
+            {
+              "name": "P",
+              "p": [
+                "CoordAxis",
+                "int",
+                "Integer",
+                "",
+                0
+              ],
+              "c": []
+            },
+            {
+              "name": "P",
+              "p": [
+                "CoordAxisSign",
+                "int",
+                "Integer",
+                "",
+                1
+              ],
+              "c": []
+            },
+            {
+              "name": "P",
+              "p": [
+                "OriginalUpAxis",
+                "int",
+                "Integer",
+                "",
+                2
+              ],
+              "c": []
+            },
+            {
+              "name": "P",
+              "p": [
+                "OriginalUpAxisSign",
+                "int",
+                "Integer",
+                "",
+                1
+              ],
+              "c": []
+            },
+            {
+              "name": "P",
+              "p": [
+                "UnitScaleFactor",
+                "double",
+                "Number",
+                "",
+                1.0
+              ],
+              "c": []
+            },
+            {
+              "name": "P",
+              "p": [
+                "OriginalUnitScaleFactor",
+                "double",
+                "Number",
+                "",
+                1.0
+              ],
+              "c": []
+            },
+            {
+              "name": "P",
+              "p": [
+                "AmbientColor",
+                "ColorRGB",
+                "Color",
+                "",
+                0.0,
+                0.0,
+                0.0
+              ],
+              "c": []
+            },
+            {
+              "name": "P",
+              "p": [
+                "DefaultCamera",
+                "KString",
+                "",
+                "",
+                "Producer Perspective"
+              ],
+              "c": []
+            },
+            {
+              "name": "P",
+              "p": [
+                "TimeMode",
+                "enum",
+                "",
+                "",
+                6
+              ],
+              "c": []
+            },
+            {
+              "name": "P",
+              "p": [
+                "TimeProtocol",
+                "enum",
+                "",
+                "",
+                2
+              ],
+              "c": []
+            },
+            {
+              "name": "P",
+              "p": [
+                "SnapOnFrameMode",
+                "enum",
+                "",
+                "",
+                0
+              ],
+              "c": []
+            },
+            {
+              "name": "P",
+              "p": [
+                "TimeSpanStart",
+                "KTime",
+                "Time",
+                "",
+                0
+              ],
+              "c": []
+            },
+            {
+              "name": "P",
+              "p": [
+                "TimeSpanStop",
+                "KTime",
+                "Time",
+                "",
+                30021002700
+              ],
+              "c": []
+            },
+            {
+              "name": "P",
+              "p": [
+                "CustomFrameRate",
+                "double",
+                "Number",
+                "",
+                -1.0
+              ],
+              "c": []
+            },
+            {
+              "name": "P",
+              "p": [
+                "TimeMarker",
+                "Compound",
+                "",
+                ""
+              ],
+              "c": []
+            },
+            {
+              "name": "P",
+              "p": [
+                "CurrentTimeMarker",
+                "int",
+                "Integer",
+                "",
+                -1
+              ],
+              "c": []
+            }
+          ]
+        }
+      ]
+    },
+    "stacks": [
+      {
+        "name": "AnimationStack",
+        "p": [
+          2429912744000,
+          "Take 001\u0000\u0001AnimStack",
+          ""
+        ],
+        "c": [
+          {
+            "name": "Properties70",
+            "p": [],
+            "c": [
+              {
+                "name": "P",
+                "p": [
+                  "LocalStop",
+                  "KTime",
+                  "Time",
+                  "",
+                  30021002700
+                ],
+                "c": []
+              },
+              {
+                "name": "P",
+                "p": [
+                  "ReferenceStop",
+                  "KTime",
+                  "Time",
+                  "",
+                  30021002700
+                ],
+                "c": []
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "curves": [
+      {
+        "track": "Lcl Translation",
+        "axis": "d|X",
+        "keys": 197,
+        "between5and6": 159,
+        "values_first": [
+          0.09925832599401474,
+          0.13293199241161346,
+          0.17648082971572876,
+          0.23646147549152374
+        ]
+      },
+      {
+        "track": "Lcl Translation",
+        "axis": "d|Y",
+        "keys": 197,
+        "between5and6": 159,
+        "values_first": [
+          0.22346337139606476,
+          0.2637908458709717,
+          0.2961858808994293,
+          0.31892040371894836
+        ]
+      },
+      {
+        "track": "Lcl Translation",
+        "axis": "d|Z",
+        "keys": 197,
+        "between5and6": 159,
+        "values_first": [
+          0.00648094154894352,
+          -9.918212890625e-05,
+          -0.011811370961368084,
+          -0.031541746109724045
+        ]
+      },
+      {
+        "track": "Lcl Rotation",
+        "axis": "d|X",
+        "keys": 187,
+        "between5and6": 159,
+        "values_first": [
+          77.84349822998047,
+          78.56584930419922,
+          78.50968170166016,
+          79.78562927246094
+        ]
+      },
+      {
+        "track": "Lcl Rotation",
+        "axis": "d|Y",
+        "keys": 187,
+        "between5and6": 159,
+        "values_first": [
+          151.1809539794922,
+          155.362060546875,
+          159.70516967773438,
+          163.67803955078125
+        ]
+      },
+      {
+        "track": "Lcl Rotation",
+        "axis": "d|Z",
+        "keys": 187,
+        "between5and6": 159,
+        "values_first": [
+          19.330276489257812,
+          20.946151733398438,
+          22.812896728515625,
+          24.109161376953125
+        ]
+      },
+      {
+        "track": "Lcl Scaling",
+        "axis": "d|X",
+        "keys": 161,
+        "between5and6": 159,
+        "values_first": [
+          1.0,
+          0.9999998211860657,
+          0.9999998807907104,
+          1.0
+        ]
+      },
+      {
+        "track": "Lcl Scaling",
+        "axis": "d|Y",
+        "keys": 161,
+        "between5and6": 159,
+        "values_first": [
+          1.0000001192092896,
+          0.9999999403953552,
+          1.0,
+          1.0000001192092896
+        ]
+      },
+      {
+        "track": "Lcl Scaling",
+        "axis": "d|Z",
+        "keys": 161,
+        "between5and6": 159,
+        "values_first": [
+          1.0,
+          1.0,
+          1.0000003576278687,
+          1.000000238418579
+        ]
+      }
+    ]
+  }
+}

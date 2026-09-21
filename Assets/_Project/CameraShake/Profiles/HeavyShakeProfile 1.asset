@@ -42,7 +42,7 @@ MonoBehaviour:
     Channel: 0
     TraumaPerPulse: 0.65
     TraumaExponent: 1
-    EnablePosition: 1
+    EnablePosition: 0
     PositionWaveform: 1
     PositionPhase: {x: 0, y: 0, z: 0}
     PositionAmplitude: {x: 0.5, y: 0.1, z: 0}
@@ -141,7 +141,7 @@ MonoBehaviour:
       m_PostInfinity: 2
       m_RotationOrder: 4
     PositionSeed: 137
-    EnableRotation: 1
+    EnableRotation: 0
     RotationWaveform: 1
     RotationPhase: {x: 0, y: 0, z: 0}
     RotationAmplitude: {x: 1.1, y: 0.8, z: 0.3}
@@ -267,51 +267,64 @@ MonoBehaviour:
       m_PostInfinity: 2
       m_RotationOrder: 4
     EnableDirectionalImpulse: 1
-    DirectionalPositionAmplitude: -0.65
-    DirectionalImpulseCurve:
+    DirectionalDirectionMode: 1
+    DirectionalManualSpace: 0
+    DirectionalManualDirection: {x: 0, y: 1, z: 0}
+    DirectionalPositionAmplitude: 0.3
+    DirectionalRotationMode: 0
+    DirectionalAutoRotationAmplitude: 3
+    DirectionalRotationAmplitude: {x: 0, y: 1, z: 0}
+    DirectionalIntensityCurve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
         time: 0
         value: 1
-        inSlope: -11
-        outSlope: -11
+        inSlope: -3.572994
+        outSlope: -3.572994
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0.030000005
+      - serializedVersion: 3
+        time: 0.34292436
+        value: 0.3912621
+        inSlope: -0.5733086
+        outSlope: -0.5733086
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.35491633
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 0.9896453
+        value: 0.12252867
+        inSlope: -0.009296749
+        outSlope: -0.009296749
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.19672492
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    DirectionalFrequency: 50
+    DirectionalFrequencyCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0.009067535
+        value: 0.19769287
+        inSlope: 0
+        outSlope: 0
         tangentMode: 0
         weightedMode: 0
         inWeight: 0
         outWeight: 0
       - serializedVersion: 3
-        time: 0.12
-        value: -0.32
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0.33333334
-        outWeight: 0.33333334
-      - serializedVersion: 3
-        time: 0.32
-        value: 0.1
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0.33333334
-        outWeight: 0.33333334
-      - serializedVersion: 3
-        time: 0.58
-        value: -0.025
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0.33333334
-        outWeight: 0.33333334
-      - serializedVersion: 3
         time: 1
-        value: 0
-        inSlope: 0
-        outSlope: 0
+        value: 1
+        inSlope: 2
+        outSlope: 2
         tangentMode: 0
         weightedMode: 0
         inWeight: 0
@@ -319,3 +332,4 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
+    DirectionalReturnDuration: 0.1

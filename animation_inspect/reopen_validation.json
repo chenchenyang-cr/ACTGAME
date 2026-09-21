@@ -1,0 +1,18 @@
+{
+  "reopened": true,
+  "object_count": 304,
+  "original_object_count": 304,
+  "outside_all_objects_max_matrix_error": 4.76837158203125e-07,
+  "worst": [
+    "7.75",
+    "Bip002 L Finger3"
+  ],
+  "endpoint_weapon_mesh_max_coordinate_error": 4.76837158203125e-07,
+  "grip_max_degrees": 0.03140858235685572,
+  "textures": [
+    "E:\\手绘卡通带动作85\\Unagi\\Unagi_Hair_D.tga",
+    "E:\\手绘卡通带动作85\\Unagi\\Unagi_Face_D.tga",
+    "E:\\手绘卡通带动作85\\Unagi\\Unagi_Body_D.tga",
+    "E:\\手绘卡通带动作85\\Unagi\\Unagi_Weapon_D.tga"
+  ]
+}

@@ -322,7 +322,10 @@ public class PlayerMovement : MonoBehaviour
             Vector3.up);
         float directionSign = signedAngle < 0f ? -1f : 1f;
         animator.SetFloat(TurnDirectionHash, directionSign);
-        int turnStateHash = isCombatMovement
+        // Some character controllers expose only the normal locomotion graph.
+        // Combat movement can still use that turn state instead of attempting
+        // to cross-fade into a state that is not present in the controller.
+        int turnStateHash = isCombatMovement && animator.HasState(0, CombatTurn180StateHash)
             ? CombatTurn180StateHash
             : Turn180StateHash;
         if (!PlayerAnimatorTransition.TryCrossFade(animator, 0, turnStateHash, 0.08f))

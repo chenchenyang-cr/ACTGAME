@@ -173,10 +173,13 @@ namespace CombatEditor
 
                 AbilityEventObj obj = eves[i].Obj;
                 Event e = Event.current;
-                if (e.isKey && e.type == EventType.KeyDown)
+                if (!IsPaintingRenameField &&
+                    ((e.type == EventType.KeyDown && e.keyCode == KeyCode.F2) ||
+                     (e.type == EventType.MouseDown && e.button == 0 && e.clickCount == 2)))
                 {
-                    if (e.keyCode == KeyCode.F2 && LabelRect.Contains(e.mousePosition))
+                    if (LabelRect.Contains(e.mousePosition))
                     {
+                        e.Use();
                         StartPaintRenameField(LabelRect, obj.name, () =>
                         {
                             if (obj.name == NameOfRename)
@@ -188,8 +191,6 @@ namespace CombatEditor
                             obj.name = NameOfRename;
                             SaveEventAsset(SelectedAbilityObj, obj);
                         });
-                        Debug.Log("UseEvent?");
-                        e.Use();
                     }
                 }
 

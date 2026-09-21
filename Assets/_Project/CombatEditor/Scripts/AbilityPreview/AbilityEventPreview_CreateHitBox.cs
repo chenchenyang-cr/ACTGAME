@@ -78,7 +78,8 @@ using UnityEngine;
 	        float elapsed = (currentTimePercentage - StartTimePercentage) *
 	                        Mathf.Max(0.01f, AnimLength);
 	        float duration = Mathf.Max(0.01f, Obj.ResolveHitCameraShakeDuration());
-	        if (elapsed < 0f || elapsed > duration)
+	        float returnDuration = settings.EnableDirectionalImpulse ? Mathf.Max(0.01f, settings.DirectionalReturnDuration) : 0f;
+	        if (elapsed < 0f || elapsed > duration + returnDuration)
 	        {
 	            ReleaseHitShakePreview();
 	            return;
@@ -95,12 +96,14 @@ using UnityEngine;
 	                                        _combatController._animator != null
 	            ? _combatController._animator.transform.forward
 	            : Vector3.forward;
-	        float normalizedTime = elapsed / duration;
+	        float normalizedTime = Mathf.Clamp01(elapsed / duration);
+	        float returnProgress = elapsed > duration ? (elapsed - duration) / Mathf.Max(0.01f, returnDuration) : 0f;
+	        if (elapsed > duration) noiseIntensity = 0f;
 	        bool isPlaying = CombatGlobalEditorValue.IsPlaying || CombatGlobalEditorValue.IsLooping;
-	        float sampleTime = hitShakeClock.Sample(elapsed, isPlaying,
+	        float sampleTime = hitShakeClock.Sample(Mathf.Min(elapsed, duration), isPlaying && elapsed <= duration,
 	            EditorApplication.timeSinceStartup, out bool resetPhase);
 	        CameraShakeRuntime.Update(hitShakePreviewHandle, settings, sampleTime,
-	            normalizedTime, noiseIntensity, previewForceDirection, 1f, resetPhase);
+	            normalizedTime, noiseIntensity, previewForceDirection, 1f, resetPhase, returnProgress);
 	    }
 
 	    private void ReleaseHitShakePreview()

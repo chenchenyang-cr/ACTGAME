@@ -1,0 +1,15 @@
+{
+  "status": "PASS",
+  "source_fbx_and_14_textures_unchanged": true,
+  "mesh_count": 7,
+  "vertices": 27259,
+  "polygons": 29971,
+  "bone_count": 196,
+  "shape_keys_excluding_basis": 93,
+  "blend_packed_images": 26,
+  "fbx_embedded_material_images": 16,
+  "source_rest_pose_max_world_error_m": 4.91516004785808e-07,
+  "head_rotation_skin_test_max_displacement_m": 0.03604022413492203,
+  "isolated_fbx_import": "PASS",
+  "material_channels_roundtrip": "Base Color / Normal / Metallic / Roughness / Specular: PASS"
+}

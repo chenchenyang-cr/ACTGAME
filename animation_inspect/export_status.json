@@ -1,0 +1,26 @@
+{
+  "Animation": "True",
+  "ASCII": "True",
+  "BakeAnimation": "True",
+  "BakeResampleAnimation": "True",
+  "FilterKeyReducer": "True",
+  "Removesinglekeys": "True",
+  "Skin": "True",
+  "Shape": "True",
+  "Cameras": "True",
+  "Lights": "True",
+  "EmbedTextures": "True",
+  "UpAxis": "True",
+  "AxisConversionMethod": "True",
+  "FileVersion": "True",
+  "ScaleFactor": "True",
+  "ConvertUnit": "True",
+  "SmoothingGroups": "True",
+  "ShowWarnings": "True",
+  "export": true,
+  "exists": true,
+  "units": {
+    "system": "centimeters",
+    "scale": 1.0
+  }
+}

@@ -118,22 +118,24 @@ namespace CombatEditor
         }
        
 
-        public void F2ToRename(Rect FoldOutRect, int index)
+        public void HandleGroupRename(Rect FoldOutRect, int index)
         {
             SerializedObject so = new SerializedObject(SelectedController);
             so.Update();
             SerializedProperty combatDatas = so.FindProperty("CombatDatas");
             Event e = Event.current;
-            if (e.isKey && e.type == EventType.KeyDown)
+            if (!IsPaintingRenameField &&
+                ((e.type == EventType.KeyDown && e.keyCode == KeyCode.F2) ||
+                 (e.type == EventType.MouseDown && e.button == 0 && e.clickCount == 2)))
             {
-                if (e.keyCode == KeyCode.F2 && FoldOutRect.Contains(e.mousePosition))
+                if (FoldOutRect.Contains(e.mousePosition))
                 {
+                    e.Use();
                     StartPaintRenameField(FoldOutRect, combatDatas.GetArrayElementAtIndex(index).FindPropertyRelative("Label").stringValue, () =>
                     {
                         combatDatas.GetArrayElementAtIndex(index).FindPropertyRelative("Label").stringValue = NameOfRename;
                         so.ApplyModifiedProperties();
                     });
-                    e.Use();
                 }
             }
             //so.ApplyModifiedProperties();

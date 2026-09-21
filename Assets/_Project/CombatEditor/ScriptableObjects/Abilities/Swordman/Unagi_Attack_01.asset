@@ -1,0 +1,534 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-7766168580774691993
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1357334210a34768871b684cf97e142c, type: 3}
+  m_Name: ComboWindow
+  m_EditorClassIdentifier: 
+  IsActive: 1
+  Priority: 0
+  CommandId: LightAttack
+  NextAbility: {fileID: 11400000, guid: 984840aefbd440f4ab5cec7025b2a586, type: 2}
+  ConsumeBufferedInput: 1
+--- !u!114 &-525873831293601059
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ab454d9ce3e04684a5f19c71f6c201ad, type: 3}
+  m_Name: TargetAssistWindow
+  m_EditorClassIdentifier: 
+  IsActive: 1
+  Priority: 0
+  AcquireRadius: 4
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 757d9b080c65e9847b379b2a8a5ae8ab, type: 3}
+  m_Name: Unagi_Attack_01
+  m_EditorClassIdentifier: 
+  AbilityType: 0
+  Clip: {fileID: 1827226128182048838, guid: 7b1f63668ac9292488e9a3eb506fe4dc, type: 3}
+  AdditionalClips: []
+  PreviewPercentageRange: {x: 0, y: 1}
+  loopCount: 0
+  events:
+  - EventTime: 0
+    EventRange: {x: 0.6, y: 0.95}
+    EventMultiRange:
+    - 0.2
+    - 0.4
+    - 0.6
+    - 0.8
+    Previewable: 0
+    Obj: {fileID: -7766168580774691993}
+  - EventTime: 0
+    EventRange: {x: 0.75, y: 1}
+    EventMultiRange:
+    - 0.2
+    - 0.4
+    - 0.6
+    - 0.8
+    Previewable: 0
+    Obj: {fileID: 3436409207149109909}
+  - EventTime: 0
+    EventRange: {x: 0, y: 1}
+    EventMultiRange:
+    - 0.2
+    - 0.4
+    - 0.6
+    - 0.8
+    Previewable: 0
+    Obj: {fileID: -525873831293601059}
+  - EventTime: 0
+    EventRange: {x: 0.2, y: 0.375}
+    EventMultiRange:
+    - 0.2
+    - 0.4
+    - 0.6
+    - 0.8
+    Previewable: 1
+    Obj: {fileID: 7718206822929940031}
+  - EventTime: 0
+    EventRange: {x: 0.2, y: 0.45}
+    EventMultiRange:
+    - 0.2
+    - 0.4
+    - 0.6
+    - 0.8
+    Previewable: 0
+    Obj: {fileID: 6822326865893666282}
+  - EventTime: 0
+    EventRange: {x: 0.225, y: 0.4}
+    EventMultiRange:
+    - 0.2
+    - 0.4
+    - 0.6
+    - 0.8
+    Previewable: 0
+    Obj: {fileID: 3677230728726717679}
+--- !u!114 &3436409207149109909
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f589d20422384f75962aaf6a2b81617a, type: 3}
+  m_Name: InterruptWindow
+  m_EditorClassIdentifier: 
+  IsActive: 1
+  Priority: 0
+  AllowedCommandIds: 
+  AllowMovement: 1
+  MinimumPriority: 0
+  AllowHitReaction: 1
+--- !u!114 &3677230728726717679
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b781d06c00f873041aca107545370fa8, type: 3}
+  m_Name: DynamicTrail
+  m_EditorClassIdentifier: 
+  IsActive: 1
+  BaseNode: 12
+  TipNode: 13
+  TrailMat: {fileID: 2100000, guid: 251ee0fe7b4be434aaed6dc07137b117, type: 2}
+  MaxFrame: 14
+  StopMultiplier: 4
+  TrailSubs: 2
+  AirDistortionAxis: 0
+  TrailColor: {r: 0.55, g: 0.85, b: 1, a: 0.5}
+  Brightness: 1.5
+  BrightnessCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  TrailTexture: {fileID: 0}
+  TextureTiling: {x: 1, y: 1}
+  TextureScrollSpeed: 0.8
+  TailFade: 0.25
+  Opacity: 0.72
+  AirTintStrength: 0.35
+  NUM_VERTICES: 12
+--- !u!114 &6822326865893666282
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 962496911cda4ad3ac90c50693573c5a, type: 3}
+  m_Name: PostFxRadialBlur
+  m_EditorClassIdentifier: 
+  IsActive: 1
+  Intensity: 1
+  IntensityCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: -0.00094076246
+      inSlope: 1.8814465
+      outSlope: 1.8814465
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.35473436
+    - serializedVersion: 3
+      time: 0.40375754
+      value: 1
+      inSlope: 0.017954279
+      outSlope: 0.017954279
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 1
+    - serializedVersion: 3
+      time: 0.5628672
+      value: 0.9948535
+      inSlope: -0.33389366
+      outSlope: -0.33389366
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 1
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  SampleDistance: 0.5
+  FocusPoint: {x: 0.5, y: 0.5}
+--- !u!114 &7718206822929940031
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 75df4da46dd09c44bb149336749072c8, type: 3}
+  m_Name: CreateHitBox
+  m_EditorClassIdentifier: 
+  IsActive: 1
+  ObjData:
+    TargetObj: {fileID: 2557966978344939087, guid: cf086f7d0aab02340bc2140423f5fd3a, type: 3}
+    controlType: 0
+    Offset: {x: 0.1841779, y: 0.31508088, z: -0.036582015}
+    Rot: {x: -0.090543896, y: 0.024522254, z: -0.26026255, w: 0.96097034}
+    Scale: {x: 0.12, y: 0.88, z: 0.11}
+    TargetNode: 12
+    FollowNode: 1
+    RotateByNode: 1
+  Damage: 0
+  PoiseDamage: 10
+  HitReaction: 1
+  StaggerDuration: 0
+  HitMode: 0
+  RepeatIntervalFrames: 6
+  MaximumHitsPerTarget: 0
+  TargetLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  AllowFriendlyFire: 0
+  CanBeParried: 1
+  EnableHitCameraShake: 1
+  HitCameraShakeProfile: {fileID: 11400000, guid: f2c43206a32f439fa929f036818f1199, type: 2}
+  HitCameraShakeDuration: 0.16
+  HitCameraShakeUseUnscaledTime: 1
+  HitCameraShakeSettings:
+    AmplitudeDecayCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: -1
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: -1
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    Channel: 0
+    TraumaPerPulse: 0.65
+    TraumaExponent: 2
+    EnablePosition: 1
+    PositionWaveform: 0
+    PositionPhase: {x: 0, y: 0, z: 0}
+    PositionAmplitude: {x: 0.08, y: 0.05, z: 0.03}
+    PositionFrequency: 24
+    PositionFrequencyCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    PositionCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    PositionSeed: 137
+    EnableRotation: 1
+    RotationWaveform: 0
+    RotationPhase: {x: 0, y: 0, z: 0}
+    RotationAmplitude: {x: 1.2, y: 0.8, z: 0.5}
+    RotationFrequency: 20
+    RotationFrequencyCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    RotationCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    RotationSeed: 251
+    EnableFov: 0
+    FovAmplitude: 2
+    FovCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.2
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    EnableDirectionalImpulse: 1
+    DirectionalDirectionMode: 0
+    DirectionalManualSpace: 0
+    DirectionalManualDirection: {x: 1, y: 0, z: 0}
+    DirectionalPositionAmplitude: -0.35
+    DirectionalRotationMode: 0
+    DirectionalAutoRotationAmplitude: 1
+    DirectionalRotationAmplitude: {x: 0, y: 0, z: 0}
+    DirectionalIntensityCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.2
+        value: 0.35
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.55
+        value: 0.08
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    DirectionalFrequency: 18
+    DirectionalFrequencyCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: -0.65
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0.35
+        inSlope: -0.65
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    DirectionalReturnDuration: 0.1
+  PreviewHitCameraShake: 0
+  EnableHitAnimationSpeed: 1
+  HitStopFrames: 3
+  HitStopAnimationSpeed: 0
+  EnableHitVfx: 1
+  HitVfxPrefab: {fileID: 1923962722205832878, guid: cd05009f07b076e4baa80b03d69fdf3b, type: 3}
+  HitVfxDirection: 0
+  HitVfxPositionMode: 0
+  HitVfxPositionOffset: {x: 0, y: 0, z: 0}
+  HitVfxRandomPositionAmplitude: {x: 0, y: 0, z: 0}
+  HitVfxRotationOffset: {x: 0, y: 0, z: 0}
+  HitVfxScale: 1
+  HitVfxLifetime: 0
+  HitVfxResultMask: 3

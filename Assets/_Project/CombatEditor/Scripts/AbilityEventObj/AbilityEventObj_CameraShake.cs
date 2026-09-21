@@ -103,11 +103,15 @@ namespace CombatEditor
             // The timeline controls the envelope, but frequency is measured in real seconds.
             float sampleTime = (float)(Time.unscaledTimeAsDouble - shakeStartTime);
             CameraShakeRuntime.Update(shakeHandle, Config.Settings, sampleTime,
-                localTime);
+                localTime, worldForceDirection: _combatController != null && _combatController._animator != null
+                    ? _combatController._animator.transform.forward : Vector3.forward,
+                directionalIntensityScale: 1f);
         }
 
         public override void EndEffect()
         {
+            CameraShakeRuntime.Remove(shakeHandle, smoothReturn: true);
+            shakeHandle = 0;
             Release();
             base.EndEffect();
         }
@@ -186,7 +190,12 @@ namespace CombatEditor
 
         private void PreviewDirect(float currentTimePercentage)
         {
-            if (currentTimePercentage < StartTimePercentage || currentTimePercentage >= EndTimePercentage)
+            float duration = Mathf.Max(0.01f,
+                (EndTimePercentage - StartTimePercentage) * AnimLength);
+            float elapsed = (currentTimePercentage - StartTimePercentage) * AnimLength;
+            float returnDuration = Config.Settings.EnableDirectionalImpulse
+                ? Mathf.Max(0.01f, Config.Settings.DirectionalReturnDuration) : 0f;
+            if (elapsed < 0f || elapsed > duration + returnDuration)
             {
                 Release();
                 return;
@@ -194,9 +203,8 @@ namespace CombatEditor
 
             float localTime = Mathf.InverseLerp(StartTimePercentage, EndTimePercentage,
                 currentTimePercentage);
-            float duration = Mathf.Max(0.01f,
-                (EndTimePercentage - StartTimePercentage) * AnimLength);
-            UpdateShake(localTime * duration, localTime, 1f);
+            UpdateShake(localTime * duration, localTime, elapsed > duration ? 0f : 1f,
+                elapsed > duration ? (elapsed - duration) / Mathf.Max(.01f, returnDuration) : 0f, 1f);
         }
 
         private void PreviewConfirmedHit(float currentTimePercentage)
@@ -204,25 +212,34 @@ namespace CombatEditor
             float hitTime = Mathf.Lerp(StartTimePercentage, EndTimePercentage,
                 Config.PreviewHitTime);
             float elapsed = (currentTimePercentage - hitTime) * AnimLength;
-            if (elapsed < 0f || elapsed > Config.HitShakeDuration)
+            float duration = Mathf.Max(.01f, Config.HitShakeDuration);
+            float returnDuration = Config.Settings.EnableDirectionalImpulse
+                ? Mathf.Max(.01f, Config.Settings.DirectionalReturnDuration) : 0f;
+            if (elapsed < 0f || elapsed > duration + returnDuration)
             {
                 Release();
                 return;
             }
 
-            float normalizedTime = elapsed / Mathf.Max(0.01f, Config.HitShakeDuration);
-            UpdateShake(elapsed, normalizedTime, Config.PreviewHitIntensityScale);
+            float normalizedTime = Mathf.Clamp01(elapsed / duration);
+            UpdateShake(Mathf.Min(elapsed, duration), normalizedTime,
+                elapsed > duration ? 0f : Config.PreviewHitIntensityScale,
+                elapsed > duration ? (elapsed - duration) / Mathf.Max(.01f, returnDuration) : 0f,
+                Config.PreviewHitIntensityScale);
         }
 
-        private void UpdateShake(float sampleTime, float normalizedTime, float intensityScale)
+        private void UpdateShake(float sampleTime, float normalizedTime, float intensityScale,
+            float returnProgress = 0f, float directionalIntensity = 1f)
         {
             bool isPlaying = CombatGlobalEditorValue.IsPlaying || CombatGlobalEditorValue.IsLooping;
             if (shakeHandle == 0)
                 shakeHandle = CameraShakeRuntime.Add(Config.Settings, intensityScale);
-            float waveTime = waveClock.Sample(sampleTime, isPlaying,
+            float waveTime = waveClock.Sample(sampleTime, isPlaying && returnProgress <= 0f,
                 UnityEditor.EditorApplication.timeSinceStartup, out bool resetPhase);
             CameraShakeRuntime.Update(shakeHandle, Config.Settings, waveTime, normalizedTime,
-                intensityScale, resetPhase: resetPhase);
+                intensityScale, _combatController != null && _combatController._animator != null
+                    ? _combatController._animator.transform.forward : Vector3.forward,
+                directionalIntensity, resetPhase, returnProgress);
         }
 
         private void Release()

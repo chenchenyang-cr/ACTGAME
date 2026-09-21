@@ -46,7 +46,12 @@ namespace CombatEditor
         private SerializedProperty fovCurve;
         private SerializedProperty enableDirectionalImpulse;
         private SerializedProperty directionalPositionAmplitude;
-        private SerializedProperty directionalImpulseCurve;
+        private SerializedProperty directionalIntensityCurve;
+        private SerializedProperty directionalFrequency;
+        private SerializedProperty directionalFrequencyCurve;
+        private SerializedProperty directionalDirectionMode;
+        private SerializedProperty directionalManualSpace;
+        private SerializedProperty directionalManualDirection;
 
         private void OnEnable()
         {
@@ -90,8 +95,12 @@ namespace CombatEditor
                 settings.FindPropertyRelative("EnableDirectionalImpulse");
             directionalPositionAmplitude =
                 settings.FindPropertyRelative("DirectionalPositionAmplitude");
-            directionalImpulseCurve =
-                settings.FindPropertyRelative("DirectionalImpulseCurve");
+            directionalIntensityCurve = settings.FindPropertyRelative("DirectionalIntensityCurve");
+            directionalFrequency = settings.FindPropertyRelative("DirectionalFrequency");
+            directionalFrequencyCurve = settings.FindPropertyRelative("DirectionalFrequencyCurve");
+            directionalDirectionMode = settings.FindPropertyRelative("DirectionalDirectionMode");
+            directionalManualSpace = settings.FindPropertyRelative("DirectionalManualSpace");
+            directionalManualDirection = settings.FindPropertyRelative("DirectionalManualDirection");
         }
 
         public override void OnInspectorGUI()
@@ -150,7 +159,7 @@ namespace CombatEditor
         private void DrawShakeSettings()
         {
             EditorGUILayout.PropertyField(amplitudeDecayCurve,
-                new GUIContent("振幅衰减曲线", "X：生命周期 0~1；Y：整体振幅倍率。与下方分项曲线相乘。"));
+                new GUIContent("振幅衰减曲线", "控制 Position / Rotation / FOV，不影响定向震荡。"));
             EditorGUILayout.Space(3f);
             EditorGUILayout.LabelField("Mixing", EditorStyles.boldLabel);
             EditorGUILayout.PropertyField(channel, new GUIContent("Channel"));
@@ -214,14 +223,26 @@ namespace CombatEditor
             }
 
             EditorGUILayout.Space(3f);
-            DrawChannelHeader("Directional Impulse", enableDirectionalImpulse);
+            DrawChannelHeader("定向震荡（可叠加）", enableDirectionalImpulse);
             using (new EditorGUI.DisabledScope(!enableDirectionalImpulse.boolValue))
             {
-                EditorGUILayout.PropertyField(directionalPositionAmplitude,
-                    new GUIContent("Amplitude",
-                        "World-space displacement along the hit force. Negative values recoil against the force."));
-                EditorGUILayout.PropertyField(directionalImpulseCurve,
-                    new GUIContent("Curve"));
+                EditorGUILayout.PropertyField(directionalDirectionMode);
+                if (directionalDirectionMode.intValue == (int)DirectionalShakeDirectionMode.Manual)
+                {
+                    EditorGUILayout.PropertyField(directionalManualSpace);
+                    EditorGUILayout.PropertyField(directionalManualDirection);
+                }
+                EditorGUILayout.PropertyField(directionalPositionAmplitude);
+                var rotationMode = settings.FindPropertyRelative("DirectionalRotationMode");
+                EditorGUILayout.PropertyField(rotationMode);
+                EditorGUILayout.PropertyField(settings.FindPropertyRelative(
+                    rotationMode.intValue == (int)DirectionalRotationMode.FollowAttack
+                        ? "DirectionalAutoRotationAmplitude" : "DirectionalRotationAmplitude"));
+                EditorGUILayout.PropertyField(directionalIntensityCurve);
+                EditorGUILayout.PropertyField(directionalFrequency);
+                EditorGUILayout.PropertyField(directionalFrequencyCurve);
+                EditorGUILayout.PropertyField(settings.FindPropertyRelative("DirectionalReturnDuration"));
+                EditorGUILayout.HelpBox("旋转可自动朝攻击方向倾转（正前后攻击使用俯仰轴），或手动设置镜头局部旋转轴。位置与旋转强度独立，共用频率、衰减和平滑归位。", MessageType.Info);
             }
         }
 

@@ -1,0 +1,1566 @@
+{
+  "version": 7700,
+  "global": {
+    "name": "GlobalSettings",
+    "p": [],
+    "c": [
+      {
+        "name": "Version",
+        "p": [
+          1000
+        ],
+        "c": []
+      },
+      {
+        "name": "Properties70",
+        "p": [],
+        "c": [
+          {
+            "name": "P",
+            "p": [
+              "UpAxis",
+              "int",
+              "Integer",
+              "",
+              1
+            ],
+            "c": []
+          },
+          {
+            "name": "P",
+            "p": [
+              "UpAxisSign",
+              "int",
+              "Integer",
+              "",
+              1
+            ],
+            "c": []
+          },
+          {
+            "name": "P",
+            "p": [
+              "FrontAxis",
+              "int",
+              "Integer",
+              "",
+              2
+            ],
+            "c": []
+          },
+          {
+            "name": "P",
+            "p": [
+              "FrontAxisSign",
+              "int",
+              "Integer",
+              "",
+              1
+            ],
+            "c": []
+          },
+          {
+            "name": "P",
+            "p": [
+              "CoordAxis",
+              "int",
+              "Integer",
+              "",
+              0
+            ],
+            "c": []
+          },
+          {
+            "name": "P",
+            "p": [
+              "CoordAxisSign",
+              "int",
+              "Integer",
+              "",
+              1
+            ],
+            "c": []
+          },
+          {
+            "name": "P",
+            "p": [
+              "OriginalUpAxis",
+              "int",
+              "Integer",
+              "",
+              2
+            ],
+            "c": []
+          },
+          {
+            "name": "P",
+            "p": [
+              "OriginalUpAxisSign",
+              "int",
+              "Integer",
+              "",
+              1
+            ],
+            "c": []
+          },
+          {
+            "name": "P",
+            "p": [
+              "UnitScaleFactor",
+              "double",
+              "Number",
+              "",
+              1.0
+            ],
+            "c": []
+          },
+          {
+            "name": "P",
+            "p": [
+              "OriginalUnitScaleFactor",
+              "double",
+              "Number",
+              "",
+              1.0
+            ],
+            "c": []
+          },
+          {
+            "name": "P",
+            "p": [
+              "AmbientColor",
+              "ColorRGB",
+              "Color",
+              "",
+              0.0,
+              0.0,
+              0.0
+            ],
+            "c": []
+          },
+          {
+            "name": "P",
+            "p": [
+              "DefaultCamera",
+              "KString",
+              "",
+              "",
+              "Producer Perspective"
+            ],
+            "c": []
+          },
+          {
+            "name": "P",
+            "p": [
+              "TimeMode",
+              "enum",
+              "",
+              "",
+              6
+            ],
+            "c": []
+          },
+          {
+            "name": "P",
+            "p": [
+              "TimeProtocol",
+              "enum",
+              "",
+              "",
+              2
+            ],
+            "c": []
+          },
+          {
+            "name": "P",
+            "p": [
+              "SnapOnFrameMode",
+              "enum",
+              "",
+              "",
+              0
+            ],
+            "c": []
+          },
+          {
+            "name": "P",
+            "p": [
+              "TimeSpanStart",
+              "KTime",
+              "Time",
+              "",
+              0
+            ],
+            "c": []
+          },
+          {
+            "name": "P",
+            "p": [
+              "TimeSpanStop",
+              "KTime",
+              "Time",
+              "",
+              30021002700
+            ],
+            "c": []
+          },
+          {
+            "name": "P",
+            "p": [
+              "CustomFrameRate",
+              "double",
+              "Number",
+              "",
+              -1.0
+            ],
+            "c": []
+          },
+          {
+            "name": "P",
+            "p": [
+              "TimeMarker",
+              "Compound",
+              "",
+              ""
+            ],
+            "c": []
+          },
+          {
+            "name": "P",
+            "p": [
+              "CurrentTimeMarker",
+              "int",
+              "Integer",
+              "",
+              -1
+            ],
+            "c": []
+          }
+        ]
+      }
+    ]
+  },
+  "models": [
+    [
+      2239649673952,
+      "Avatar_Female_Size02_Unagi_Model\u0000\u0001Model",
+      "Null"
+    ],
+    [
+      2239649693680,
+      "Bip001\u0000\u0001Model",
+      "Null"
+    ],
+    [
+      2239649700256,
+      "Bip001 Pelvis\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649695872,
+      "Bip001 L Thigh\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649691488,
+      "Bip001 L Calf\u0000\u0001Model",
+      "Null"
+    ],
+    [
+      2239649702448,
+      "Bip001 L Calf Adv\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649689296,
+      "JH_L\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649698064,
+      "Bip001 L Foot\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649709024,
+      "Bip001 L Toe0\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649711216,
+      "knee_L\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649713408,
+      "Bip001 L Thigh_Twis\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649715600,
+      "Thigh_fix02\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649704640,
+      "Thigh_fix03\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649717792,
+      "Bip001 R Thigh\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649706832,
+      "Bip001 R Calf\u0000\u0001Model",
+      "Null"
+    ],
+    [
+      2239649730944,
+      "Bip001 R Calf Adv\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649719984,
+      "JH_R\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649733136,
+      "NuoChai_other03\u0000\u0001Model",
+      "Null"
+    ],
+    [
+      2239649726560,
+      "Bip001 R Foot\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649728752,
+      "Bip001 R Toe0\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649724368,
+      "knee_R\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649735328,
+      "Bip001 R Thigh_Twis\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649722176,
+      "Thigh_fix01\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649744096,
+      "Thigh_fix04\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649741904,
+      "Bip001 Spine\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649739712,
+      "Bip001 L Thigh_Twis_O\u0000\u0001Model",
+      "Null"
+    ],
+    [
+      2239649750672,
+      "Bip001 R Thigh_Twis_O\u0000\u0001Model",
+      "Null"
+    ],
+    [
+      2239649748480,
+      "Bip001 Spine1\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649737520,
+      "Bip001 Spine2\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649759440,
+      "Bip001 L Clavicle\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649752864,
+      "Bip001 L UpperArm\u0000\u0001Model",
+      "Null"
+    ],
+    [
+      2239649746288,
+      "Bip001 L Forearm\u0000\u0001Model",
+      "Null"
+    ],
+    [
+      2239649763824,
+      "Bip001 L Forearm Adv\u0000\u0001Model",
+      "Null"
+    ],
+    [
+      2239649761632,
+      "Bip001_L_ForeTwist\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649766016,
+      "Bip001 L Hand\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649768208,
+      "Bip001 L Finger0\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649755056,
+      "Bip001 L Finger01\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649757248,
+      "Bip001 L Finger02\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649776976,
+      "Bip001 L Finger1\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649779168,
+      "Bip001 L Finger11\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649783552,
+      "Bip001 L Finger12\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649781360,
+      "Bip001 L Finger2\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649772592,
+      "Bip001 L Finger21\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649770400,
+      "Bip001 L Finger22\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649785744,
+      "Bip001 L Finger3\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649774784,
+      "Bip001 L Finger31\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649787936,
+      "Bip001 L Finger32\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649790128,
+      "Bip001 L Finger4\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649792320,
+      "Bip001 L Finger41\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649794512,
+      "Bip001 L Finger42\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649803280,
+      "Elbow_L\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649796704,
+      "Bip001_L_UpArmTwist01\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649812048,
+      "Bone010\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649805472,
+      "Bip001_L_UpArmTwist02\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649809856,
+      "Bn_elbow \u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649807664,
+      "Bip001 Neck\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649798896,
+      "Bip001 Head\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649814240,
+      "Ear1_01\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649801088,
+      "Ear1_02\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649816432,
+      "Ear1_03\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649829584,
+      "Ear2_01\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649823008,
+      "Ear2_02\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649831776,
+      "Ear2_03\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649820816,
+      "Eye_L\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649818624,
+      "Eye_R\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649836160,
+      "HairB1_01\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649833968,
+      "HairB1_02\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649838352,
+      "HairB1_03\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649825200,
+      "HairB1_04\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649840544,
+      "HairB1_05\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649827392,
+      "HairB2_01\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649842736,
+      "HairB2_02\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649851504,
+      "HairB2_03\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649853696,
+      "HairB2_04\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649855888,
+      "HairB2_05\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649844928,
+      "HairB3_01\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649858080,
+      "HairB3_02\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649860272,
+      "HairB3_03\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649847120,
+      "HairB3_04\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649862464,
+      "HairF1_01\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649849312,
+      "HairF1_02\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649864656,
+      "HairF1_03\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649877808,
+      "HairF2_01\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649880000,
+      "HairF2_02\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649869040,
+      "HairF2_03\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649866848,
+      "HairF3_01\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649882192,
+      "HairF3_02\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649884384,
+      "HairF3_03\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649875616,
+      "HairF4_01\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649871232,
+      "HairF4_02\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649873424,
+      "HairF4_03\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649890960,
+      "HairS1_01\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649895344,
+      "HairS1_02\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649888768,
+      "HairS1_03\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649893152,
+      "HairS2_01\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649897536,
+      "HairS2_02\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649899728,
+      "HairS2_03\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649886576,
+      "Mouth_A\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649915072,
+      "Mouth_B\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649912880,
+      "Mouth_C\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649904112,
+      "Bip001 R Clavicle\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239649906304,
+      "Bip001 R UpperArm\u0000\u0001Model",
+      "Null"
+    ],
+    [
+      2239649908496,
+      "Bip001 R Forearm\u0000\u0001Model",
+      "Null"
+    ],
+    [
+      2239649910688,
+      "Bip001 R Forearm Adv\u0000\u0001Model",
+      "Null"
+    ],
+    [
+      2239649901920,
+      "Bip001_R_ForeTwist\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239327879296,
+      "SleeveDown001\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239327899024,
+      "Bip001 R Hand\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239327885872,
+      "Bip001 R Finger0\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239327901216,
+      "Bip001 R Finger01\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239327888064,
+      "Bip001 R Finger02\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239327903408,
+      "Bip001 R Finger1\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239327890256,
+      "Bip001 R Finger11\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239327907792,
+      "Bip001 R Finger12\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239327909984,
+      "Bip001 R Finger2\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239327914368,
+      "Bip001 R Finger21\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239327905600,
+      "Bip001 R Finger22\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239327920944,
+      "Bip001 R Finger3\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239327916560,
+      "Bip001 R Finger31\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239327918752,
+      "Bip001 R Finger32\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239327923136,
+      "Bip001 R Finger4\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239327925328,
+      "Bip001 R Finger41\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239327912176,
+      "Bip001 R Finger42\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239327927520,
+      "Elbow_R\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239327936288,
+      "Bip001_R_UpArmTwist01\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239327938480,
+      "Bip001_R_UpArmTwist02\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239327942864,
+      "Bn_SleeveUP\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239327940672,
+      "Furisode1_01\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239327945056,
+      "Furisode1_02\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239327931904,
+      "Furisode1_03\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239327934096,
+      "Furisode2_01\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239327956016,
+      "Furisode2_02\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239327949440,
+      "Furisode2_03\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239327947248,
+      "Bn_Spine2FIX\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239327958208,
+      "Chest_L\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239327953824,
+      "Chest_L_B\u0000\u0001Model",
+      "Null"
+    ],
+    [
+      2239327960400,
+      "Chest_R\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239327962592,
+      "MaJia1_01\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239327951632,
+      "MaJia1_02\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239327977936,
+      "MaJia1_03\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239327964784,
+      "Chest_R_B\u0000\u0001Model",
+      "Null"
+    ],
+    [
+      2239327980128,
+      "Furisode_B_01_ROOT\u0000\u0001Model",
+      "Null"
+    ],
+    [
+      2239327966976,
+      "Furisode_B_01\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239327973552,
+      "Furisode_B_02\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239327971360,
+      "Furisode_B_03\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239327969168,
+      "Furisode_B_04\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239327984512,
+      "Furisode_B_05\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239327982320,
+      "LD_01\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239327988896,
+      "LD_02\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239327975744,
+      "LD_03\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239327993280,
+      "MaJia2_01\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239327995472,
+      "MaJia2_02\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239327986704,
+      "MaJia2_03\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239327991088,
+      "MaJia3_01\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239328002048,
+      "MaJia3_02\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239327999856,
+      "MaJia3_03\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239328004240,
+      "MaJia4_01\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239328006432,
+      "MaJia4_02\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239327997664,
+      "MaJia4_03\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2226590483072,
+      "MaJia5_01_ROOT\u0000\u0001Model",
+      "Null"
+    ],
+    [
+      2226590513760,
+      "MaJia5_01\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2226590507184,
+      "MaJia5_02\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2226590509376,
+      "MaJia5_03\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2226590524720,
+      "PDS_01\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2226590529104,
+      "PDS_02\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2226554417424,
+      "PDS_03\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2226554404272,
+      "Skirt1_01\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2226554428384,
+      "Skirt1_02\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2226554434960,
+      "Skirt1_03\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2229382914528,
+      "Skirt1_04\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2229382903568,
+      "Skirt2_01\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2229256781424,
+      "Skirt2_02\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239642364736,
+      "Skirt2_03\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239642362544,
+      "Skirt2_04\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239642366928,
+      "Skirt3_01\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239642353776,
+      "Skirt3_02\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239642358160,
+      "Skirt3_03\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239642369120,
+      "Skirt3_04\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239642360352,
+      "Skirt4_01\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239642355968,
+      "Skirt4_02\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239642373504,
+      "Skirt4_03\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239642375696,
+      "Skirt4_04\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239642377888,
+      "Skirt5_01\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239642380080,
+      "Skirt5_02\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239642382272,
+      "Skirt5_03\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239642384464,
+      "Skirt5_04\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239642371312,
+      "Skirt6_01\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239642399808,
+      "Skirt6_02\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239642391040,
+      "Skirt6_03\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239642397616,
+      "Skirt6_04\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239642393232,
+      "Skirt7_01\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239642395424,
+      "Skirt7_02\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239642386656,
+      "Skirt7_03\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239642402000,
+      "Skirt7_04\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239642388848,
+      "Skirt8_01\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239642410768,
+      "Skirt8_02\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239642406384,
+      "Skirt8_03\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239642404192,
+      "Skirt8_04\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239642419536,
+      "Skirt8_06\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239642412960,
+      "Skirt8_07\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239642415152,
+      "Skirt8_08\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239642417344,
+      "Pelvis_L\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239642408576,
+      "Pelvis_L2\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239642434880,
+      "Pelvis_R\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239642428304,
+      "Pelvis_R2\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239642430496,
+      "Bn_katana_hilt\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239642421728,
+      "Bn_katana_burst\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239642437072,
+      "Bn_katana_burst_eye\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239642423920,
+      "Bn_katana_burst01\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239642426112,
+      "Bn_katana_burst02\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239642439264,
+      "Bn_katana_burst03\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239642441456,
+      "Bn_katana_burst04\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239642443648,
+      "Bn_katana_hilt2\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239642445840,
+      "Bn_Weapon\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239642432688,
+      "Bn_scabbardA_01\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239642454608,
+      "Bn_scabbardA_02\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239642450224,
+      "Bn_scabbardA_03\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239642456800,
+      "Bn_scabbardB_01\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239642458992,
+      "Bn_scabbardB_02\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239642452416,
+      "Bn_scabbardB_03\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239642461184,
+      "Bone015\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239642448032,
+      "Furisode3_01\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239642469952,
+      "Furisode3_02\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239642474336,
+      "Furisode3_03\u0000\u0001Model",
+      "LimbNode"
+    ],
+    [
+      2239642472144,
+      "Bn_PET\u0000\u0001Model",
+      "Null"
+    ],
+    [
+      2239642476528,
+      "Bn_PET_EYE\u0000\u0001Model",
+      "Null"
+    ],
+    [
+      2239642467760,
+      "Root\u0000\u0001Model",
+      "Null"
+    ],
+    [
+      2239642463376,
+      "Unagi_Hair\u0000\u0001Model",
+      "Mesh"
+    ],
+    [
+      2239642478720,
+      "Unagi_Weapon01\u0000\u0001Model",
+      "Mesh"
+    ],
+    [
+      2239642465568,
+      "Unagi_Weapon02\u0000\u0001Model",
+      "Mesh"
+    ],
+    [
+      2239642480912,
+      "Unagi_Weapon04\u0000\u0001Model",
+      "Mesh"
+    ],
+    [
+      2239642491872,
+      "Unagi_Weapon05\u0000\u0001Model",
+      "Mesh"
+    ],
+    [
+      2239642483104,
+      "Unagi_Weapon03\u0000\u0001Model",
+      "Mesh"
+    ],
+    [
+      2239642485296,
+      "Unagi_Body\u0000\u0001Model",
+      "Mesh"
+    ],
+    [
+      2239642487488,
+      "Unagi_Face\u0000\u0001Model",
+      "Mesh"
+    ]
+  ],
+  "animationStacks": [
+    {
+      "name": "AnimationStack",
+      "p": [
+        2239630370688,
+        "Take 001\u0000\u0001AnimStack",
+        ""
+      ],
+      "c": [
+        {
+          "name": "Properties70",
+          "p": [],
+          "c": [
+            {
+              "name": "P",
+              "p": [
+                "LocalStop",
+                "KTime",
+                "Time",
+                "",
+                30021002700
+              ],
+              "c": []
+            },
+            {
+              "name": "P",
+              "p": [
+                "ReferenceStop",
+                "KTime",
+                "Time",
+                "",
+                30021002700
+              ],
+              "c": []
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "hilt": [
+    {
+      "name": "Model",
+      "p": [
+        2239642430496,
+        "Bn_katana_hilt\u0000\u0001Model",
+        "LimbNode"
+      ],
+      "c": [
+        {
+          "name": "Version",
+          "p": [
+            232
+          ],
+          "c": []
+        },
+        {
+          "name": "Properties70",
+          "p": [],
+          "c": [
+            {
+              "name": "P",
+              "p": [
+                "InheritType",
+                "enum",
+                "",
+                "",
+                1
+              ],
+              "c": []
+            },
+            {
+              "name": "P",
+              "p": [
+                "ScalingMax",
+                "Vector3D",
+                "Vector",
+                "",
+                0.0,
+                0.0,
+                0.0
+              ],
+              "c": []
+            },
+            {
+              "name": "P",
+              "p": [
+                "DefaultAttributeIndex",
+                "int",
+                "Integer",
+                "",
+                0
+              ],
+              "c": []
+            },
+            {
+              "name": "P",
+              "p": [
+                "Lcl Translation",
+                "Lcl Translation",
+                "",
+                "A+",
+                0.09925831854343414,
+                0.22346332669258118,
+                0.006480991840362549
+              ],
+              "c": []
+            },
+            {
+              "name": "P",
+              "p": [
+                "Lcl Rotation",
+                "Lcl Rotation",
+                "",
+                "A+",
+                -102.15650485803395,
+                28.81905024226031,
+                -160.66972252346423
+              ],
+              "c": []
+            },
+            {
+              "name": "P",
+              "p": [
+                "MaxHandle",
+                "int",
+                "Integer",
+                "UH",
+                205
+              ],
+              "c": []
+            }
+          ]
+        },
+        {
+          "name": "Shading",
+          "p": [
+            true
+          ],
+          "c": []
+        },
+        {
+          "name": "Culling",
+          "p": [
+            "CullingOff"
+          ],
+          "c": []
+        }
+      ]
+    }
+  ]
+}

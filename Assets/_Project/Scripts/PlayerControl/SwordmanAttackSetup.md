@@ -13,6 +13,7 @@
 - 本次只配置动画与连段窗口，没有新增伤害 HitBox、刀光、音效、闪避或弹反资源。
 - 已启用角色的 CombatController，并将六个攻击/收招 FBX 的导入比例及运动根节点与 Main 套待机动画对齐。
 - `PlayerCommandInputAdapter` 和 `PlayerCombatAdapter` 必须启用。前者负责将鼠标左键的 LightAttack 事件送入输入缓存；禁用时移动仍可用，但点击不会攻击。
+- Attack 1 使用项目自有的 `Assets/_Project/Animations/Clips/Unagi_Attack_01_Fixed.anim`。该副本只修正拔刀切换的第 3 帧：用正常的第 2、4 帧插值得到刀柄的位置和旋转，原异常关键帧的位置偏差约 11.4 cm、旋转偏差约 5.38°；相邻帧及第三方源 FBX 保持原样。菜单 `Tools > Unagi > Repair Attack 01 Weapon Frame` 可重新生成并验证该修正。
 
 这些进度是初始调试值，需结合实际动画姿势调整。
 

@@ -1,0 +1,67 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Ellen_Body_Map2_PBR
+  m_Shader: {fileID: 4800000, guid: 7c3a9e21b4f64c8ea0d1f6a2c8e90b11, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _BaseMap:
+        m_Texture: {fileID: 2800000, guid: 942b4dc6dbef944058710f7e62f1aa2c, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _LightMap:
+        m_Texture: {fileID: 2800000, guid: 3d92468e872674f08bdf800a778dfebc, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MaterialMap:
+        m_Texture: {fileID: 2800000, guid: 81bb80417fb1c44ad827b6f74e40cfd7, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _NormalMap:
+        m_Texture: {fileID: 2800000, guid: ba220cfee4f9743df87dc37d2132433c, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _AlphaClip: 0
+    - _CelMid: 0.05
+    - _CelSoft: 0.06
+    - _Cull: 2
+    - _Cutoff: 0.5
+    - _FaceLightOffset: 0
+    - _FaceShadowSoft: 0.12
+    - _IsFace: 0
+    - _NormalScale: 0.45
+    - _OutlineWidth: 0.9
+    - _ReceiveShadows: 0.35
+    - _RimIntensity: 0.4
+    - _RimPower: 3.5
+    - _ShadowStrength: 0.55
+    - _SpecularIntensity: 1.1
+    - _SpecularSize: 0.16
+    m_Colors:
+    - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
+    - _OutlineColor: {r: 0.08, g: 0.07, b: 0.1, a: 1}
+    - _RimColor: {r: 0.75, g: 0.9, b: 1, a: 1}
+    - _ShadowColor: {r: 0.7, g: 0.66, b: 0.82, a: 1}
+    - _SpecularColor: {r: 1, g: 1, b: 1, a: 1}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1

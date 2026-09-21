@@ -1,0 +1,20 @@
+{
+    "results": [
+        {
+            "asset": "Assets/original.fbx",
+            "fps": 30.0,
+            "length": 0.6666666865348816,
+            "maxGripDrift": 179.4370880126953,
+            "hiltKeyCount": 21,
+            "resample": true
+        },
+        {
+            "asset": "Assets/fixed.fbx",
+            "fps": 30.0,
+            "length": 0.6666666865348816,
+            "maxGripDrift": 0.0,
+            "hiltKeyCount": 197,
+            "resample": false
+        }
+    ]
+}

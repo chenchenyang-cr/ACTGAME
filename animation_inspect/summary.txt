@@ -1,0 +1,211 @@
+
+NODE Bn_katana_hilt
+ prs {'position': '[0.0992583,0.223463,0.00648094]', 'rotation': '(quat 0.0276136 0.769083 -0.567353 -0.293019)', 'scale': '[1,1,1]'}
+world 3 4 net 26.237353140015028 path 30.721915234384515 peak (0.2806287866103464, 3.15)
+world 4 5 net 36.34753319230836 path 38.65028357006557 peak (0.4247021037724772, 5.0)
+world 5 6 net 179.68070089399046 path 225.8617239177595 peak (2.825216579510771, 5.675)
+world 6 7 net 85.30780241894124 path 94.18221311781139 peak (1.0224129344419735, 6.34375)
+local 3 4 net 28.635812484628357 path 34.32675372378881 peak (0.28279098682093873, 3.175)
+local 4 5 net 43.81142124775561 path 45.60585962753376 peak (0.44747282030715696, 5.0)
+local 5 6 net 164.92699279478387 path 242.84377025001737 peak (3.010087657471336, 5.7)
+local 6 7 net 97.97858473868096 path 108.49268009862689 peak (1.1364506757425956, 6.325)
+
+NODE Bn_Weapon
+ prs {'position': '[-0.0573341,0.168532,-0.0848209]', 'rotation': '(quat 0.420704 0.751019 -0.381654 0.336628)', 'scale': '[1,1,1]'}
+world 3 4 net 26.369811333895385 path 31.17206393663571 peak (0.28401960314196534, 3.15625)
+world 4 5 net 27.906498122256348 path 39.70785783108799 peak (0.48445754192539675, 4.8625)
+world 5 6 net 53.69154288264237 path 54.121202424040675 peak (0.4565722677496728, 5.19375)
+world 6 7 net 38.317453835867255 path 39.33807812449409 peak (0.3046030736227468, 6.34375)
+local 3 4 net 29.66948822687276 path 35.42568975887529 peak (0.2876696643890214, 3.16875)
+local 4 5 net 22.697150030803773 path 39.894872060447305 peak (0.4380369225339565, 4.85625)
+local 5 6 net 51.82338077763976 path 58.596366105907485 peak (0.41025712375851503, 5.1875)
+local 6 7 net 25.152356998326297 path 28.356802558246635 peak (0.25221177321557336, 6.00625)
+
+NODE Bip001 R Hand
+ prs {'position': '[0.202114,0,0]', 'rotation': '(quat -0.290661 -0.041463 0.170309 0.940634)', 'scale': '[1,1,1]'}
+world 3 4 net 24.688552599378053 path 50.11429543234615 peak (0.5263658111642622, 3.1625)
+world 4 5 net 36.51286755573316 path 44.15495344585682 peak (0.4139935341742171, 5.0)
+world 5 6 net 179.65450441371496 path 194.52955143343206 peak (2.1486931642836944, 5.7875)
+world 6 7 net 85.27744189244251 path 86.2969640659162 peak (1.2377910779885757, 6.00625)
+local 3 4 net 14.5546442040413 path 50.2333421676555 peak (0.4638719528391972, 4.0)
+local 4 5 net 114.06106049683822 path 120.8262945136527 peak (1.0035548661488627, 4.3)
+local 5 6 net 45.19218984342763 path 70.2152897006465 peak (0.8287839618410023, 5.26875)
+local 6 7 net 48.39235159100031 path 48.75735386718519 peak (0.5761409234572634, 6.26875)
+
+NODE Bip001 R Forearm
+ prs {'position': '[0.223552,0,0]', 'rotation': '(quat 0 0 0.725536 0.688184)', 'scale': '[1,1,1]'}
+world 3 4 net 23.80813720877584 path 60.24633136776307 peak (0.6242815149602542, 3.15625)
+world 4 5 net 134.65403200496712 path 135.57267571211594 peak (1.204907588620263, 4.36875)
+world 5 6 net 141.92034364821245 path 170.288217453007 peak (2.2517218673502417, 5.76875)
+world 6 7 net 38.42919750104627 path 41.89915459403489 peak (0.9906188730640517, 6.00625)
+local 3 4 net 31.11900991748517 path 31.23810317829263 peak (0.40940015272326846, 3.70625)
+local 4 5 net 97.30652598375478 path 97.30652601922039 peak (0.9730158308110164, 4.7375)
+local 5 6 net 29.61341185788644 path 29.613411985119765 peak (0.4796837189909718, 5.00625)
+local 6 7 net 3.4042113730743018 path 6.317098041659461 peak (0.10900596084427616, 6.00625)
+
+NODE Bip001 R UpperArm
+ prs {'position': '[0.0828373,0,0]', 'rotation': '(quat 0.251558 0.482302 -0.0452737 0.837886)', 'scale': '[1,1,1]'}
+world 3 4 net 21.651181246578908 path 71.17269962225527 peak (0.5908966297564462, 3.15625)
+world 4 5 net 60.9923624973022 path 83.60674435294267 peak (0.7859036905903177, 4.33125)
+world 5 6 net 112.65588471735295 path 155.62667894813183 peak (1.997518334446478, 5.775)
+world 6 7 net 41.62432879309237 path 44.149991150958435 peak (0.8885528852143805, 6.00625)
+local 3 4 net 38.731198281150554 path 69.36643689407703 peak (0.5285144209810403, 3.15625)
+local 4 5 net 49.95811609776944 path 75.86993247131208 peak (0.6223825780594991, 4.25)
+local 5 6 net 44.41287108143682 path 105.6745065540593 peak (1.1242783583479912, 5.775)
+local 6 7 net 51.54264684820029 path 60.65011919779407 peak (0.730999341324747, 6.29375)
+
+NODE Bip002 R Hand
+ BipDriven_Control {'rootName': 'Bip002', 'rootNode': '$Biped_Object:Bip002 @ [0.027014,0.000000,0.869101]', 'Biped_SubAnim': '1.6220131317176901e-22'}
+ KEY {'time': '0f', 'props': {'time': '0f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '1f', 'props': {'time': '1f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '2f', 'props': {'time': '2f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '3f', 'props': {'time': '3f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '4f', 'props': {'time': '4f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '5f', 'props': {'time': '5f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '6f', 'props': {'time': '6f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '7f', 'props': {'time': '7f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '8f', 'props': {'time': '8f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '9f', 'props': {'time': '9f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '10f', 'props': {'time': '10f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '11f', 'props': {'time': '11f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '12f', 'props': {'time': '12f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '13f', 'props': {'time': '13f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '14f', 'props': {'time': '14f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '15f', 'props': {'time': '15f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '16f', 'props': {'time': '16f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '17f', 'props': {'time': '17f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '18f', 'props': {'time': '18f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '19f', 'props': {'time': '19f', 'selected': 'False', 'value': 'None'}}
+world 3 4 net 24.688534767197915 path 27.332098114964378 peak (0.3090208682838844, 4.0)
+world 4 5 net 36.51302623321273 path 78.87107217061283 peak (0.7501387619877689, 5.0)
+world 5 6 net 179.6537834740348 path 180.60506554650433 peak (1.3042775579932477, 5.5375)
+world 6 7 net 85.36711886903447 path 86.07396123756716 peak (0.8268214668786166, 6.00625)
+local 3 4 net 14.562901496890694 path 27.868509753795536 peak (0.32172534548148285, 4.0)
+local 4 5 net 114.05967881875216 path 114.61750468645968 peak (0.9105260104265657, 4.5)
+local 5 6 net 45.64373332480261 path 51.77919141162971 peak (0.3855396897682222, 5.675)
+local 6 7 net 47.408923632847866 path 47.548791245006534 peak (0.32697512764715875, 6.4)
+
+NODE Bip002 R Forearm
+ BipDriven_Control {'rootName': 'Bip002', 'rootNode': '$Biped_Object:Bip002 @ [0.027014,0.000000,0.869101]', 'Biped_SubAnim': '1.6220131317176901e-22'}
+ KEY {'time': '0f', 'props': {'time': '0f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '1f', 'props': {'time': '1f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '2f', 'props': {'time': '2f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '3f', 'props': {'time': '3f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '4f', 'props': {'time': '4f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '5f', 'props': {'time': '5f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '6f', 'props': {'time': '6f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '7f', 'props': {'time': '7f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '8f', 'props': {'time': '8f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '9f', 'props': {'time': '9f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '10f', 'props': {'time': '10f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '11f', 'props': {'time': '11f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '12f', 'props': {'time': '12f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '13f', 'props': {'time': '13f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '14f', 'props': {'time': '14f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '15f', 'props': {'time': '15f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '16f', 'props': {'time': '16f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '17f', 'props': {'time': '17f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '18f', 'props': {'time': '18f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '19f', 'props': {'time': '19f', 'selected': 'False', 'value': 'None'}}
+world 3 4 net 23.816722458050812 path 35.75871266400667 peak (0.3748376594890166, 4.0)
+world 4 5 net 134.657763151044 path 140.10535382552297 peak (1.0423862995096485, 4.675)
+world 5 6 net 141.34291728166596 path 142.61716395932163 peak (0.9967244456631437, 5.35625)
+world 6 7 net 39.43553043923811 path 41.224841246176034 peak (0.5645978156524826, 6.00625)
+local 3 4 net 31.126005932467567 path 35.33218626677798 peak (0.33224535398066146, 3.3875)
+local 4 5 net 97.40058505385701 path 97.4005850616008 peak (0.7675843871243327, 4.55625)
+local 5 6 net 28.63446909835242 path 28.634469107237074 peak (0.3917550449885722, 5.00625)
+local 6 7 net 1.3502398492918841 path 6.807292161151223 peak (0.08453097711804435, 6.00625)
+
+NODE Bip002 R UpperArm
+ BipDriven_Control {'rootName': 'Bip002', 'rootNode': '$Biped_Object:Bip002 @ [0.027014,0.000000,0.869101]', 'Biped_SubAnim': '1.6220131317176901e-22'}
+ KEY {'time': '0f', 'props': {'time': '0f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '1f', 'props': {'time': '1f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '2f', 'props': {'time': '2f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '3f', 'props': {'time': '3f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '4f', 'props': {'time': '4f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '5f', 'props': {'time': '5f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '6f', 'props': {'time': '6f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '7f', 'props': {'time': '7f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '8f', 'props': {'time': '8f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '9f', 'props': {'time': '9f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '10f', 'props': {'time': '10f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '11f', 'props': {'time': '11f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '12f', 'props': {'time': '12f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '13f', 'props': {'time': '13f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '14f', 'props': {'time': '14f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '15f', 'props': {'time': '15f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '16f', 'props': {'time': '16f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '17f', 'props': {'time': '17f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '18f', 'props': {'time': '18f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '19f', 'props': {'time': '19f', 'selected': 'False', 'value': 'None'}}
+world 3 4 net 21.646872770412052 path 27.47620756607828 peak (0.254325571075199, 3.00625)
+world 4 5 net 60.9414739477857 path 63.22576098720583 peak (0.5126595722531494, 5.0)
+world 5 6 net 113.01454044278212 path 115.13924267375155 peak (0.8292101836697299, 5.50625)
+world 6 7 net 40.70189204561638 path 42.10800936213066 peak (0.48251907236851965, 6.00625)
+local 3 4 net 38.64691210602091 path 40.45194861104844 peak (0.30629154176501633, 3.31875)
+local 4 5 net 49.18639454260075 path 51.91385033581351 peak (0.45245869433942676, 4.9125)
+local 5 6 net 44.3484323205872 path 54.27846511705399 peak (0.5012726483737504, 5.16875)
+local 6 7 net 52.02300298778672 path 54.08368189244858 peak (0.4700916036403459, 6.48125)
+
+NODE Bip002 Prop1
+ BipDriven_Control {'rootName': 'Bip002', 'rootNode': '$Biped_Object:Bip002 @ [0.027014,0.000000,0.869101]', 'Biped_SubAnim': '1.6220131317176901e-22'}
+ KEY {'time': '0f', 'props': {'time': '0f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '1f', 'props': {'time': '1f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '2f', 'props': {'time': '2f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '3f', 'props': {'time': '3f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '4f', 'props': {'time': '4f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '5f', 'props': {'time': '5f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '6f', 'props': {'time': '6f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '7f', 'props': {'time': '7f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '8f', 'props': {'time': '8f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '9f', 'props': {'time': '9f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '10f', 'props': {'time': '10f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '11f', 'props': {'time': '11f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '12f', 'props': {'time': '12f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '13f', 'props': {'time': '13f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '14f', 'props': {'time': '14f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '15f', 'props': {'time': '15f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '16f', 'props': {'time': '16f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '17f', 'props': {'time': '17f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '18f', 'props': {'time': '18f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '19f', 'props': {'time': '19f', 'selected': 'False', 'value': 'None'}}
+world 3 4 net 26.237352702214974 path 32.55289473554222 peak (0.26436474052939984, 4.0)
+world 4 5 net 36.34753705810163 path 74.79631593823603 peak (0.74952934135277, 5.0)
+world 5 6 net 179.68063701952659 path 180.57894456987933 peak (1.304072851774574, 5.5375)
+world 6 7 net 85.30780292568733 path 86.01526964047082 peak (0.8265490031712104, 6.00625)
+local 3 4 net 28.635807466344176 path 32.470997881007705 peak (0.3438075688470964, 4.0)
+local 4 5 net 43.81142131556298 path 82.10275832991597 peak (0.788188539296671, 5.0)
+local 5 6 net 164.92698382142382 path 197.00322964529124 peak (1.424489965956512, 5.53125)
+local 6 7 net 97.97857605882498 path 100.07852623904513 peak (0.9053499094549023, 6.00625)
+
+NODE Bip002 Prop2
+ BipDriven_Control {'rootName': 'Bip002', 'rootNode': '$Biped_Object:Bip002 @ [0.027014,0.000000,0.869101]', 'Biped_SubAnim': '1.6220131317176901e-22'}
+ KEY {'time': '0f', 'props': {'time': '0f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '1f', 'props': {'time': '1f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '2f', 'props': {'time': '2f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '3f', 'props': {'time': '3f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '4f', 'props': {'time': '4f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '5f', 'props': {'time': '5f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '6f', 'props': {'time': '6f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '7f', 'props': {'time': '7f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '8f', 'props': {'time': '8f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '9f', 'props': {'time': '9f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '10f', 'props': {'time': '10f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '11f', 'props': {'time': '11f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '12f', 'props': {'time': '12f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '13f', 'props': {'time': '13f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '14f', 'props': {'time': '14f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '15f', 'props': {'time': '15f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '16f', 'props': {'time': '16f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '17f', 'props': {'time': '17f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '18f', 'props': {'time': '18f', 'selected': 'False', 'value': 'None'}}
+ KEY {'time': '19f', 'props': {'time': '19f', 'selected': 'False', 'value': 'None'}}
+world 3 4 net 26.3698086669886 path 26.60670297611703 peak (0.2245045519807278, 3.25)
+world 4 5 net 27.906493710871782 path 28.024753948219068 peak (0.23095873408917966, 4.775)
+world 5 6 net 53.69154961759894 path 53.93899645885077 peak (0.43899383775508827, 5.5375)
+world 6 7 net 38.317467761281264 path 39.69633890781764 peak (0.3411534687963671, 6.56875)
+local 3 4 net 29.669482497680278 path 30.112830513421592 peak (0.23597809312356552, 3.325)
+local 4 5 net 22.697143640060414 path 23.713648627453615 peak (0.21744650302359095, 5.0)
+local 5 6 net 51.823387623055595 path 52.64302711867109 peak (0.3974046943275802, 5.55)
+local 6 7 net 25.152358091035964 path 29.27585557837311 peak (0.22354470962447828, 6.4375)
+{'Unagi_Weapon01': {'modifiers': ['Skin:��Ƥ'], 'bones': ['Bn_katana_hilt', 'Bn_katana_hilt2']}, 'Unagi_Weapon02': {'modifiers': ['Skin:��Ƥ'], 'bones': ['Bn_Weapon', 'Bn_scabbardB_01', 'Bn_scabbardA_01', 'Bn_scabbardA_02', 'Bn_scabbardB_02', 'Bn_scabbardB_03', 'Bn_scabbardA_03']}, 'Unagi_Weapon04': {'modifiers': ['Skin:��Ƥ'], 'bones': ['Bn_katana_hilt']}, 'Unagi_Weapon05': {'modifiers': ['Skin:��Ƥ'], 'bones': ['Bn_katana_burst01', 'Bn_katana_burst02', 'Bn_katana_burst03', 'Bn_katana_burst04']}, 'Unagi_Weapon03': {'modifiers': ['Skin:��Ƥ'], 'bones': ['Bn_katana_burst', 'Bn_katana_burst_eye']}}

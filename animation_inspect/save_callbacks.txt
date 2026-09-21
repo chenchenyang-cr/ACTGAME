@@ -1,0 +1,73 @@
+StringStream:"unitsChange:
+  id:#PhysXUnitChange, persistent:false, SceneFileEmbedded:false, script:"PxUnitsChange()"
+spacemodeChange:
+  id:#PhysXPlugin, persistent:false, SceneFileEmbedded:false, script:"px_stopSimulationForEditing()"
+systemPreReset:
+  id:#PhysXPlugin, persistent:false, SceneFileEmbedded:false, script:"px_systemPreReset()"
+systemPostReset:
+  id:#PhysXToolPanel, persistent:false, SceneFileEmbedded:false, script:"PxPanelClose()"
+  id:#vfb_rollouts, persistent:false, SceneFileEmbedded:false, script:"VFB_methods_struct.Reset()"
+  id:#PhysXPlugin, persistent:false, SceneFileEmbedded:false, script:"px_systemPostReset()"
+systemPreNew:
+  id:#PhysXPlugin, persistent:false, SceneFileEmbedded:false, script:"px_systemPreNew()"
+systemPostNew:
+  id:#vfb_rollouts, persistent:false, SceneFileEmbedded:false, script:"VFB_methods_struct.Reset()"
+  id:#PhysXPlugin, persistent:false, SceneFileEmbedded:false, script:"px_systemPostNew()"
+filePreOpen:
+  id:#PhysXPlugin, persistent:false, SceneFileEmbedded:false, script:"px_filePreOpen()"
+filePostOpen:
+  id:#PhysXPluginRagdoll, persistent:false, SceneFileEmbedded:false, script:"PxRagFilePostOpen()"
+  id:#vfb_rollouts, persistent:false, SceneFileEmbedded:false, script:"if (callbacks.notificationParam() !=2)  do VFB_methods_struct.Reset()"
+  id:#PhysXPlugin, persistent:false, SceneFileEmbedded:false, script:"px_filePostOpen()"
+  id:#Substance2Module_callback, persistent:false, SceneFileEmbedded:false, script:"_pycallbk_filePostOpen()"
+filePreSave:
+  id:#PhysXPlugin, persistent:false, SceneFileEmbedded:false, script:"px_filePreSave()"
+selectionSetChanged:
+  id:#PhysXPlugin, persistent:false, SceneFileEmbedded:false, script:"px_selectionChangedDirty()"
+preRender:
+  id:#Substance2Module_callback, persistent:false, SceneFileEmbedded:false, script:"_pycallbk_preRender()"
+preRenderFrame:
+  id:#Substance2Module_callback, persistent:false, SceneFileEmbedded:false, script:"_pycallbk_preRenderFrame()"
+postRender:
+  id:#Substance2Module_callback, persistent:false, SceneFileEmbedded:false, script:"_pycallbk_postRender()"
+sceneNodeAdded:
+  id:#PhsyXPlugin, persistent:false, SceneFileEmbedded:false, script:"px_syncRagdollList()"
+preSystemShutdown:
+  persistent:false, SceneFileEmbedded:false, script:"saveCurrentPathConfigFile()"
+  id:#CATUtils, persistent:false, SceneFileEmbedded:false, script:"CAT_OnMaxShutdown()"
+  id:#PhysXPlugin, persistent:false, SceneFileEmbedded:false, script:"px_systemPreShutdown()"
+postSystemStartup:
+  persistent:false, SceneFileEmbedded:false, script:"loadCurrentPathConfigFile()"
+sceneUndo:
+  id:#PhysXToolPanel, persistent:false, SceneFileEmbedded:false, script:"PxPanelUndo()"
+sceneRedo:
+  id:#PhysXToolPanel, persistent:false, SceneFileEmbedded:false, script:"PxPanelUndo()"
+preModifierAdded:
+  id:#PhysXModRB, persistent:false, SceneFileEmbedded:false, script:"PxModRBPreAdded()"
+  id:#ApexClothingModifier, persistent:false, SceneFileEmbedded:false, script:"PxApexModifierPreAdded()"
+  id:#MassFXClothModifier, persistent:false, SceneFileEmbedded:false, script:"PxClothModifierPreAdded()"
+postModifierAdded:
+  id:#PhysXModRB, persistent:false, SceneFileEmbedded:false, script:"PxModRBPostAdded()"
+  id:#ApexClothingModifier, persistent:false, SceneFileEmbedded:false, script:"PxApexModifierPostAdded()"
+  id:#MassFXClothModifier, persistent:false, SceneFileEmbedded:false, script:"PxClothModifierPostAdded()"
+preModifierDeleted:
+  id:#PhysXModRB, persistent:false, SceneFileEmbedded:false, script:"PxModRBPreDelete()"
+  id:#ApexClothingModifier, persistent:false, SceneFileEmbedded:false, script:"PxApexModifierPreDelete()"
+  id:#MassFXClothModifier, persistent:false, SceneFileEmbedded:false, script:"PxClothModifierPreDelete()"
+postNodesCloned:
+  id:#PhysXModRB, persistent:false, SceneFileEmbedded:false, script:"PxModRBCloneHappend()"
+postRendererChange:
+  id:#vfb_rollouts, persistent:false, SceneFileEmbedded:false, script:"VFB_methods.VFB_ResetRollouts()"
+  id:#Substance2Module_callback, persistent:false, SceneFileEmbedded:false, script:"_pycallbk_postRendererChange()"
+preNodeBonePropChanged:
+  id:#PhysXPlugin, persistent:false, SceneFileEmbedded:false, script:"px_stopSimulationForEditing()"
+preNodeGeneralPropChanged:
+  id:#PhysXPlugin, persistent:false, SceneFileEmbedded:false, script:"px_stopSimulationForEditing()"
+filePreOpenProcess:
+  persistent:false, SceneFileEmbedded:false, script:"autoProjectSwitcherOnFilePreOpen()"
+  id:#pcPreFileOpen, persistent:false, SceneFileEmbedded:false, script:"ProceduralContentOps.OnPreFileOpen()"
+preImageViewerDisplay:
+  id:#vfb_rollouts, persistent:false, SceneFileEmbedded:false, script:"VFB_methods.VFB_AddRollouts (callbacks.notificationParam())"
+cuiRegisterMenus:
+  id:#DYNmenuCivilView, persistent:false, SceneFileEmbedded:false, script:"DYNFUNmenuCallback()"
+"

@@ -181,6 +181,7 @@ namespace CombatEditor
             Rect HeaderRect = new Rect(rect.x, rect.y, rect.width - 2 * LineHeight, LineHeight);
             Rect GroupAddRect = new Rect(rect.width - 2 * LineHeight, rect.y, LineHeight, LineHeight);
             Rect GroupDeleteRect = new Rect(rect.width - LineHeight, rect.y, LineHeight, LineHeight);
+            HandleGroupRename(HeaderRect, GroupIndex);
             EditorGUI.BeginChangeCheck();
             bool isFolded = EditorGUI.Foldout(HeaderRect, DataGroup.IsFolded, new GUIContent(DataGroup.Label), true);
             if (EditorGUI.EndChangeCheck())
@@ -190,7 +191,6 @@ namespace CombatEditor
                 EditorUtility.SetDirty(SelectedController);
                 EditorSceneManager.MarkSceneDirty(SelectedController.gameObject.scene);
             }
-            F2ToRename(HeaderRect, GroupIndex);
             if (GUI.Button(GroupAddRect, "+", MyDeleteButtonStyle))
             {
 
