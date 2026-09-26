@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 1116ae28a868d6447ad011a79fe6f026
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 216010
+  packageName: Stylized VFX
+  packageVersion: 1.0.6
+  assetPath: Assets/Vefects/Stylized VFX/Skills/Magic_Attacks/Ice/Materials/M_VFX_IceMagic_Projectile.mat
+  uploadId: 710778

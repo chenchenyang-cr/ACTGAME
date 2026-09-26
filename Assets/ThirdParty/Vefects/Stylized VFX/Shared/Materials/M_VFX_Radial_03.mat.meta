@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 80b4d441abbff994a87a2116f7be9caa
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 216010
+  packageName: Stylized VFX
+  packageVersion: 1.0.6
+  assetPath: Assets/Vefects/Stylized VFX/Shared/Materials/M_VFX_Radial_03.mat
+  uploadId: 710778

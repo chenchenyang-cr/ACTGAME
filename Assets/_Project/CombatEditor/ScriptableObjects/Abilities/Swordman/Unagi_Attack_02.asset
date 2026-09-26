@@ -1,5 +1,44 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-7608375784654442299
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28e2dd982f5c43b48b940242e405acc4, type: 3}
+  m_Name: AnimSpeed
+  m_EditorClassIdentifier: 
+  IsActive: 1
+  Mode: 0
+  Speed: 1.2
+  SpeedCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!114 &-6373521175150973280
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -88,7 +127,7 @@ MonoBehaviour:
   m_Name: Unagi_Attack_02
   m_EditorClassIdentifier: 
   AbilityType: 0
-  Clip: {fileID: 1827226128182048838, guid: 7179a939ab1a6494fbef07138745312c, type: 3}
+  Clip: {fileID: 7400000, guid: c53c0c5c5ab8ac249b3a7911ab532235, type: 2}
   AdditionalClips: []
   PreviewPercentageRange: {x: 0, y: 1}
   loopCount: 0
@@ -121,7 +160,7 @@ MonoBehaviour:
     Previewable: 0
     Obj: {fileID: 4271103800098573086}
   - EventTime: 0
-    EventRange: {x: 0.22222222, y: 0.41666666}
+    EventRange: {x: 0.2777778, y: 0.41666666}
     EventMultiRange:
     - 0.2
     - 0.4
@@ -130,7 +169,7 @@ MonoBehaviour:
     Previewable: 0
     Obj: {fileID: 5927527051354995554}
   - EventTime: 0
-    EventRange: {x: 0.22222222, y: 0.5277778}
+    EventRange: {x: 0.25, y: 0.5277778}
     EventMultiRange:
     - 0.2
     - 0.4
@@ -138,6 +177,33 @@ MonoBehaviour:
     - 0.8
     Previewable: 0
     Obj: {fileID: -2369497948550474553}
+  - EventTime: 0.2777778
+    EventRange: {x: 0, y: 1}
+    EventMultiRange:
+    - 0.2
+    - 0.4
+    - 0.6
+    - 0.8
+    Previewable: 0
+    Obj: {fileID: 7754772376213444421}
+  - EventTime: 0
+    EventRange: {x: 0.25, y: 0.41666666}
+    EventMultiRange:
+    - 0.2
+    - 0.4
+    - 0.6
+    - 0.8
+    Previewable: 0
+    Obj: {fileID: 7725422392494577613}
+  - EventTime: 0
+    EventRange: {x: 0, y: 1}
+    EventMultiRange:
+    - 0.2
+    - 0.4
+    - 0.6
+    - 0.8
+    Previewable: 0
+    Obj: {fileID: -7608375784654442299}
 --- !u!114 &4271103800098573086
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -383,12 +449,78 @@ MonoBehaviour:
     EnableDirectionalImpulse: 1
     DirectionalDirectionMode: 0
     DirectionalManualSpace: 0
-    DirectionalManualDirection: {x: 1, y: 0, z: 0}
-    DirectionalPositionAmplitude: -0.35
+    DirectionalPositionRange: 0.35
+    DirectionalManualPositionRange: {x: 0.35, y: 0, z: 0}
+    DirectionalPositionFrequency: 18
+    DirectionalPositionRangeDecay: 0.35
     DirectionalRotationMode: 0
-    DirectionalAutoRotationAmplitude: 1
-    DirectionalRotationAmplitude: {x: 0, y: 0, z: 0}
-    DirectionalIntensityCurve:
+    DirectionalAutoRotationRange: 1
+    DirectionalRotationFrequency: 0
+    DirectionalRotationRangeDecay: 0.35
+    DirectionalRotationRange: {x: 0, y: 0, z: 0}
+    DirectionalCenterSpeed: 1
+  PreviewHitCameraShake: 0
+  EnableHitAnimationSpeed: 1
+  HitStopFrames: 5
+  HitStopAnimationSpeed: 0.1
+  EnableHitVfx: 1
+  HitVfxPrefab: {fileID: 1923962722205832878, guid: cd05009f07b076e4baa80b03d69fdf3b, type: 3}
+  HitVfxDirection: 0
+  HitVfxPositionMode: 0
+  HitVfxPositionOffset: {x: 0, y: 0, z: 0}
+  HitVfxRandomPositionAmplitude: {x: 0, y: 0, z: 0}
+  HitVfxRotationOffset: {x: 0, y: 0, z: 0}
+  HitVfxScale: 1
+  HitVfxLifetime: 0
+  HitVfxResultMask: 3
+--- !u!114 &7725422392494577613
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2c77cc69ff374f62b9c82cf1d60c7465, type: 3}
+  m_Name: CameraShake
+  m_EditorClassIdentifier: 
+  IsActive: 1
+  TriggerMode: 0
+  Settings:
+    AmplitudeDecayCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: -1
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: -1
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    Channel: 0
+    TraumaPerPulse: 0.65
+    TraumaExponent: 2
+    EnablePosition: 0
+    PositionWaveform: 0
+    PositionPhase: {x: 0, y: 0, z: 0}
+    PositionAmplitude: {x: 0.08, y: 0.05, z: 0.03}
+    PositionFrequency: 24
+    PositionFrequencyCurve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -401,17 +533,23 @@ MonoBehaviour:
         inWeight: 0
         outWeight: 0
       - serializedVersion: 3
-        time: 0.2
-        value: 0.35
+        time: 1
+        value: 1
         inSlope: 0
         outSlope: 0
         tangentMode: 0
         weightedMode: 0
         inWeight: 0
         outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    PositionCurve:
+      serializedVersion: 2
+      m_Curve:
       - serializedVersion: 3
-        time: 0.55
-        value: 0.08
+        time: 0
+        value: 1
         inSlope: 0
         outSlope: 0
         tangentMode: 0
@@ -430,23 +568,28 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    DirectionalFrequency: 18
-    DirectionalFrequencyCurve:
+    PositionSeed: 137
+    EnableRotation: 0
+    RotationWaveform: 0
+    RotationPhase: {x: 0, y: 0, z: 0}
+    RotationAmplitude: {x: 1.2, y: 0.8, z: 0.5}
+    RotationFrequency: 20
+    RotationFrequencyCurve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
         time: 0
         value: 1
         inSlope: 0
-        outSlope: -0.65
+        outSlope: 0
         tangentMode: 0
         weightedMode: 0
         inWeight: 0
         outWeight: 0
       - serializedVersion: 3
         time: 1
-        value: 0.35
-        inSlope: -0.65
+        value: 1
+        inSlope: 0
         outSlope: 0
         tangentMode: 0
         weightedMode: 0
@@ -455,18 +598,115 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    DirectionalReturnDuration: 0.1
-  PreviewHitCameraShake: 0
-  EnableHitAnimationSpeed: 1
-  HitStopFrames: 6
-  HitStopAnimationSpeed: 0
-  EnableHitVfx: 1
-  HitVfxPrefab: {fileID: 1923962722205832878, guid: cd05009f07b076e4baa80b03d69fdf3b, type: 3}
-  HitVfxDirection: 0
-  HitVfxPositionMode: 0
-  HitVfxPositionOffset: {x: 0, y: 0, z: 0}
-  HitVfxRandomPositionAmplitude: {x: 0, y: 0, z: 0}
-  HitVfxRotationOffset: {x: 0, y: 0, z: 0}
-  HitVfxScale: 1
-  HitVfxLifetime: 0
-  HitVfxResultMask: 3
+    RotationCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    RotationSeed: 251
+    EnableFov: 1
+    FovAmplitude: -2
+    FovCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.4433319
+        value: 0.98306656
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    EnableDirectionalImpulse: 0
+    DirectionalDirectionMode: 0
+    DirectionalManualSpace: 0
+    DirectionalPositionRange: 0.35
+    DirectionalManualPositionRange: {x: 0.35, y: 0, z: 0}
+    DirectionalPositionFrequency: 18
+    DirectionalPositionRangeDecay: 0.35
+    DirectionalRotationMode: 0
+    DirectionalAutoRotationRange: 1
+    DirectionalRotationFrequency: 0
+    DirectionalRotationRangeDecay: 0.35
+    DirectionalRotationRange: {x: 0, y: 0, z: 0}
+    DirectionalCenterSpeed: 1
+  AffectedByHitStop: 0
+  HitStopWeight: 1
+  HitShakeDuration: 0.16
+  UseUnscaledTime: 1
+  HitBoxFilter: 0
+  SpecificHitBox: {fileID: 0}
+  TriggerPolicy: 0
+  AcceptedResults: 3
+  MaximumTriggerCount: 1
+  TriggerCooldown: 0
+  PreviewHitTime: 0.5
+  PreviewHitIntensityScale: 1
+--- !u!114 &7754772376213444421
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca2229d21ed65194bac74b8298b11290, type: 3}
+  m_Name: Particles
+  m_EditorClassIdentifier: 
+  IsActive: 1
+  ObjData:
+    TargetObj: {fileID: 6305558178458432839, guid: 063af52414baeae4eb21a65196392106, type: 3}
+    controlType: 0
+    Offset: {x: -0.02728653, y: 0.46587682, z: 0.004606371}
+    Rot: {x: -0.006203365, y: -0.0073824693, z: 0.6990957, w: -0.71496314}
+    Scale: {x: 1, y: 1, z: 1}
+    TargetNode: 0
+    FollowNode: 1
+    RotateByNode: 0
+  TimeType: 1
+  PlaySpeed: 2.7
+  AffectedByHitStop: 1
+  SizeMultiplier: 0.67
+  CenterOffset: {x: 0, y: 0, z: 0}

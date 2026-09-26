@@ -24,9 +24,11 @@ using UnityEngine;
         [Tooltip("Whether this attack can be deflected during a parry window.")]
         public bool CanBeParried = true;
 
-	    [Header("Confirmed Hit Camera Shake")]
-	    [Tooltip("Played after this hit-box produces an accepted hit. Repeated hit-boxes play it once per accepted hit.")]
+	    [Header("命中后镜头震动")]
+	    [InspectorName("启用命中震动")]
+	    [Tooltip("碰撞盒确认命中后触发震动；重复命中时每次确认都会触发。")]
 	    public bool EnableHitCameraShake;
+	    [InspectorName("震动预设")]
 	    public CameraShakeProfile HitCameraShakeProfile;
 
 	    // Backwards-compatible fallback for ability assets not migrated yet.
@@ -41,8 +43,9 @@ using UnityEngine;
 	        EnableDirectionalImpulse = true
 	    };
 
-	    [Header("Editor Preview")]
-	    [Tooltip("Simulate one confirmed hit at the beginning of this HitBox range while previewing the timeline.")]
+	    [Header("编辑器预览")]
+	    [InspectorName("预览命中震动")]
+	    [Tooltip("在碰撞盒区间起点模拟一次确认命中。")]
 	    public bool PreviewHitCameraShake;
 
 	    public CameraShakeSettings ResolveHitCameraShakeSettings()
@@ -64,6 +67,19 @@ using UnityEngine;
 	        return HitCameraShakeProfile != null
 	            ? HitCameraShakeProfile.UseUnscaledTime
 	            : HitCameraShakeUseUnscaledTime;
+	    }
+
+	    public bool ResolveHitCameraShakeAffectedByHitStop()
+	    {
+	        return HitCameraShakeProfile != null &&
+	               HitCameraShakeProfile.AffectedByHitStop;
+	    }
+
+	    public float ResolveHitCameraShakeHitStopWeight()
+	    {
+	        return HitCameraShakeProfile != null
+	            ? Mathf.Clamp01(HitCameraShakeProfile.HitStopWeight)
+	            : 0f;
 	    }
 
 	    [Header("命中顿帧")]

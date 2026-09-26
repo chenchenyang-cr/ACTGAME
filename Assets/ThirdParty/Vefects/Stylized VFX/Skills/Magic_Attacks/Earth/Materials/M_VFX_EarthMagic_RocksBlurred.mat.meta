@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: a2d522923173a3a408f7b12ffb871aeb
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 216010
+  packageName: Stylized VFX
+  packageVersion: 1.0.6
+  assetPath: Assets/Vefects/Stylized VFX/Skills/Magic_Attacks/Earth/Materials/M_VFX_EarthMagic_RocksBlurred.mat
+  uploadId: 710778

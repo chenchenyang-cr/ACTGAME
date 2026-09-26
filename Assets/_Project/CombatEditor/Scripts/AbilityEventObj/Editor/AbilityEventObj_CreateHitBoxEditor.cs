@@ -22,7 +22,7 @@ namespace CombatEditor
                 var previewEvent = ability?.events.Find(entry => entry != null && entry.Obj == config);
                 if (previewEvent != null && !previewEvent.Previewable)
                     EditorGUILayout.HelpBox(
-                        "命中震动预览已勾选，但 Hitbox 轨道的预览开关仍关闭。请打开该轨道的预览图标，再在 Game 视图查看震动。",
+                        "命中震动预览已勾选，但碰撞盒轨道的预览开关仍关闭。请打开该轨道的预览图标，再在游戏视图查看震动。",
                         MessageType.Info);
             }
             if (config.HitMode == CombatHitMode.Repeated)
@@ -53,7 +53,7 @@ namespace CombatEditor
             if (config.EnableHitCameraShake && config.HitCameraShakeProfile == null)
             {
                 EditorGUILayout.HelpBox(
-                    "请选择 Camera Shake Profile。当前暂时使用旧版内嵌参数作为兼容回退。",
+                    "请选择摄像机震动预设。当前暂时使用旧版内嵌参数作为兼容回退。",
                     MessageType.Warning);
             }
 

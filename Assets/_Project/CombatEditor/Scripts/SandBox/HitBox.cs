@@ -175,12 +175,20 @@ namespace CombatEditor
             {
                 CombatCamera.CameraShakeSettings shakeSettings =
                     SourceEvent.ResolveHitCameraShakeSettings();
+                CombatController shakeOwner = Owner;
+                float hitStopWeight = SourceEvent.ResolveHitCameraShakeHitStopWeight();
                 CombatCamera.CameraShakeRuntime.Pulse(
                     shakeSettings,
                     SourceEvent.ResolveHitCameraShakeDuration(),
                     Mathf.Max(0f, resolution.CameraShakeScale),
                     SourceEvent.ResolveHitCameraShakeUseUnscaledTime(),
-                    attackDirection);
+                    attackDirection,
+                    SourceEvent.ResolveHitCameraShakeAffectedByHitStop() &&
+                    hitStopWeight > 0f
+                        ? () => shakeOwner != null && shakeOwner._animSpeedExecutor != null
+                            ? Mathf.Lerp(1f, shakeOwner._animSpeedExecutor.CurrentHitStopSpeedScale,
+                                hitStopWeight) : 1f
+                        : (System.Func<float>)null);
             }
             if (resolution.ResultType != CombatHitResultType.Parried && SourceEvent != null && SourceEvent.EnableHitAnimationSpeed)
             {

@@ -15,12 +15,19 @@ namespace CombatEditor
     [Flags]
     public enum CombatHitResultMask
     {
+        [InspectorName("无")]
         None = 0,
+        [InspectorName("普通命中")]
         Normal = 1 << 0,
+        [InspectorName("暴击")]
         Critical = 1 << 1,
+        [InspectorName("被格挡")]
         Blocked = 1 << 2,
+        [InspectorName("被招架")]
         Parried = 1 << 3,
+        [InspectorName("无效命中")]
         Immune = 1 << 4,
+        [InspectorName("全部结果")]
         All = Normal | Critical | Blocked | Parried | Immune
     }
 

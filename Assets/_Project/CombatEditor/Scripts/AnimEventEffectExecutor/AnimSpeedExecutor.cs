@@ -73,6 +73,11 @@ using UnityEngine;
 	    private float _pendingHitStopSpeed;
 	    private int _hitStopStartFrame;
 
+	    public float CurrentHitStopSpeedScale => _hitStopModifier != null &&
+	        _hitStopModifier.CurrentTime - _hitStopModifier.StartTime < _hitStopModifier.MaxTime
+	            ? _hitStopModifier.EvaluateSpeedScale()
+	            : 1f;
+
 	    public void PlayHitStop(int frames, bool delayOneFrame = false, float animationSpeed = 0f)
 	    {
 	        if (frames <= 0)

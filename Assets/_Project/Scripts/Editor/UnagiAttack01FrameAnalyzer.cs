@@ -10,8 +10,7 @@ using UnityEngine;
 public static class UnagiAttack01FrameAnalyzer
 {
     const string ModelPath = "Assets/ThirdParty/UnagiAnimationPack/FBX/Main/Unagi/02_Idle/Unagi_Idle.fbx";
-    const string ClipPath = "Assets/ThirdParty/UnagiAnimationPack/FBX/Main/Unagi/01_Attack/Unagi_Attack_01.fbx";
-    const string MaxClipPath = "Assets/ThirdParty/UnagiAnimationPack/FBX/MAX_Variant/Unagi/01_Attack/Unagi_Attack_01.fbx";
+    const string ClipPath = "Assets/ThirdParty/UnagiAnimationPack/FBX/MAX_Variant/Unagi/01_Attack/Unagi_Attack_01.fbx";
     const string Request = "Library/UnagiAttack01FrameAnalyzer.request";
     const string Report = "Library/UnagiAttack01FrameAnalyzer.txt";
 
@@ -92,18 +91,6 @@ public static class UnagiAttack01FrameAnalyzer
                                   string.Join(";", curve.keys.Select(k => $"{k.time:F6}:{k.value:F6}")));
             }
 
-            var maxClip = AssetDatabase.LoadAllAssetsAtPath(MaxClipPath).OfType<AnimationClip>()
-                .Single(c => !c.name.StartsWith("__preview__"));
-            output.AppendLine("MAX comparison: frame,mainHiltHand,maxHiltHand,handDifference,hiltDifference");
-            for (int frame = 0; frame <= frames; frame++)
-            {
-                float time = (float)frame / clip.frameRate;
-                clip.SampleAnimation(instance, time);
-                Vector3 mainHand = rightHand.position, mainHilt = hilt.position;
-                maxClip.SampleAnimation(instance, Mathf.Min(time, maxClip.length));
-                output.AppendLine($"{frame},{Vector3.Distance(mainHand, mainHilt):F6},{Vector3.Distance(rightHand.position, hilt.position):F6}," +
-                                  $"{Vector3.Distance(mainHand, rightHand.position):F6},{Vector3.Distance(mainHilt, hilt.position):F6}");
-            }
             output.AppendLine("Grip comparison: frame,localX,localY,localZ,positionDelta,rotationDeltaDegrees");
             Vector3 previousGripPosition = default;
             Quaternion previousGripRotation = Quaternion.identity;

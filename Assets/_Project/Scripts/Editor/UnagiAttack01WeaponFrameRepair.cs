@@ -11,8 +11,8 @@ using UnityEngine;
 public static class UnagiAttack01WeaponFrameRepair
 {
     const string ModelPath = "Assets/ThirdParty/UnagiAnimationPack/FBX/Main/Unagi/02_Idle/Unagi_Idle.fbx";
-    const string SourcePath = "Assets/ThirdParty/UnagiAnimationPack/FBX/Main/Unagi/01_Attack/Unagi_Attack_01.fbx";
-    const string FixedPath = "Assets/_Project/Animations/Clips/Unagi_Attack_01_Fixed.anim";
+    const string SourcePath = "Assets/ThirdParty/UnagiAnimationPack/FBX/MAX_Variant/Unagi/01_Attack/Unagi_Attack_01.fbx";
+    const string FixedPath = "Assets/_Project/Animations/Clips/Unagi_Attack_01.anim";
     const string ControllerPath = "Assets/_Project/Animations/Controllers/Player_Swordman.controller";
     const string AbilityPath = "Assets/_Project/CombatEditor/ScriptableObjects/Abilities/Swordman/Unagi_Attack_01.asset";
     const string HiltPath = "Bip001/Bn_katana_hilt";
@@ -37,6 +37,38 @@ public static class UnagiAttack01WeaponFrameRepair
             AnimationClip source = LoadClip(SourcePath);
             if (Mathf.RoundToInt(source.frameRate) != 30 || Mathf.RoundToInt(source.length * source.frameRate) != 20)
                 throw new InvalidOperationException("Attack 01 source timing changed; expected 30 FPS and frames 0-20.");
+
+            GameObject checkInstance = UnityEngine.Object.Instantiate(AssetDatabase.LoadAssetAtPath<GameObject>(ModelPath));
+            try
+            {
+                Animator checkAnimator = checkInstance.GetComponent<Animator>();
+                if (checkAnimator != null) checkAnimator.enabled = false;
+                Transform checkHand = checkInstance.GetComponentsInChildren<Transform>(true).Single(t => t.name == "Bip001 R Hand");
+                Transform checkHilt = checkInstance.GetComponentsInChildren<Transform>(true).Single(t => t.name == "Bn_katana_hilt");
+                source.SampleAnimation(checkInstance, 3f / source.frameRate);
+                Vector3 frame3Grip = checkHand.InverseTransformPoint(checkHilt.position);
+                Quaternion frame3Rotation = Quaternion.Inverse(checkHand.rotation) * checkHilt.rotation;
+                source.SampleAnimation(checkInstance, 4f / source.frameRate);
+                Vector3 frame4Grip = checkHand.InverseTransformPoint(checkHilt.position);
+                Quaternion frame4Rotation = Quaternion.Inverse(checkHand.rotation) * checkHilt.rotation;
+                if (Vector3.Distance(frame3Grip, frame4Grip) < 0.002f &&
+                    Quaternion.Angle(frame3Rotation, frame4Rotation) < 0.5f)
+                {
+                    report.AppendLine("PASS: imported source already has a continuous frame 3/4 grip; no repair or asset relinking needed.");
+                    return;
+                }
+            }
+            finally { UnityEngine.Object.DestroyImmediate(checkInstance); }
+
+            // This old source imports Euler rotation curves. The repair below requires quaternion
+            // curves, so reject it before CopySerialized can overwrite the validated clip.
+            foreach (string property in new[]
+                     { "m_LocalRotation.x", "m_LocalRotation.y", "m_LocalRotation.z", "m_LocalRotation.w" })
+            {
+                var binding = EditorCurveBinding.FloatCurve(HiltPath, typeof(Transform), property);
+                if (AnimationUtility.GetEditorCurve(source, binding) == null)
+                    throw new InvalidOperationException("Source lacks " + property + "; validated clip was not changed.");
+            }
 
             AnimationClip fixedClip = AssetDatabase.LoadAssetAtPath<AnimationClip>(FixedPath);
             if (fixedClip == null)

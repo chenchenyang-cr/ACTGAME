@@ -45,7 +45,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Flow:
-        m_Texture: {fileID: 2800000, guid: 3f1d4fadb37c37e4488860109d7dce4b, type: 3}
+        m_Texture: {fileID: 2800000, guid: c755faa3a4b9cd34694d54c650952df5, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
@@ -86,7 +86,7 @@ Material:
     - _DetailNormalMapScale: 1
     - _Distortionpower: 0.2
     - _DstBlend: 1
-    - _Emission: 10
+    - _Emission: -2.84
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
@@ -103,7 +103,7 @@ Material:
     - _Usecustomrandom: 0
     - _Usedepth: 1
     m_Colors:
-    - _Color: {r: 0.89433956, g: 0.62603766, b: 0.62603766, a: 1}
+    - _Color: {r: 0.6830188, g: 0.6830188, b: 0.6830188, a: 1}
     - _DistortionSpeedXYPowerZ: {r: 0.3, g: 0, b: 0.07, a: 0}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _NoisespeedUV: {r: 0.3, g: 0, b: 0, a: 0}

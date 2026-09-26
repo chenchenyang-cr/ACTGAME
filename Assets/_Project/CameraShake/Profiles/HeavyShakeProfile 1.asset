@@ -12,8 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a7c02e95b03d48b6821befd404d085c1, type: 3}
   m_Name: HeavyShakeProfile 1
   m_EditorClassIdentifier: 
-  Duration: 0.2
+  Duration: 0.25
   UseUnscaledTime: 1
+  AffectedByHitStop: 1
+  HitStopWeight: 0.1
   Settings:
     AmplitudeDecayCurve:
       serializedVersion: 2
@@ -248,20 +250,38 @@ MonoBehaviour:
       - serializedVersion: 3
         time: 0
         value: 0
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
+        inSlope: 4.0423765
+        outSlope: 4.0423765
+        tangentMode: 34
         weightedMode: 0
         inWeight: 0
-        outWeight: 0
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 0.17703727
+        value: 0.7156513
+        inSlope: 2.959959
+        outSlope: 2.959959
+        tangentMode: 34
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 0.32154012
+        value: 0.98696136
+        inSlope: 0.21141648
+        outSlope: 0.21141648
+        tangentMode: 34
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
       - serializedVersion: 3
         time: 1
         value: 0
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
+        inSlope: -1.4547085
+        outSlope: -1.4547085
+        tangentMode: 34
         weightedMode: 0
-        inWeight: 0
+        inWeight: 0.33333334
         outWeight: 0
       m_PreInfinity: 2
       m_PostInfinity: 2
@@ -269,67 +289,13 @@ MonoBehaviour:
     EnableDirectionalImpulse: 1
     DirectionalDirectionMode: 1
     DirectionalManualSpace: 0
-    DirectionalManualDirection: {x: 0, y: 1, z: 0}
-    DirectionalPositionAmplitude: 0.3
+    DirectionalPositionRange: 0.1
+    DirectionalManualPositionRange: {x: 0, y: 0.08, z: 0}
+    DirectionalPositionFrequency: 15
+    DirectionalPositionRangeDecay: 0.3
     DirectionalRotationMode: 0
-    DirectionalAutoRotationAmplitude: 3
-    DirectionalRotationAmplitude: {x: 0, y: 1, z: 0}
-    DirectionalIntensityCurve:
-      serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 3
-        time: 0
-        value: 1
-        inSlope: -3.572994
-        outSlope: -3.572994
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0.030000005
-      - serializedVersion: 3
-        time: 0.34292436
-        value: 0.3912621
-        inSlope: -0.5733086
-        outSlope: -0.5733086
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0.35491633
-        outWeight: 0.33333334
-      - serializedVersion: 3
-        time: 0.9896453
-        value: 0.12252867
-        inSlope: -0.009296749
-        outSlope: -0.009296749
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0.19672492
-        outWeight: 0
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    DirectionalFrequency: 50
-    DirectionalFrequencyCurve:
-      serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 3
-        time: 0.009067535
-        value: 0.19769287
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      - serializedVersion: 3
-        time: 1
-        value: 1
-        inSlope: 2
-        outSlope: 2
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    DirectionalReturnDuration: 0.1
+    DirectionalAutoRotationRange: 1
+    DirectionalRotationFrequency: 15
+    DirectionalRotationRangeDecay: 0.3
+    DirectionalRotationRange: {x: 0.3, y: 0, z: 0}
+    DirectionalCenterSpeed: 3

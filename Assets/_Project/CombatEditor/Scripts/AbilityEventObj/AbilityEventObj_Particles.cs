@@ -55,6 +55,9 @@ using UnityEngine;
 	    //public InsedObject ParticleData = new InsedObject();
 	    public EventTimeType TimeType = EventTimeType.EventTime;
 	    [Min(0.01f)] public float PlaySpeed = 1f;
+	    [InspectorName("受顿帧影响")]
+	    [Tooltip("开启后，粒子在所属角色顿帧时按顿帧动画速度暂停或减速；顿帧结束后恢复粒子播放速度。")]
+	    public bool AffectedByHitStop;
 	    [Min(0f)] public float SizeMultiplier = 1f;
 	    public Vector3 CenterOffset = Vector3.zero;
 	    public override EventTimeType GetEventTimeType()
@@ -98,6 +101,8 @@ using UnityEngine;
 	    //Vector3 TargetPos => _combatController.transform.position + _combatController._animator.transform.rotation * Obj.Offset;
 	
 	    GameObject InsedParticle;
+	    ParticleSystem[] particleSystems;
+	    float[] normalSimulationSpeeds;
 	    public AbilityEventEffect_Particles(AbilityEventObj Obj) : base(Obj)
 	    {
 	        _EventObj = Obj;
@@ -111,6 +116,8 @@ using UnityEngine;
 	            Object.Destroy(InsedParticle);
 	            InsedParticle = null;
 	        }
+	        particleSystems = null;
+	        normalSimulationSpeeds = null;
 	    }
 	    public override void StartEffect()
 	    {
@@ -119,6 +126,33 @@ using UnityEngine;
 	        ParticleSizeUtility.ApplySize(InsedParticle, Obj.SizeMultiplier);
 	        ParticleCenterOffsetUtility.ApplyOffset(InsedParticle, Obj.CenterOffset);
 	        ParticlePlaybackSpeedUtility.ApplySpeed(InsedParticle, Obj.PlaySpeed);
+	        if (Obj.AffectedByHitStop && InsedParticle != null)
+	        {
+	            particleSystems = InsedParticle.GetComponentsInChildren<ParticleSystem>(true);
+	            normalSimulationSpeeds = new float[particleSystems.Length];
+	            for (int i = 0; i < particleSystems.Length; i++)
+	                normalSimulationSpeeds[i] = particleSystems[i].main.simulationSpeed;
+	            ApplyHitStopSpeed();
+	        }
+	    }
+
+	    public override void EffectRunning()
+	    {
+	        ApplyHitStopSpeed();
+	    }
+
+	    void ApplyHitStopSpeed()
+	    {
+	        if (particleSystems == null || _combatController._animSpeedExecutor == null)
+	            return;
+
+	        float hitStopSpeed = _combatController._animSpeedExecutor.CurrentHitStopSpeedScale;
+	        for (int i = 0; i < particleSystems.Length; i++)
+	        {
+	            if (particleSystems[i] == null) continue;
+	            var main = particleSystems[i].main;
+	            main.simulationSpeed = normalSimulationSpeeds[i] * hitStopSpeed;
+	        }
 	    }
 	
 	}

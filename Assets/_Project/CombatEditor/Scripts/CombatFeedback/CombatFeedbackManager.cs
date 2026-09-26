@@ -6,15 +6,21 @@ namespace CombatEditor
 {
     public enum CameraShakeHitBoxFilter
     {
+        [InspectorName("全部碰撞盒")]
         AnyHitBoxInAbility,
+        [InspectorName("指定碰撞盒")]
         SpecificHitBox
     }
 
     public enum CameraShakeHitTriggerPolicy
     {
+        [InspectorName("仅首次命中")]
         FirstHitOnly,
+        [InspectorName("每个目标一次")]
         OncePerTarget,
+        [InspectorName("每次确认命中")]
         EveryConfirmedHit,
+        [InspectorName("按间隔重复")]
         EveryHitWithCooldown
     }
 
@@ -30,6 +36,8 @@ namespace CombatEditor
         public float Cooldown;
         public float Duration;
         public bool UseUnscaledTime;
+        public bool AffectedByHitStop;
+        public float HitStopWeight;
         public CameraShakeSettings Settings;
 
         internal int TriggerCount;
@@ -104,7 +112,12 @@ namespace CombatEditor
 
                 CameraShakeRuntime.Pulse(binding.Settings, binding.Duration,
                     hitEvent.CameraShakeScale, binding.UseUnscaledTime,
-                    hitEvent.AttackDirection);
+                    hitEvent.AttackDirection,
+                    binding.AffectedByHitStop && binding.HitStopWeight > 0f
+                        ? () => binding.Owner != null && binding.Owner._animSpeedExecutor != null
+                            ? Mathf.Lerp(1f, binding.Owner._animSpeedExecutor.CurrentHitStopSpeedScale,
+                                Mathf.Clamp01(binding.HitStopWeight)) : 1f
+                        : (System.Func<float>)null);
             }
         }
 

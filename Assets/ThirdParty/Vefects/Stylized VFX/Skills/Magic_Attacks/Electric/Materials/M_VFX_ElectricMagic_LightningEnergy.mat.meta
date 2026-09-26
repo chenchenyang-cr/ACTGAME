@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: c9b940577d7dc864c9ee6a7619ecd1ba
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 216010
+  packageName: Stylized VFX
+  packageVersion: 1.0.6
+  assetPath: Assets/Vefects/Stylized VFX/Skills/Magic_Attacks/Electric/Materials/M_VFX_ElectricMagic_LightningEnergy.mat
+  uploadId: 710778
