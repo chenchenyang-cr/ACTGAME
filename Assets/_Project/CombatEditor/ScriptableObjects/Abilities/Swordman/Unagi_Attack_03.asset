@@ -31,7 +31,7 @@ MonoBehaviour:
   m_Name: Unagi_Attack_03
   m_EditorClassIdentifier: 
   AbilityType: 0
-  Clip: {fileID: 1827226128182048838, guid: 443f56ff3eef5ef499d98e9de553b249, type: 3}
+  Clip: {fileID: 7400000, guid: 32ee23e2c58d61b4a97d6a60b19fbae2, type: 2}
   AdditionalClips: []
   PreviewPercentageRange: {x: 0, y: 1}
   loopCount: 0
@@ -96,6 +96,7 @@ MonoBehaviour:
     RotateByNode: 0
   TimeType: 1
   PlaySpeed: 2
+  AffectedByHitStop: 0
   SizeMultiplier: 0.87
   CenterOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &2266601829639698990

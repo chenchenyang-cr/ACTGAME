@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Unagi_Attack_01_End
   m_EditorClassIdentifier: 
   AbilityType: 0
-  Clip: {fileID: 1827226128182048838, guid: 1eac3f4cd7749d1408c3819b3469acf2, type: 3}
+  Clip: {fileID: 7400000, guid: 6280079ee5d38c546922b4c374c6fbf1, type: 2}
   AdditionalClips: []
   PreviewPercentageRange: {x: 0, y: 1}
   loopCount: 0

@@ -24,6 +24,30 @@ Unagi_Attack_Rush.fbx
 
 这 9 个动作之外的动画不做自动筛查、不做批量导出、不覆盖 FBX，也不修改 Animator 或 Ability 引用。每个动作都要单独修复、单独导入、单独由用户在 Unity 中验收后，才处理列表中的下一个。
 
+## 在用动画的独立片段迁移（2026-09-26）
+
+用户随后明确要求将项目中其他**正在使用**的 FBX 动画也迁移为独立 `.anim`。这项授权扩展的是在用片段的格式和引用迁移；上面的 9 个问题动作仍是手部与武器修复范围，不能据此批量修改其余动作姿势或覆盖原始 FBX。
+
+`Player_Swordman.controller` 中原本还引用 11 个 FBX 内嵌片段：`Unagi_Attack_01_End`、`Unagi_Attack_02_End`、`Unagi_Attack_03`、`Unagi_Attack_03_End`、`Unagi_Attack_05_End`、`Unagi_Attack_06_End`、`Unagi_Idle`、`Unagi_Run`、`Unagi_Run_Start`、`Unagi_Run_End`、`Unagi_Walk`。这些片段已在原 FBX 相邻目录生成同名 `.anim`，相关 Animator 状态与 6 个 Ability 已切换到独立片段。另一个使用 `Unagi_Attack_04` 的沙盒 Ability 也已切换到已修复的 `.anim`。
+
+迁移只复制动画曲线，不修这些 11 个片段的动作。导入后已用 `Unagi_Idle.fbx` 模型比较全部整帧与半帧姿势、曲线、时长和事件；原 FBX 保留，模型、网格、Avatar 和导入缩放不变。迁移前备份与验证报告位于 `Library/UnagiBatchImport/UsedFbxBeforeMigration`、`used_clip_migration_report.txt` 和 `used_clip_validation_report.txt`。其余未被引用的 FBX 不属于此次迁移范围。
+
+## 整个 Unagi 目录的片段迁移（2026-09-26）
+
+用户进一步明确要求把 `Assets/ThirdParty/UnagiAnimationPack/FBX/Main/Unagi/` 下所有动画迁移为独立 `.anim`。该目录共有 70 个 FBX，其中 21 个此前已有对应 `.anim`；本次为其余 49 个创建同名独立片段，保留子目录结构。每个新片段导入后均比较了原 FBX 的曲线、帧率、时长、动画事件，以及使用 `Unagi_Idle.fbx` 模型采样的全部整帧和半帧姿势。结果为 49 个通过、0 个失败，详见 `Library/UnagiBatchImport/all_unagi_migration_report.csv`。
+
+此次为未使用的 FBX 动画创建片段，不额外修改动作姿势或 Animator/Ability 引用。此前已迁移的在用片段及已修复的动作 `.anim` 保持原样。49 份源 FBX 和 `.meta` 的备份保存在 `Library/UnagiBatchImport/AllUnagiBeforeMigration`；项目内原始 FBX 仍保留，尤其 `Unagi_Idle.fbx` 继续提供模型、骨架和 Avatar。
+
+## 迁移后的源 FBX 清理（2026-09-26）
+
+用户进一步授权删除原本不再使用的文件。检查确认 70 个源 FBX 中，只有 `02_Idle/Unagi_Idle.fbx` 的 GUID 仍被场景引用，继续作为角色模型、骨架和 Avatar。其余 69 个 FBX 均有对应 `.anim`，且没有场景、预制体、Animator 或 Ability 的序列化引用；它们及各自 `.meta` 已从 `Assets` 删除。删除前全部备份并逐个核对哈希，备份位于 `Library/UnagiBatchImport/RemovedFbxBackup`。项目内现在有 70 个独立 `.anim` 和 1 个模型 FBX。
+
+早期一次性编辑器修复脚本仍记录了源 FBX 的旧路径；如需重跑这些历史修复流程，须先从备份恢复相应 FBX。当前运行时动画和模型不依赖这些旧路径。
+
+## 独立片段的 Inspector 预览模型（2026-09-26）
+
+Unity 的 `.anim` 不单独保存预览模型引用。选择此目录下任意 Unagi `.anim` 时，编辑器脚本 `UnagiAnimationPreviewModel` 会把 Generic 动画预览模型设为现有的 `02_Idle/Unagi_Idle.fbx`，使 Inspector 底部的预览区显示同一个角色及武器。Unity 重新编译脚本或重启后，该脚本会在再次选中 Unagi 片段时重新设置预览模型；也可执行 `Tools > Unagi > Bind Preview Model and Validate Clips` 手动检查 70 个片段的 Rig 类型和模型骨骼路径。该设置只影响编辑器预览，不修改动画曲线、Animator、Ability 或运行时模型。
+
 ## 资源职责
 
 外部 3ds Max 主版源文件目录是：

@@ -160,7 +160,8 @@ namespace CombatEditor
                     {
                         runningclipsID[j] = RunningClips[j].clip.GetInstanceID();
                     }
-                    UpdateLayerActiveClips(LayerIndex, runningclipsID);
+                    if (UpdateMode == 0)
+                        UpdateLayerActiveClips(LayerIndex, runningclipsID);
 
                     for (int j = 0; j < RunningClips.Length; j++)
                     {
@@ -183,7 +184,8 @@ namespace CombatEditor
                     {
                         runningClipsID[j] = NextRunningClips[j].clip.GetInstanceID();
                     }
-                    UpdateLayerActiveClips(LayerIndex, runningClipsID);
+                    if (UpdateMode == 0)
+                        UpdateLayerActiveClips(LayerIndex, runningClipsID);
 
                     for (int j = 0; j < NextRunningClips.Length; j++)
                     {
@@ -276,43 +278,25 @@ namespace CombatEditor
         /// <param name="clips"></param>
         public void UpdateLayerActiveClips(int LayerIndex, int[] clipsID)
         {
-            bool RunningClipsChangedInLayer = false;
-            if (LayerActiveClipIDs[LayerIndex] != null)
+            int[] previousClips = LayerActiveClipIDs[LayerIndex];
+            if (previousClips != null)
             {
-                if (LayerActiveClipIDs[LayerIndex].Length != clipsID.Length)
+                var activeClips = new HashSet<int>(clipsID);
+                var endedClips = new HashSet<int>();
+                for (int i = 0; i < previousClips.Length; i++)
                 {
-                    RunningClipsChangedInLayer = true;
-                }
-                else
-                {
-                    for (int i = 0; i < LayerActiveClipIDs[LayerIndex].Length; i++)
-                    {
-                        if (LayerActiveClipIDs[LayerIndex][i] != clipsID[i])
-                        {
-                            RunningClipsChangedInLayer = true;
-                        }
-                    }
+                    int clip = previousClips[i];
+                    if (activeClips.Contains(clip) || !endedClips.Add(clip) ||
+                        !ClipID_To_EventEffects.TryGetValue(clip, out var events))
+                        continue;
 
+                    for (int j = 0; j < events.Count; j++)
+                        if (events[j].effect.IsRunning)
+                            events[j].effect.EndEffect();
                 }
             }
-            else RunningClipsChangedInLayer = true;
 
-            if (RunningClipsChangedInLayer)
-            {
-                if(LayerActiveClipIDs[LayerIndex] != null)
-                for (int i = 0; i < LayerActiveClipIDs[LayerIndex].Length; i++)
-                {
-                    var clip = LayerActiveClipIDs[LayerIndex][i];
-                    if (ClipID_To_EventEffects.ContainsKey(clip))
-                    {
-                        for (int j = 0; j < ClipID_To_EventEffects[clip].Count; j++)
-                        {
-                                ClipID_To_EventEffects[clip][j].effect.EndEffect();
-                        }
-                    }
-                }
-                LayerActiveClipIDs[LayerIndex] = clipsID;
-            }
+            LayerActiveClipIDs[LayerIndex] = clipsID;
         }
         
 	    public Transform GetNodeTranform(CharacterNode.NodeType type)

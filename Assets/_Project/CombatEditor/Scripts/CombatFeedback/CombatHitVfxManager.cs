@@ -63,7 +63,8 @@ namespace CombatEditor
 
             ParticleSystem[] particles = instance.GetComponentsInChildren<ParticleSystem>(true);
             for (int i = 0; i < particles.Length; i++)
-                particles[i].Play(true);
+                if (!particles[i].isPlaying)
+                    particles[i].Play(false);
 
             float lifetime = config.HitVfxLifetime > 0f
                 ? config.HitVfxLifetime

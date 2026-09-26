@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: NewAbilityScriptableObject_5
   m_EditorClassIdentifier: 
   AbilityType: 0
-  Clip: {fileID: 1827226128182048838, guid: 707bb8d66b1d5d84dbefac4d187a9c2b, type: 3}
+  Clip: {fileID: 7400000, guid: d160c4b2eac7a724e8f4f1a9cea3b019, type: 2}
   AdditionalClips: []
   PreviewPercentageRange: {x: 0, y: 1}
   loopCount: 0
