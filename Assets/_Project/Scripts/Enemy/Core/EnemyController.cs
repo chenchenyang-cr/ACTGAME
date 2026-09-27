@@ -280,6 +280,8 @@ namespace UnityLearning.EnemySystem
         public void PlayAlert() => PlayAnimation(config.AlertState);
         public void PlayLocomotion()
         {
+            if (animator == null)
+                return;
             if (IsAnimatorInState(config.LocomotionState) ||
                 IsAnimatorInState(config.LocomotionStartState))
                 return;
@@ -289,7 +291,12 @@ namespace UnityLearning.EnemySystem
                 // Idle/Stop 会根据 IsMoving 自动融合到 Start，不再用 CrossFade 抢状态。
                 return;
             }
-            PlayAnimation(config.LocomotionStartState);
+            // 与 Idle→Start 过渡的 0.1 偏移一致，跳过原动画开头的骨盆下压。
+            animator.CrossFadeInFixedTime(
+                config.LocomotionStartState,
+                config.AnimationBlendDuration,
+                0,
+                0.27f);
         }
         public void PlayStagger()
         {

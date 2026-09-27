@@ -97,6 +97,8 @@ namespace CombatEditor
                 {
                     delta = MatchStartToLoopVelocity(delta);
                 }
+
+                delta = LimitLocomotionSpike(delta);
             }
 
             if (delta.sqrMagnitude > 0f)
@@ -178,6 +180,35 @@ namespace CombatEditor
             return current.IsTag("LocomotionStart") && next.IsTag("LocomotionLoop");
         }
 
+        private Vector3 LimitLocomotionSpike(Vector3 delta)
+        {
+            ResolveNavMeshAgent();
+            if (navMeshAgent == null || sourceAnimator == null ||
+                !navMeshAgent.enabled || !navMeshAgent.isOnNavMesh)
+                return delta;
+
+            AnimatorStateInfo current = sourceAnimator.GetCurrentAnimatorStateInfo(0);
+            bool isLocomotion = current.IsTag("LocomotionStart") ||
+                                current.IsTag("LocomotionLoop");
+            if (sourceAnimator.IsInTransition(0))
+            {
+                AnimatorStateInfo next = sourceAnimator.GetNextAnimatorStateInfo(0);
+                isLocomotion |= next.IsTag("LocomotionStart") ||
+                                next.IsTag("LocomotionLoop");
+            }
+            if (!isLocomotion)
+                return delta;
+
+            Vector2 planar = new Vector2(delta.x, delta.z);
+            float maximumDistance = Mathf.Max(4f, navMeshAgent.speed * 5f) *
+                                    Mathf.Max(Time.deltaTime, 0.0001f);
+            if (planar.sqrMagnitude <= maximumDistance * maximumDistance)
+                return delta;
+
+            planar = planar.normalized * maximumDistance;
+            return new Vector3(planar.x, delta.y, planar.y);
+        }
+
         private void ResetVelocityMatching(Vector3 rawPlanarVelocity)
         {
             appliedPlanarVelocity = rawPlanarVelocity;
@@ -212,6 +243,22 @@ namespace CombatEditor
             if (characterController != null && characterController.enabled)
             {
                 characterController.Move(delta);
+                return;
+            }
+
+            ResolveNavMeshAgent();
+            if (navMeshAgent != null)
+            {
+                Vector3 nextPosition = transform.position + new Vector3(delta.x, 0f, delta.z);
+                if (navMeshAgent.enabled && navMeshAgent.isOnNavMesh &&
+                    NavMesh.SamplePosition(nextPosition, out NavMeshHit ground, 0.5f,
+                        navMeshAgent.areaMask))
+                {
+                    nextPosition.y = ground.position.y;
+                }
+
+                transform.position = nextPosition;
+                SyncNavMeshAgentToTransform();
                 return;
             }
 

@@ -56,6 +56,7 @@ namespace UnityLearning.EnemySystem
 
         private void PlayAttackAbility(AbilityScriptableObject ability)
         {
+            combatController?.BeginHitExecution();
             activeAbility = ability;
             activeStateShortHash = Animator.StringToHash(ability.Clip.name);
             requestedAnimation = true;
@@ -97,6 +98,7 @@ namespace UnityLearning.EnemySystem
 
         public void EndAttack()
         {
+            combatController?.EndHitExecution();
             CurrentAttack = null;
             activeAbility = null;
             followUpAttempted = false;

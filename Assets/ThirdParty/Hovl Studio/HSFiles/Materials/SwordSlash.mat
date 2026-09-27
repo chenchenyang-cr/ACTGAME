@@ -48,13 +48,13 @@ Material:
     - _Desaturation: 0
     - _Emission: 28.62
     - _HUE: 0
-    - _InvFade: 2.16
+    - _InvFade: 0.78
     - _Opacity: 20
     - _PathSet0ifyouuseinPS: 0
     - _Usedepth: 0
     - _Usesmoothdissolve: 0
     m_Colors:
-    - _AddColor: {r: 0, g: 0.8929868, b: 1, a: 0}
+    - _AddColor: {r: 1, g: 0.79504025, b: 0, a: 0}
     - _Remap: {r: -0.3, g: 1, b: 0, a: 0}
     - _SpeedMainTexUVNoiseZW: {r: 0, g: 0, b: 0.8, a: 0}
     - _TintColor: {r: 0.5, g: 0.5, b: 0.5, a: 0.5}

@@ -72,6 +72,33 @@ namespace CombatEditor
 
         public Dictionary<int, List<AbilityEventWithEffects>> ClipID_To_EventEffects;
 
+        private readonly HashSet<(int eventId, int targetId)> confirmedSingleHits = new();
+        private bool hitExecutionActive;
+
+        public void BeginHitExecution()
+        {
+            confirmedSingleHits.Clear();
+            hitExecutionActive = true;
+        }
+
+        public void EndHitExecution()
+        {
+            hitExecutionActive = false;
+            confirmedSingleHits.Clear();
+        }
+
+        public bool HasConfirmedSingleHit(AbilityEventObj_CreateHitBox sourceEvent, Transform target)
+        {
+            return hitExecutionActive && sourceEvent != null && target != null &&
+                   confirmedSingleHits.Contains((sourceEvent.GetInstanceID(), target.root.GetInstanceID()));
+        }
+
+        public void RecordConfirmedSingleHit(AbilityEventObj_CreateHitBox sourceEvent, Transform target)
+        {
+            if (hitExecutionActive && sourceEvent != null && target != null)
+                confirmedSingleHits.Add((sourceEvent.GetInstanceID(), target.root.GetInstanceID()));
+        }
+
         public List<AbilityEventEffect_States> RunningStates = new List<AbilityEventEffect_States>();
 
         private void Start()
@@ -447,6 +474,7 @@ namespace CombatEditor
 
         private void OnDisable()
         {
+            EndHitExecution();
             // Release active visual/property overrides when a character is disabled or destroyed.
             foreach (AbilityEventEffect effect in _abilityEventEffects)
                 if (effect.IsRunning) effect.EndEffect();

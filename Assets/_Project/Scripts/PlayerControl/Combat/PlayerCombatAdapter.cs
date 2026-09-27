@@ -63,12 +63,14 @@ public sealed class PlayerCombatAdapter : MonoBehaviour, ICombatGameplayWindowLi
     {
         EndDodgeAbility();
         ClearWindows();
+        combatController?.EndHitExecution();
     }
 
     public void BeginAbility(AbilityScriptableObject ability)
     {
         dodgeWindowRunner?.End();
         ClearWindows();
+        combatController?.BeginHitExecution();
         CurrentAbility = ability;
     }
 
@@ -88,6 +90,7 @@ public sealed class PlayerCombatAdapter : MonoBehaviour, ICombatGameplayWindowLi
     public void EndAbility()
     {
         ClearWindows();
+        combatController?.EndHitExecution();
         CurrentAbility = null;
     }
 

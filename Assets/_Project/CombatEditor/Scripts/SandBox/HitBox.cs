@@ -142,6 +142,9 @@ namespace CombatEditor
                 : CombatHitMode.Single;
             if (state.HitCount > 0 && hitMode == CombatHitMode.Single)
                 return;
+            if (hitMode == CombatHitMode.Single &&
+                Owner.HasConfirmedSingleHit(SourceEvent, receiverBehaviour.transform))
+                return;
             if (SourceEvent != null && SourceEvent.MaximumHitsPerTarget > 0 &&
                 state.HitCount >= SourceEvent.MaximumHitsPerTarget)
                 return;
@@ -163,6 +166,8 @@ namespace CombatEditor
                 return;
 
             state.HitCount = hitSequenceIndex;
+            if (hitMode == CombatHitMode.Single)
+                Owner.RecordConfirmedSingleHit(SourceEvent, receiverBehaviour.transform);
             if (hitMode == CombatHitMode.Repeated)
             {
                 int interval = SourceEvent != null

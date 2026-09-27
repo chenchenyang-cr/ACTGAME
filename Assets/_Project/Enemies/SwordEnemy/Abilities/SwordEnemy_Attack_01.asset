@@ -126,12 +126,62 @@ MonoBehaviour:
   HitCameraShakeDuration: 0.16
   HitCameraShakeUseUnscaledTime: 1
   HitCameraShakeSettings:
+    AmplitudeDecayCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: -1
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: -1
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
     Channel: 0
     TraumaPerPulse: 0.65
     TraumaExponent: 2
     EnablePosition: 1
+    PositionWaveform: 0
+    PositionPhase: {x: 0, y: 0, z: 0}
     PositionAmplitude: {x: 0.08, y: 0.05, z: 0.03}
     PositionFrequency: 24
+    PositionFrequencyCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
     PositionCurve:
       serializedVersion: 2
       m_Curve:
@@ -158,8 +208,34 @@ MonoBehaviour:
       m_RotationOrder: 4
     PositionSeed: 137
     EnableRotation: 1
+    RotationWaveform: 0
+    RotationPhase: {x: 0, y: 0, z: 0}
     RotationAmplitude: {x: 1.2, y: 0.8, z: 0.5}
     RotationFrequency: 20
+    RotationFrequencyCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
     RotationCurve:
       serializedVersion: 2
       m_Curve:
@@ -221,18 +297,28 @@ MonoBehaviour:
       m_PostInfinity: 2
       m_RotationOrder: 4
     EnableDirectionalImpulse: 1
+    DirectionalDirectionMode: 0
+    DirectionalManualSpace: 0
     DirectionalPositionRange: 0.35
     DirectionalManualPositionRange: {x: 0.35, y: 0, z: 0}
     DirectionalPositionFrequency: 18
     DirectionalPositionRangeDecay: 0.35
+    DirectionalRotationMode: 0
+    DirectionalAutoRotationRange: 1
     DirectionalRotationFrequency: 18
+    DirectionalRotationRangeDecay: 0.35
+    DirectionalRotationRange: {x: 0, y: 0, z: 0}
+    DirectionalCenterSpeed: 1
   PreviewHitCameraShake: 0
   EnableHitAnimationSpeed: 0
   HitStopFrames: 5
+  HitStopAnimationSpeed: 0
   EnableHitVfx: 0
   HitVfxPrefab: {fileID: 0}
   HitVfxDirection: 0
+  HitVfxPositionMode: 0
   HitVfxPositionOffset: {x: 0, y: 0, z: 0}
+  HitVfxRandomPositionAmplitude: {x: 0, y: 0, z: 0}
   HitVfxRotationOffset: {x: 0, y: 0, z: 0}
   HitVfxScale: 1
   HitVfxLifetime: 0
@@ -250,13 +336,13 @@ MonoBehaviour:
   m_Name: SwordEnemy_Attack_01
   m_EditorClassIdentifier: 
   AbilityType: 0
-  Clip: {fileID: 7400000, guid: 1929dd5cb95d34f4687dbd0924570037, type: 2}
+  Clip: {fileID: -3568453503579113454, guid: cc84c62919232be45bb2d6ae5758113d, type: 3}
   AdditionalClips: []
   PreviewPercentageRange: {x: 0, y: 1}
   loopCount: 0
   events:
   - EventTime: 0
-    EventRange: {x: 0, y: 0.05263158}
+    EventRange: {x: 0, y: 0.0521327}
     EventMultiRange:
     - 0.2
     - 0.4
@@ -265,7 +351,7 @@ MonoBehaviour:
     Previewable: 0
     Obj: {fileID: -9146099545265763903}
   - EventTime: 0
-    EventRange: {x: 0.05263158, y: 0.69473684}
+    EventRange: {x: 0.0521327, y: 0.69668245}
     EventMultiRange:
     - 0.2
     - 0.4
@@ -274,7 +360,7 @@ MonoBehaviour:
     Previewable: 0
     Obj: {fileID: -7926955679822717569}
   - EventTime: 0
-    EventRange: {x: 0.08421053, y: 0.18947369}
+    EventRange: {x: 0.08530806, y: 0.18957347}
     EventMultiRange:
     - 0.2
     - 0.4
