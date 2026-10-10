@@ -118,6 +118,7 @@ namespace UnityLearning.UI.Editor
             time = EditorGUILayout.Slider("预览时间（秒）", time, 0f, profile.Lifetime);
             if (EditorGUI.EndChangeCheck()) playing = false;
             EditorGUILayout.HelpBox("预览使用实际 TMP 字体和运行时采样。缩放、抖动曲线分别使用自身阶段进度 0～1；位移和发光衰减使用总生命周期进度。独立阶段超过总时长时随跳字回收一起结束。", MessageType.Info);
+            EditorGUILayout.HelpBox("此预览显示字体材质和动画。场景相机的 Bloom 在 Game 视图中查看；运行时跳字会进入该相机的 HDR 和后处理。", MessageType.Info);
             if (profile.FadeDuration > profile.Lifetime)
                 EditorGUILayout.HelpBox("淡出时长超过总时长，运行时按整个生命周期淡出。", MessageType.Info);
         }

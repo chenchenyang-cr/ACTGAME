@@ -1,6 +1,7 @@
 using System;
 using CombatEditor;
 using UnityEngine;
+using UnityLearning.EnemySystem;
 
 [RequireComponent(typeof(PlayerInputReader), typeof(PlayerInputBuffer))]
 [RequireComponent(typeof(CharacterController), typeof(PlayerMovement))]
@@ -236,7 +237,38 @@ public sealed class PlayerStateMachine : MonoBehaviour
 
     public bool TryEnterParry()
     {
+        return TryEnterParry(false);
+    }
+
+    internal bool TryRestartContextParry()
+    {
+        return TryEnterParry(true);
+    }
+
+    private bool TryEnterParry(bool restartCurrentContextAction)
+    {
         if (locomotionOnly) return false;
+        if (combatAdapter != null && combatAdapter.HasContextParryAttacks)
+        {
+            if (!IsGrounded || (CurrentState == ParryState && !restartCurrentContextAction)) return false;
+            EnemyCombatAdapter enemy = combatAdapter.FindParryOpportunity();
+            AbilityScriptableObject ability = enemy != null
+                ? combatAdapter.SuccessfulParryAttack
+                : combatAdapter.OrdinaryParryAttack;
+            EnemyController controller = enemy != null
+                ? enemy.GetComponentInParent<EnemyController>() : null;
+            if (CurrentState == ParryState) ParryState.Exit();
+            ParryState.ConfigureContextAction(ability, controller);
+            if (CurrentState == ParryState) ParryState.Enter();
+            else ChangeState(ParryState);
+            if (enemy != null)
+            {
+                enemy.CancelActiveHitBoxes();
+                GetComponent<PlayerParryFeedback>()?.PlayContextParry(enemy);
+                controller?.NotifyStagger(combatAdapter.ParryStaggerDuration, transform);
+            }
+            return true;
+        }
         if (combatAdapter == null || combatAdapter.ParryStartAbility == null ||
             combatAdapter.ParryStartAbility.Clip == null || !IsGrounded) return false;
         ChangeState(ParryState);

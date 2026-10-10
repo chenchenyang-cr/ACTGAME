@@ -96,11 +96,16 @@ namespace UnityLearning.UI
         [Header("文字外观")]
         [InspectorName("字体")] public TMP_FontAsset Font;
         [InspectorName("基础字号")][Min(1f)] public float FontSize = 42f;
-        [InspectorName("字体粗细")][Range(-.4f, .4f)]
+        [InspectorName("字体粗细")][Range(-.4f, 1f)]
         [Tooltip("相对于字体原材质的字面厚度：负数变细，正数变粗，0 保持原字重。")]
         public float FontWeight;
-        [InspectorName("普通命中颜色")] public Color Color = UnityEngine.Color.white;
-        [InspectorName("暴击颜色")] public Color CriticalColor = new Color(1f, .75f, .15f);
+        [InspectorName("启用上下渐变")] public bool EnableColorGradient = true;
+        [InspectorName("普通命中上部颜色")] public Color TopColor = new Color(.8f, .95f, 1f);
+        [InspectorName("普通命中下部颜色")] public Color BottomColor = new Color(.12f, .5f, 1f);
+        [InspectorName("暴击上部颜色")] public Color CriticalTopColor = new Color(1f, .95f, .6f);
+        [InspectorName("暴击下部颜色")] public Color CriticalBottomColor = new Color(1f, .55f, .08f);
+        [InspectorName("普通命中纯色（关闭渐变时）")] public Color Color = UnityEngine.Color.white;
+        [InspectorName("暴击纯色（关闭渐变时）")] public Color CriticalColor = new Color(1f, .75f, .15f);
         [InspectorName("暴击缩放倍率")][Min(0f)] public float CriticalScale = 1.3f;
         [InspectorName("描边颜色")] public Color OutlineColor = new Color(.1f, .05f, .02f, 1f);
         [InspectorName("描边宽度")][Range(0f, .4f)] public float OutlineWidth = .15f;
@@ -112,10 +117,12 @@ namespace UnityLearning.UI
         [InspectorName("启用字体发光")] public bool EnableGlow;
         [InspectorName("发光颜色")][ColorUsage(true, true)]
         public Color GlowColor = new Color(1f, .75f, .25f, 1f);
-        [InspectorName("发光强度")][Min(0f)] public float GlowIntensity = 1.5f;
-        [InspectorName("外沿发光范围")][Range(0f, 1f)] public float GlowOuter = .3f;
+        [InspectorName("发光总强度")][Min(0f)] public float GlowIntensity = 1.5f;
+        [InspectorName("字面发光强度")][Min(0f)] public float FaceGlowIntensity = 1f;
+        [InspectorName("整体柔光强度")][Min(0f)] public float SoftGlowIntensity = 1f;
+        [InspectorName("整体柔光范围")][Range(0f, 1f)] public float GlowOuter = .3f;
         [InspectorName("发光衰减曲线")]
-        [Tooltip("横轴为跳字生命周期 0～1，纵轴乘发光强度。0 恢复普通文字，1 保持设定强度。")]
+        [Tooltip("横轴为跳字生命周期 0～1，同时衰减字面发光和完整字形柔光。0 恢复普通文字。")]
         public AnimationCurve GlowDecay = AnimationCurve.EaseInOut(0f, 1f, 1f, 0f);
 
         public float Lifetime => Mathf.Max(.01f, Duration);

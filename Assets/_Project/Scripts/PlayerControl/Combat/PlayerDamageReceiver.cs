@@ -35,7 +35,11 @@ public sealed class PlayerDamageReceiver : MonoBehaviour, ICombatDamageReceiver
         // The accepted parry consumes its window. Subsequent hits must not fall
         // through to damage while the successful deflection is still playing.
         if (machine.CurrentState is ParryState parry &&
-            parry.CurrentPhase == ParryState.Phase.Success) return false;
+            parry.IsLegacySuccess) return false;
+        if (machine.CurrentState is ParryState contextParry &&
+            contextParry.ContextParriedEnemy != null && request.Attacker != null &&
+            request.Attacker.GetComponentInParent<EnemyController>() ==
+                contextParry.ContextParriedEnemy) return false;
         if (machine.CurrentState == machine.ParryState &&
             machine.ParryState.TryParry(in request, out float duration))
         {

@@ -12,10 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b897f0b6e71246d0a8f4d6289b6a2d89, type: 3}
   m_Name: DefaultHit
   m_EditorClassIdentifier: 
-  Damage: 0
+  Damage: 204
   PoiseDamage: 0
   HitReaction: 1
   StaggerDuration: 0
+  SuppressDamageNumber: 0
+  DamageNumberOverride: {fileID: 11400000, guid: 517c29ecf043ffd44b586e943e0a2e6c, type: 2}
   HitMode: 0
   RepeatIntervalFrames: 1
   MaximumHitsPerTarget: 2

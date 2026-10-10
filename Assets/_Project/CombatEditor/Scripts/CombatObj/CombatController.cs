@@ -71,6 +71,24 @@ namespace CombatEditor
         public List<RecordedClip2Time> _recordedSelfTransClips = new List<RecordedClip2Time>();
 
         public Dictionary<int, List<AbilityEventWithEffects>> ClipID_To_EventEffects;
+        private AbilityScriptableObject activeAbility;
+        private readonly HashSet<int> sharedClipIds = new();
+
+        // Several abilities may deliberately share one clip while authoring different tracks.
+        public void SetActiveAbility(AbilityScriptableObject ability)
+        {
+            if (activeAbility == ability) return;
+            activeAbility = ability;
+            if (ClipID_To_EventEffects == null) return;
+            foreach (var pair in ClipID_To_EventEffects)
+            {
+                if (!sharedClipIds.Contains(pair.Key)) continue;
+                foreach (var entry in pair.Value)
+                    if (entry.effect.IsRunning && entry.effect.AnimObj != activeAbility)
+                        entry.effect.EndEffect();
+            }
+        }
+
 
         private readonly HashSet<(int eventId, int targetId)> confirmedSingleHits = new();
         private bool hitExecutionActive;
@@ -234,9 +252,11 @@ namespace CombatEditor
         public void RunningEventsOnClip(int clipID, float NormalizedTime, int LayerIndex ,int UpdateMode = 0)
         {
             List<AbilityEventWithEffects> abilityEventWithEffects = ClipID_To_EventEffects[clipID];
+            bool selectTrack = sharedClipIds.Contains(clipID);
             for (int j = 0; j < abilityEventWithEffects.Count; j++)
             {
                 var eve = abilityEventWithEffects[j];
+                if (selectTrack && eve.effect.AnimObj != activeAbility) continue;
                 var StartTime = eve.eve.GetEventStartTime();
                 var EndTime = eve.eve.GetEventEndTime();
                 var EveTimeType = eve.eve.GetEventTimeType();
@@ -407,6 +427,27 @@ namespace CombatEditor
 	
 	    public void InitAnimEffects()
 	    {
+            sharedClipIds.Clear();
+            var firstAbilityForClip = new Dictionary<int, AbilityScriptableObject>();
+            foreach (CombatGroup group in CombatDatas)
+                foreach (AbilityScriptableObject ability in group.CombatObjs)
+                {
+                    if (ability?.Clip == null) continue;
+                    RegisterClip(ability.Clip);
+                    if (ability.AdditionalClips == null) continue;
+                    foreach (AnimationClip variant in ability.AdditionalClips)
+                        if (variant != null) RegisterClip(variant);
+
+                    void RegisterClip(AnimationClip animationClip)
+                    {
+                        int id = animationClip.GetInstanceID();
+                        if (firstAbilityForClip.TryGetValue(id, out AbilityScriptableObject first))
+                        {
+                            if (first != ability) sharedClipIds.Add(id);
+                        }
+                        else firstAbilityForClip.Add(id, ability);
+                    }
+                }
 	        for (int i = 0; i < CombatDatas.Count; i++)
 	        {
 	            var Group = CombatDatas[i];

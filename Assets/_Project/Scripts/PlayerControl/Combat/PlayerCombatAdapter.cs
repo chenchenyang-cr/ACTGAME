@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using CombatEditor;
 using UnityEngine;
+using UnityLearning.EnemySystem;
 
 /// <summary>
 /// Project-specific interpretation of generic CombatEditor gameplay windows.
@@ -35,6 +36,37 @@ public sealed class PlayerCombatAdapter : MonoBehaviour, ICombatGameplayWindowLi
     public AbilityScriptableObject ParryStartAbility => parryStartAbility;
     [SerializeField] private AbilityScriptableObject parryEndAbility;
     public AbilityScriptableObject ParryEndAbility => parryEndAbility;
+    [Header("Context Parry Attack")]
+    [SerializeField] private AbilityScriptableObject ordinaryParryAttack;
+    [SerializeField] private AbilityScriptableObject successfulParryAttack;
+    [SerializeField] private AbilityScriptableObject parryAttackEnd;
+    [SerializeField, Min(0f)] private float parryAttackRange = 2.25f;
+    [SerializeField, Min(0f)] private float parryStaggerDuration = 0.8f;
+    public bool HasContextParryAttacks => ordinaryParryAttack != null && successfulParryAttack != null &&
+                                          parryAttackEnd != null && parryAttackEnd.Clip != null &&
+                                          ordinaryParryAttack.Clip != null &&
+                                          ordinaryParryAttack.Clip == successfulParryAttack.Clip;
+    public AbilityScriptableObject OrdinaryParryAttack => ordinaryParryAttack;
+    public AbilityScriptableObject SuccessfulParryAttack => successfulParryAttack;
+    public AbilityScriptableObject ParryAttackEnd => parryAttackEnd;
+    public float ParryStaggerDuration => parryStaggerDuration;
+
+    public EnemyCombatAdapter FindParryOpportunity()
+    {
+        EnemyCombatAdapter nearest = null;
+        float bestDistanceSquared = parryAttackRange * parryAttackRange;
+        foreach (EnemyCombatAdapter enemy in FindObjectsOfType<EnemyCombatAdapter>())
+        {
+            if (enemy == null || !enemy.HasParryOpportunity()) continue;
+            Vector3 offset = enemy.transform.position - transform.position;
+            offset.y = 0f;
+            float distanceSquared = offset.sqrMagnitude;
+            if (distanceSquared > bestDistanceSquared) continue;
+            bestDistanceSquared = distanceSquared;
+            nearest = enemy;
+        }
+        return nearest;
+    }
 
     private readonly Dictionary<CombatWindowHandle, AbilityEventObj_RotationWindow> rotationWindows = new();
     private readonly Dictionary<CombatWindowHandle, AbilityEventObj_ComboWindow> comboWindows = new();
@@ -71,6 +103,7 @@ public sealed class PlayerCombatAdapter : MonoBehaviour, ICombatGameplayWindowLi
         dodgeWindowRunner?.End();
         ClearWindows();
         combatController?.BeginHitExecution();
+        combatController?.SetActiveAbility(ability);
         CurrentAbility = ability;
     }
 
@@ -91,6 +124,7 @@ public sealed class PlayerCombatAdapter : MonoBehaviour, ICombatGameplayWindowLi
     {
         ClearWindows();
         combatController?.EndHitExecution();
+        combatController?.SetActiveAbility(null);
         CurrentAbility = null;
     }
 

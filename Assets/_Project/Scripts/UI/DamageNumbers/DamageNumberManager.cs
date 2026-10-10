@@ -20,6 +20,7 @@ namespace UnityLearning.UI
         private readonly List<DamageNumberView> active = new List<DamageNumberView>();
         private readonly Stack<DamageNumberView> pool = new Stack<DamageNumberView>();
         private RectTransform canvasRect;
+        private Canvas canvas;
         public int ActiveCount => active.Count;
         public int PooledCount => pool.Count;
 
@@ -60,6 +61,7 @@ namespace UnityLearning.UI
         private void Awake()
         {
             canvasRect = (RectTransform)transform;
+            ConfigureCanvas();
             if (viewPrefab == null) return;
             for (int i = 0; i < Mathf.Min(prewarmCount, Mathf.Max(1, maximumActive)); i++)
                 pool.Push(CreateView());
@@ -132,11 +134,27 @@ namespace UnityLearning.UI
             }
         }
 
+        private void LateUpdate() => ConfigureCanvas();
+
+        private void ConfigureCanvas()
+        {
+            if (canvas == null) canvas = GetComponent<Canvas>();
+            if (sceneCamera == null) sceneCamera = Camera.main;
+            // Camera UI joins the HDR color buffer before URP post processing.
+            if (canvas.renderMode != RenderMode.ScreenSpaceCamera)
+                canvas.renderMode = RenderMode.ScreenSpaceCamera;
+            if (canvas.worldCamera != sceneCamera) canvas.worldCamera = sceneCamera;
+            if (sceneCamera == null) return;
+            canvas.planeDistance = Mathf.Min(sceneCamera.nearClipPlane + .1f,
+                (sceneCamera.nearClipPlane + sceneCamera.farClipPlane) * .5f);
+            canvas.targetDisplay = sceneCamera.targetDisplay;
+        }
+
         // Canvas rendering runs after Cinemachine has updated the actual output camera.
         private void ProjectNumbers()
         {
             if (canvasRect == null) canvasRect = (RectTransform)transform;
-            if (sceneCamera == null) sceneCamera = Camera.main;
+            ConfigureCanvas();
             for (int i = 0; i < active.Count; i++) active[i].Project(sceneCamera, canvasRect);
         }
 

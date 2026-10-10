@@ -58,6 +58,7 @@ namespace UnityLearning.EnemySystem
         {
             combatController?.BeginHitExecution();
             activeAbility = ability;
+            combatController?.SetActiveAbility(ability);
             activeStateShortHash = Animator.StringToHash(ability.Clip.name);
             requestedAnimation = true;
             enteredAnimation = false;
@@ -99,6 +100,7 @@ namespace UnityLearning.EnemySystem
         public void EndAttack()
         {
             combatController?.EndHitExecution();
+            combatController?.SetActiveAbility(null);
             CurrentAttack = null;
             activeAbility = null;
             followUpAttempted = false;
@@ -110,6 +112,51 @@ namespace UnityLearning.EnemySystem
         public void InterruptAttack()
         {
             EndAttack();
+        }
+
+        public bool HasParryOpportunity()
+        {
+            if (!isActiveAndEnabled || CurrentAttack == null || activeAbility == null ||
+                animator == null || !TryGetAttackTime(out float time)) return false;
+
+            bool found = false;
+            foreach (AbilityEvent entry in activeAbility.events)
+            {
+                if (entry?.Obj is not AbilityEventObj_ParryOpportunityWindow window ||
+                    !window.IsActive ||
+                    time < entry.EventRange.x || time >= entry.EventRange.y) continue;
+                found = true;
+            }
+            return found;
+        }
+
+        private bool TryGetAttackTime(out float time)
+        {
+            time = 0f;
+            if (!requestedAnimation || animator == null) return false;
+            if (animator.IsInTransition(0))
+            {
+                AnimatorStateInfo next = animator.GetNextAnimatorStateInfo(0);
+                if (next.shortNameHash == activeStateShortHash)
+                {
+                    time = next.normalizedTime;
+                    return true;
+                }
+            }
+            AnimatorStateInfo current = animator.GetCurrentAnimatorStateInfo(0);
+            if (current.shortNameHash != activeStateShortHash) return false;
+            time = current.normalizedTime;
+            return true;
+        }
+
+        public void CancelActiveHitBoxes()
+        {
+            if (combatController?.ClipID_To_EventEffects == null || activeAbility == null) return;
+            foreach (var entries in combatController.ClipID_To_EventEffects.Values)
+                foreach (var entry in entries)
+                    if (entry.effect.AnimObj == activeAbility &&
+                        entry.effect is AbilityEventEffect_CreateHitBox effect)
+                        effect.CurrentHitBox?.CancelHits();
         }
 
         public void OnCombatWindowEntered(in CombatGameplayWindowContext context)

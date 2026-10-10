@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b897f0b6e71246d0a8f4d6289b6a2d89, type: 3}
   m_Name: Unagi_Attack_02_Hit
   m_EditorClassIdentifier: 
-  Damage: 0
-  PoiseDamage: 10
+  Damage: 983
+  PoiseDamage: 0
   HitReaction: 1
   StaggerDuration: 0
   SuppressDamageNumber: 0

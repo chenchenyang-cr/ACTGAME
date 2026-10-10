@@ -25,6 +25,8 @@ namespace UnityLearning.UI
         private TMP_FontAsset fallbackFont;
         private Color baseFaceColor;
         private float baseFaceDilate;
+        private static readonly int FaceGlowId = Shader.PropertyToID("_FaceGlowStrength");
+        private static readonly int SoftGlowId = Shader.PropertyToID("_SoftGlowStrength");
 
         public DamageNumberProfile Profile => profile;
         public float Elapsed => elapsed;
@@ -60,9 +62,9 @@ namespace UnityLearning.UI
                 text.font = font;
             }
             Shader shader = text.font != null ? text.font.material.shader : null;
-            if (settings.EnableGlow && text.font != null && !text.font.material.HasProperty(ShaderUtilities.ID_GlowColor))
+            if (settings.EnableGlow && text.font != null)
             {
-                // A Resources material retains the full SDF shader and its GLOW_ON build variant.
+                // Retains the whole-glyph shader and its build variants, preserving the font atlas.
                 var template = Resources.Load<Material>("DamageNumberGlow");
                 if (template != null) shader = template.shader;
             }
@@ -93,7 +95,13 @@ namespace UnityLearning.UI
                 text.UpdateMeshPadding();
             }
             text.fontSize = Mathf.Max(1f, settings.FontSize);
-            text.color = critical ? settings.CriticalColor : settings.Color;
+            Color bottomColor = critical ? settings.CriticalBottomColor : settings.BottomColor;
+            Color topColor = critical ? settings.CriticalTopColor : settings.TopColor;
+            text.enableVertexGradient = settings.EnableColorGradient;
+            // White tint prevents TMP from multiplying the lower color into every corner.
+            text.color = settings.EnableColorGradient ? Color.white : critical ? settings.CriticalColor : settings.Color;
+            text.colorGradientPreset = null;
+            text.colorGradient = new VertexGradient(topColor, topColor, bottomColor, bottomColor);
             int decimals = Mathf.Clamp(settings.DecimalPlaces, 0, 3);
             float displayed = decimals == 0 ? Mathf.Ceil(damage) : damage;
             text.text = displayed.ToString("F" + decimals, CultureInfo.InvariantCulture);
@@ -121,15 +129,15 @@ namespace UnityLearning.UI
             group.alpha = sample.Alpha;
             if (ownedMaterial != null)
             {
-                float brightness = 1f + sample.Glow;
-                ownedMaterial.SetColor(ShaderUtilities.ID_FaceColor, new Color(baseFaceColor.r * brightness,
-                    baseFaceColor.g * brightness, baseFaceColor.b * brightness, baseFaceColor.a));
+                ownedMaterial.SetColor(ShaderUtilities.ID_FaceColor, baseFaceColor);
+                if (ownedMaterial.HasProperty(FaceGlowId))
+                {
+                    ownedMaterial.SetFloat(FaceGlowId, sample.Glow * Mathf.Max(0f, profile.FaceGlowIntensity));
+                    ownedMaterial.SetFloat(SoftGlowId, sample.Glow * Mathf.Max(0f, profile.SoftGlowIntensity));
+                }
                 if (ownedMaterial.HasProperty(ShaderUtilities.ID_GlowColor))
                 {
-                    Color glow = profile.GlowColor;
-                    float hdr = Mathf.Max(1f, sample.Glow);
-                    ownedMaterial.SetColor(ShaderUtilities.ID_GlowColor,
-                        new Color(glow.r * hdr, glow.g * hdr, glow.b * hdr, glow.a * Mathf.Clamp01(sample.Glow)));
+                    ownedMaterial.SetColor(ShaderUtilities.ID_GlowColor, profile.GlowColor);
                 }
             }
         }
@@ -150,8 +158,11 @@ namespace UnityLearning.UI
             bool visible = screen.z >= camera.nearClipPlane &&
                            screen.z <= camera.farClipPlane && camera.pixelRect.Contains(screen);
             group.alpha = visible ? sample.Alpha : 0f;
+            Canvas ownerCanvas = canvasRect.GetComponent<Canvas>();
+            Camera uiCamera = ownerCanvas != null && ownerCanvas.renderMode != RenderMode.ScreenSpaceOverlay
+                ? ownerCanvas.worldCamera : null;
             if (visible && RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                    canvasRect, screen, null, out Vector2 local))
+                    canvasRect, screen, uiCamera, out Vector2 local))
                 PlaceInCanvas(local);
         }
 

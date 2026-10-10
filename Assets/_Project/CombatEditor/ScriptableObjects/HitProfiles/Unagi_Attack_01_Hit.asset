@@ -12,10 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b897f0b6e71246d0a8f4d6289b6a2d89, type: 3}
   m_Name: Unagi_Attack_01_Hit
   m_EditorClassIdentifier: 
-  Damage: 0
-  PoiseDamage: 10
+  Damage: 435
+  PoiseDamage: 0
   HitReaction: 1
   StaggerDuration: 0
+  SuppressDamageNumber: 0
+  DamageNumberOverride: {fileID: 11400000, guid: 517c29ecf043ffd44b586e943e0a2e6c, type: 2}
   HitMode: 0
   RepeatIntervalFrames: 6
   MaximumHitsPerTarget: 0
@@ -231,7 +233,7 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    DirectionalCenterSpeed: 1
+    DirectionalTrajectoryStraightness: 1
   PreviewHitCameraShake: 0
   EnableHitAnimationSpeed: 0
   HitStopFrames: 1

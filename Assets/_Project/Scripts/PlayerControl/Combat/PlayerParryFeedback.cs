@@ -1,5 +1,6 @@
 using CombatEditor;
 using UnityEngine;
+using UnityLearning.EnemySystem;
 
 public sealed class PlayerParryFeedback : MonoBehaviour
 {
@@ -19,5 +20,16 @@ public sealed class PlayerParryFeedback : MonoBehaviour
         defender?._animSpeedExecutor?.PlayHitSpeedCurve(hitStopCurve, hitStopDuration, true);
         if (hit.Attacker != defender)
             hit.Attacker?._animSpeedExecutor?.PlayHitSpeedCurve(hitStopCurve, hitStopDuration, true);
+    }
+
+    public void PlayContextParry(EnemyCombatAdapter enemy)
+    {
+        if (enemy == null) return;
+        Vector3 point = (transform.position + enemy.transform.position) * 0.5f;
+        if (parrySound != null) AudioSource.PlayClipAtPoint(parrySound, point, soundVolume);
+        CombatController defender = GetComponentInChildren<CombatController>();
+        CombatController attacker = enemy.GetComponentInChildren<CombatController>();
+        defender?._animSpeedExecutor?.PlayHitSpeedCurve(hitStopCurve, hitStopDuration, true);
+        attacker?._animSpeedExecutor?.PlayHitSpeedCurve(hitStopCurve, hitStopDuration, true);
     }
 }

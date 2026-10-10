@@ -100,7 +100,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  maximumHealth: 100
+  maximumHealth: 9999999
   maximumPoise: 30
   poiseRecoveryDelay: 1.5
   poiseRecoveryPerSecond: 15

@@ -1,36 +1,22 @@
-# 弹反配置
+# 按键弹反攻击
 
-已配置场景：`Assets/_Project/Scenes/Main_Nodachi.unity`。
+配置场景：`Assets/_Project/Scenes/Main_Nodachi.unity`（Unagi 玩家）。键盘 E / 手柄 RB 只读取按下事件，一次按下只执行一次动作。
 
-## 操作
+按键当下，检查正在攻击的敌人当前动画进度是否位于其 `ParryOpportunityWindow`，并检查玩家与敌人根节点的水平距离。距离不大于玩家 `PlayerCombatAdapter → Parry Attack Range`（当前 2.25 米）时，选择成功弹反分支；有多个敌人符合条件时选择最近的。无需等待碰撞或受到攻击。
 
-- 键盘 E / 手柄 RB：只读取按下，触发一次 Start → End；成功则 Start → Success，成功动画结束后恢复控制。长按与短按相同，松开不改变动作。
-- 起手或收刀期间，再次按下可立即重新起手。成功触发 Parry_L / Parry_R 后，可在对应动作的 InterruptWindow 内按 AllowedCommandIds 取消到 Dodge、LightAttack 或 Parry，AllowMovement 控制移动取消；窗口外必须等动画播放完才能再次格挡；接近结束时按下的输入可在现有缓存有效期内于动画结束后执行。一次起手最多成功一次；没有 Hold/Loop 阶段，持续按住不会重复触发。
-- 成功播放左右 Parry 动画，并触发火花、金属音和动画顿帧；敌人停止本次攻击并进入硬直。
-- 窗口外、背后或不可弹反攻击走普通受击。默认玩家生命 100，归零停止控制；复活流程不在本次功能内。
-- 攻击的原有 Dodge 取消窗口也允许 Parry；闪避和受击中不能立即弹反。
-- Parry 独立缓存默认 0.12 秒，优先于普通队列；缓存记录的是按下事件，不依赖按键当前是否仍被按住。
+两条分支都播放 `Unagi_Attack_Rush_02.anim`，但使用不同的动作编辑器技能资源与事件轨道：
 
-## 调整手感
+- `Unagi_Rush_02_Normal.asset`：没有符合条件的敌人时播放。当前有一个可调整的 `CreateHitBox` 轨道，窗口 `[0.45, 0.68)`；不会连发。
+- `Unagi_Rush_02_Parry.asset`：条件满足时播放。其轨道独立，初始为空，可在动作编辑器单独加入弹反特效；普通攻击的命中盒不会在该分支运行。
 
-Start 播放到 75% 时开始融合到 End，混合时长为 0.18 秒。可通过 `PlayerAnimationProfile → Parry Start End Transition Time` 调整开始融合的进度；成功弹反默认等待 Success 动画完整结束，也可通过该动作的打断窗口提前取消。窗口按实际动画进度判断，顿帧和变速会相应延后窗口到达的时机。
+两条分支的 `Unagi_Attack_Rush_02.anim` 播放结束后，都会转入 `Unagi_Attack_Rush_02_End.anim`。End 使用独立的 `Unagi_Rush_02_End.asset` 轨道；通常在 End 完成后恢复操作，设置的 `InterruptWindow` 可允许提前打断。End 原片段时长约 3.5 秒。
 
-1. 在战斗编辑器选择玩家的 Parry 分组，打开 `Parry_Start`。
-2. 拖动 `Parry Window` 的起止位置。默认归一化区间 `[0.1, 0.5)`；起手动画长 0.5 秒，正常速度下对应 0.05～0.25 秒（60 FPS 时间轴第 3～15 帧）。实际判定在命中时读取 Animator 进度；松开不影响本次窗口，再次按下从新的起手进度重新计算。
-3. 窗口事件上的 `Facing Angle` 默认 120°，`Attacker Stagger Duration` 默认 0.8 秒。
-4. 在 `Parry_End` 的 `Recovery Cancel Window` 配置收势取消时机，默认后 40% 可取消到移动、Dodge 或 LightAttack。
-5. 攻击 HitBox 事件上的 `Can Be Parried` 决定该攻击能否弹反，默认开启。
-6. 玩家 `PlayerInputBuffer` 上的 `Parry Buffer Duration` 控制按键缓存。
-7. `PlayerAnimationProfile` 的 Parry 区域控制动画状态名和混合时长；进入收刀的 `Parry End Blend Duration` 为 0.18 秒，其余弹反混合默认 0.06 秒。
-8. 玩家 `PlayerParryFeedback` 控制火花、音效、音量、特效比例与顿帧曲线。当前音效是可替换的合成金属音；火花使用现有 StarHit 预制体。
+Rush 普通、成功、End 三个技能分别读取当前轨道上的 `InterruptWindow`：`AllowedCommands` 决定 Dodge、LightAttack、Parry 等命令是否可取消，`AllowMovement` 决定方向输入能否取消。窗口外输入不会立即打断；仍处于输入缓存有效期内的命令可在之后的有效窗口执行。当前普通/成功轨道的末段允许 Dodge；End 全段允许 Dodge、LightAttack 和移动。
 
-所需动画复制在 `Assets/_Project/Animations/Clips/Player_*.anim`。弹反流程不再使用 Block_Loop，起手与收势均不循环；第三方源动画保持原样。
+成功分支在按键时取消目标敌人当前攻击的命中盒，使其进入硬直（当前 0.8 秒），并触发玩家的弹反音效与顿帧。目标敌人的残余攻击命中在成功动作期间不会对玩家造成伤害。其他敌人的攻击仍正常结算。硬直和距离分别在玩家的 `PlayerCombatAdapter` 上调整。
 
-## 检查
+敌人技能 `SwordEnemy_Attack_01/02.asset` 已各有一个独立的 `ParryOpportunityWindow`：初始为 `[0.07, 0.25)` 和 `[0.08, 0.35)`。可在敌人动作编辑器中调节；没有此窗口的敌人动作不能触发该弹反。
 
-- `Tools > Player > Validate Parry`：检查窗口边界、方向、按键绑定、缓存、起手与收势技能、Animator 状态及循环标志。
-- 本次完整新增代码编译通过；窗口边界和资源引用检查见验证工具；弹反输入明确配置为 Press Only。
-- Play Mode 验收：E/RB 短按和长按；窗口前、内、后受到攻击；背后与不可弹反攻击；攻击后摇取消；同一攻击多碰撞体/多段命中；按住期间失焦；动画变速；低帧率下的窗口边界。
-- 当前环境尚未完成 Play Mode 实机操作验收。
+场景中玩家的 `PlayerDamageReceiver` 与 `PlayerParryFeedback` 已启用。旧的受击时判定弹反逻辑仍保留给未配置 `ordinaryParryAttack` / `successfulParryAttack` 的其他场景。`Main_Nodachi` 使用新的按键即时判定流程。
 
-玩家接收器在命中成功后返回已接受的 `Parried` 结果，让 HitBox 正常记录命中；确认事件中关闭本次攻击的碰撞盒并通知敌人硬直，避免重复结算与普通命中反馈叠加。
+本机批处理 Unity 导入被已打开的同一项目实例阻止；当前完成了 `dotnet` 编译，Unity Inspector 导入和 Play 模式手感仍需在已打开的编辑器里验证。建议检查：窗口前/中/后按键、距离内/外、多个敌人、普通与成功轨道是否互斥、两条分支是否都完整播放 End 后才恢复操作、成功后敌人是否停招、玩家是否免受该次攻击伤害。
