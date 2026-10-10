@@ -22,6 +22,13 @@ using UnityEngine;
 	        return eve.Previewable;
 	    }
 	
+        private bool collisionInRange;
+        private float currentTimePercentage;
+        public bool CollisionVisible => InstantiatedObj != null && Obj.IsActive && Obj.EnableCollision && eve != null &&
+            ((eve.Previewable && collisionInRange) ||
+             CombatEditorTransformEditState.IsEditing(Obj, CombatEditorTransformEditState.EditMode.Position) ||
+             CombatEditorTransformEditState.IsEditing(Obj, CombatEditorTransformEditState.EditMode.Rotation));
+	    ParticleColliderPreviewHandle collisionHandle;
 	    ParticleSystem[] particles;
 	    float[] particleInitSpeeds;
 	
@@ -33,7 +40,19 @@ using UnityEngine;
 	            ParticleSizeUtility.ApplySize(InstantiatedObj, Obj.SizeMultiplier);
 	            ParticleCenterOffsetUtility.ApplyOffset(InstantiatedObj, Obj.CenterOffset);
 	        }
-	        SetParticleData();
+            if (InstantiatedObj != null && Obj.EnableCollision && Obj.Collision != null)
+            {
+                Collider collider = Obj.Collision.CreateCollider(InstantiatedObj);
+                // Preview is geometry only; it must not participate in physics or damage.
+                collider.enabled = false;
+                collider.gameObject.hideFlags = HideFlags.HideAndDontSave;
+                collisionHandle = collider.gameObject.AddComponent<ParticleColliderPreviewHandle>();
+                collisionHandle.ParticlePreview = this;
+                collisionHandle._combatController = _combatController;
+                collisionHandle._preview = this;
+                collisionHandle.Init();
+            }
+            SetParticleData();
 	    }
 	    public void SetParticleData()
 	    {
@@ -74,12 +93,23 @@ using UnityEngine;
 	    /// The particle's real time is influenced by timescale event.
 	    /// </summary>
 	    /// <param name="ScaledPercentage"></param>
+        public override void PreviewRunning(float percentage)
+        {
+            currentTimePercentage = percentage;
+            base.PreviewRunning(percentage);
+        }
+
 	    public override void PreviewRunningInScale(float ScaledPercentage)
 	    {
 	        base.PreviewRunningInScale(ScaledPercentage);
 	        if (InstantiatedObj == null) return;
 	        //Debug.Log("Simulate?");
-	        SimulateParticles(ScaledPercentage);
+            collisionInRange =
+                ScaledPercentage >= StartTimeScaledPercentage &&
+                Obj.IsCollisionDelayElapsed(currentTimePercentage, StartTimePercentage, AnimObj.Clip) &&
+                (Obj.GetEventTimeType() == AbilityEventObj.EventTimeType.EventTime ||
+                 ScaledPercentage < EndTimeScaledPercentage);
+            SimulateParticles(ScaledPercentage);
 	    }
 	    public void SimulateParticles(float ScaledPercentage)
 	    {
@@ -124,6 +154,14 @@ using UnityEngine;
 	        }
 	    }
 
+        public override void DestroyPreview()
+        {
+            collisionInRange = false;
+            if (collisionHandle != null)
+                collisionHandle.SelfDestroy();
+            collisionHandle = null;
+            base.DestroyPreview();
+        }
 	    void ApplyPreviewSpeed()
 	    {
 	        if (particles == null || particleInitSpeeds == null)

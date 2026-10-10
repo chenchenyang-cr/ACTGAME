@@ -21,6 +21,8 @@ public sealed class PlayerAnimationProfile : ScriptableObject
     [SerializeField] private string dodgeCombatStateName = "DodgeCombat";
     [SerializeField] private string dodgeToFastRunNormalStateName = "DodgeToFastRunNormal";
     [SerializeField] private string dodgeToFastRunCombatStateName = "DodgeToFastRunCombat";
+    [Tooltip("Animator state containing the directional dodge blend tree.")]
+    [SerializeField] private string directionalDodgeStateName;
 
     [Header("Parry")]
     public string ParryEndStateName = "Player_Block_End";
@@ -61,6 +63,7 @@ public sealed class PlayerAnimationProfile : ScriptableObject
     public string DodgeCombatStateName => dodgeCombatStateName;
     public string DodgeToFastRunNormalStateName => dodgeToFastRunNormalStateName;
     public string DodgeToFastRunCombatStateName => dodgeToFastRunCombatStateName;
+    public string DirectionalDodgeStateName => directionalDodgeStateName;
     public float DodgeContinuationDecisionTime => dodgeContinuationDecisionTime;
     public string DodgeXParameter => dodgeXParameter;
     public string DodgeYParameter => dodgeYParameter;

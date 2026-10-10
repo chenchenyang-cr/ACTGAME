@@ -169,7 +169,7 @@ public sealed class PlayerCombatAdapter : MonoBehaviour, ICombatGameplayWindowLi
 
     public bool CanInterrupt(PlayerActionCommand command)
     {
-        return IsInterruptAllowed(command.ToString());
+        return IsInterruptAllowed(command);
     }
 
     public bool CanInterruptWithMovement()
@@ -243,11 +243,11 @@ public sealed class PlayerCombatAdapter : MonoBehaviour, ICombatGameplayWindowLi
         }
     }
 
-    private bool IsInterruptAllowed(string commandId)
+    private bool IsInterruptAllowed(PlayerActionCommand command)
     {
         foreach (AbilityEventObj_InterruptWindow window in interruptWindows.Values)
         {
-            if (window.Allows(commandId)) return true;
+            if (window.Allows(command)) return true;
         }
 
         return false;
@@ -405,7 +405,8 @@ public sealed class PlayerCombatAdapter : MonoBehaviour, ICombatGameplayWindowLi
                 }
                 else if (!isInsideWindow && entry.Effect.IsRunning)
                 {
-                    entry.Effect.EndEffect();
+                    if (currentTime >= endTime && entry.Effect is AbilityEventEffect_CameraShot shot) shot.CompleteEffect();
+                    else entry.Effect.EndEffect();
                 }
             }
         }

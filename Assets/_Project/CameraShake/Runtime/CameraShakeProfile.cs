@@ -8,6 +8,7 @@ namespace CombatCamera
     {
         [Min(0.01f)] public float Duration = 0.2f;
         public bool UseUnscaledTime = true;
+        public bool StartAfterHitStop;
         public bool AffectedByHitStop;
         [Range(0f, 1f)] public float HitStopWeight = 1f;
         public CameraShakeSettings Settings = new CameraShakeSettings();

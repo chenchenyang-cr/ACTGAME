@@ -1,5 +1,284 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-5572979726396820924
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca2229d21ed65194bac74b8298b11290, type: 3}
+  m_Name: Particles
+  m_EditorClassIdentifier: 
+  IsActive: 1
+  ObjData:
+    TargetObj: {fileID: 4748363746059846837, guid: f7ec199f09402424a88e406ad048133e, type: 3}
+    controlType: 0
+    Offset: {x: 0.057199, y: 1.0338523, z: 0.00000027533153}
+    Rot: {x: 0.061689265, y: 0.3260298, z: -0.1753817, w: 0.92689824}
+    Scale: {x: 1, y: 1, z: 1}
+    TargetNode: 0
+    FollowNode: 1
+    RotateByNode: 0
+  HitProfile: {fileID: 11400000, guid: 836dcd07a6b4fb641a14d8d18180d069, type: 2}
+  TimeType: 1
+  PlaySpeed: 1.6
+  AffectedByHitStop: 1
+  SizeMultiplier: 1
+  CenterOffset: {x: 0, y: 0, z: 0}
+  EnableCollision: 1
+  Collision:
+    Shape: 0
+    Offset: {x: -0.15214944, y: -0.2580697, z: 0.58183414}
+    Rotation: {x: 0, y: 0, z: 0}
+    BoxSize: {x: 2.3256822, y: 0.4838606, z: 2.1636682}
+    Radius: 0.5
+    Height: 2
+    CapsuleDirection: 1
+--- !u!114 &-4956890810355005918
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca2229d21ed65194bac74b8298b11290, type: 3}
+  m_Name: Particles
+  m_EditorClassIdentifier: 
+  IsActive: 1
+  ObjData:
+    TargetObj: {fileID: 4748363746059846837, guid: 673ce34821334b588330348649f6f5c5, type: 3}
+    controlType: 0
+    Offset: {x: 0, y: 0.73389983, z: 0.00000019544935}
+    Rot: {x: -0.043370385, y: 0.29062694, z: 0.14108011, w: 0.9453843}
+    Scale: {x: 1, y: 1, z: 1}
+    TargetNode: 0
+    FollowNode: 1
+    RotateByNode: 0
+  HitProfile: {fileID: 11400000, guid: 836dcd07a6b4fb641a14d8d18180d069, type: 2}
+  TimeType: 1
+  PlaySpeed: 1.6
+  AffectedByHitStop: 1
+  SizeMultiplier: 1
+  CenterOffset: {x: 0, y: 0, z: 0}
+  EnableCollision: 1
+  Collision:
+    Shape: 0
+    Offset: {x: 0.70054066, y: -0.13313824, z: 0.10907304}
+    Rotation: {x: 0, y: 0, z: 0}
+    BoxSize: {x: 2.8052695, y: 0.7337235, z: 3.186353}
+    Radius: 0.5
+    Height: 2
+    CapsuleDirection: 1
+--- !u!114 &-4179004308577535664
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ecb4428928fb4c62b267851f7bd2d6a5, type: 3}
+  m_Name: CharacterEcho
+  m_EditorClassIdentifier: 
+  IsActive: 1
+  TargetNode: 0
+  IncludeChildren: 1
+  EnableOutline: 1
+  OutlineTint: {r: 0.9177575, g: 3.4415908, b: 6.8831816, a: 1}
+  OutlineWidthPixels: 2.5
+  OutlineOpacity:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.4966734
+      value: 0.7774251
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  EffectMaterial: {fileID: 0}
+  EnableBody: 0
+  BodyColorBlend:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  EnableAfterimages: 0
+  SnapshotsPerSecond: 0
+  MaxSnapshots: 0
+  SnapshotLifetime: 0
+  HideOriginalDuringBody: 0
+  BodyColor:
+    serializedVersion: 2
+    key0: {r: 1, g: 1, b: 1, a: 1}
+    key1: {r: 1, g: 1, b: 1, a: 1}
+    key2: {r: 0, g: 0, b: 0, a: 0}
+    key3: {r: 0, g: 0, b: 0, a: 0}
+    key4: {r: 0, g: 0, b: 0, a: 0}
+    key5: {r: 0, g: 0, b: 0, a: 0}
+    key6: {r: 0, g: 0, b: 0, a: 0}
+    key7: {r: 0, g: 0, b: 0, a: 0}
+    ctime0: 0
+    ctime1: 65535
+    ctime2: 0
+    ctime3: 0
+    ctime4: 0
+    ctime5: 0
+    ctime6: 0
+    ctime7: 0
+    atime0: 0
+    atime1: 65535
+    atime2: 0
+    atime3: 0
+    atime4: 0
+    atime5: 0
+    atime6: 0
+    atime7: 0
+    m_Mode: 0
+    m_ColorSpace: -1
+    m_NumColorKeys: 2
+    m_NumAlphaKeys: 2
+  BodyCoverage:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  BodyOpacity:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  BodyDissolve:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  AfterimageColor:
+    serializedVersion: 2
+    key0: {r: 1, g: 1, b: 1, a: 1}
+    key1: {r: 1, g: 1, b: 1, a: 1}
+    key2: {r: 0, g: 0, b: 0, a: 0}
+    key3: {r: 0, g: 0, b: 0, a: 0}
+    key4: {r: 0, g: 0, b: 0, a: 0}
+    key5: {r: 0, g: 0, b: 0, a: 0}
+    key6: {r: 0, g: 0, b: 0, a: 0}
+    key7: {r: 0, g: 0, b: 0, a: 0}
+    ctime0: 0
+    ctime1: 65535
+    ctime2: 0
+    ctime3: 0
+    ctime4: 0
+    ctime5: 0
+    ctime6: 0
+    ctime7: 0
+    atime0: 0
+    atime1: 65535
+    atime2: 0
+    atime3: 0
+    atime4: 0
+    atime5: 0
+    atime6: 0
+    atime7: 0
+    m_Mode: 0
+    m_ColorSpace: -1
+    m_NumColorKeys: 2
+    m_NumAlphaKeys: 2
+  SpawnRate:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  SnapshotLifetimeMultiplier:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  SnapshotOpacity:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  SnapshotDissolve:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  FlowAmount:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  FlowSpeed:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  FlowScale:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  DissolveSoftness:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+--- !u!114 &-2218309200073101183
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ab454d9ce3e04684a5f19c71f6c201ad, type: 3}
+  m_Name: TargetAssistWindow
+  m_EditorClassIdentifier: 
+  IsActive: 1
+  Priority: 0
+  AcquireRadius: 4
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -19,7 +298,7 @@ MonoBehaviour:
   loopCount: 0
   events:
   - EventTime: 0
-    EventRange: {x: 0.6111111, y: 1}
+    EventRange: {x: 0.4814815, y: 1}
     EventMultiRange:
     - 0.2
     - 0.4
@@ -27,6 +306,201 @@ MonoBehaviour:
     - 0.8
     Previewable: 0
     Obj: {fileID: 8626308511099262925}
+  - EventTime: 0
+    EventRange: {x: 0, y: 0.4814815}
+    EventMultiRange:
+    - 0.2
+    - 0.4
+    - 0.6
+    - 0.8
+    Previewable: 1
+    Obj: {fileID: -2218309200073101183}
+  - EventTime: 0
+    EventRange: {x: 0, y: 0.7222222}
+    EventMultiRange:
+    - 0.2
+    - 0.4
+    - 0.6
+    - 0.8
+    Previewable: 1
+    Obj: {fileID: -4179004308577535664}
+  - EventTime: 0.09259259
+    EventRange: {x: 0, y: 1}
+    EventMultiRange:
+    - 0.2
+    - 0.4
+    - 0.6
+    - 0.8
+    Previewable: 0
+    Obj: {fileID: 8419900415919706252}
+  - EventTime: 0.14814815
+    EventRange: {x: 0, y: 1}
+    EventMultiRange:
+    - 0.2
+    - 0.4
+    - 0.6
+    - 0.8
+    Previewable: 0
+    Obj: {fileID: -4956890810355005918}
+  - EventTime: 0.24074075
+    EventRange: {x: 0, y: 1}
+    EventMultiRange:
+    - 0.2
+    - 0.4
+    - 0.6
+    - 0.8
+    Previewable: 0
+    Obj: {fileID: -5572979726396820924}
+  - EventTime: 0.3148148
+    EventRange: {x: 0, y: 1}
+    EventMultiRange:
+    - 0.2
+    - 0.4
+    - 0.6
+    - 0.8
+    Previewable: 0
+    Obj: {fileID: 5237956636883949451}
+  - EventTime: 0
+    EventRange: {x: 0.037037037, y: 0.42592594}
+    EventMultiRange:
+    - 0.2
+    - 0.4
+    - 0.6
+    - 0.8
+    Previewable: 0
+    Obj: {fileID: 6323555987275630408}
+--- !u!114 &5237956636883949451
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca2229d21ed65194bac74b8298b11290, type: 3}
+  m_Name: Particles
+  m_EditorClassIdentifier: 
+  IsActive: 1
+  ObjData:
+    TargetObj: {fileID: 4748363746059846837, guid: 673ce34821334b588330348649f6f5c5, type: 3}
+    controlType: 0
+    Offset: {x: -0.09942341, y: 1.2501271, z: -0.0819756}
+    Rot: {x: 0.03238191, y: 0.45649856, z: 0.11710829, w: -0.8813888}
+    Scale: {x: 1, y: 1, z: 1}
+    TargetNode: 0
+    FollowNode: 1
+    RotateByNode: 0
+  HitProfile: {fileID: 11400000, guid: 836dcd07a6b4fb641a14d8d18180d069, type: 2}
+  TimeType: 1
+  PlaySpeed: 1.6
+  AffectedByHitStop: 1
+  SizeMultiplier: 1
+  CenterOffset: {x: 0, y: 0, z: 0}
+  EnableCollision: 1
+  Collision:
+    Shape: 0
+    Offset: {x: 0.4566607, y: -0.30135876, z: 0.4666168}
+    Rotation: {x: 0, y: 0, z: 0}
+    BoxSize: {x: 1.9133204, y: 0.39728248, z: 1.9332334}
+    Radius: 0.5
+    Height: 2
+    CapsuleDirection: 1
+--- !u!114 &6323555987275630408
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 962496911cda4ad3ac90c50693573c5a, type: 3}
+  m_Name: PostFxRadialBlur
+  m_EditorClassIdentifier: 
+  IsActive: 1
+  Intensity: 1
+  IntensityCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0.0099983215
+      value: 0.017875671
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.42006487
+      value: 0.9998335
+      inSlope: -0.022883983
+      outSlope: -0.022883983
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.7568639
+      value: 0.8550483
+      inSlope: -2.0164506
+      outSlope: -2.0164506
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  SampleDistance: 1
+  FocusPoint: {x: 0.5, y: 0.5}
+--- !u!114 &8419900415919706252
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca2229d21ed65194bac74b8298b11290, type: 3}
+  m_Name: Particles
+  m_EditorClassIdentifier: 
+  IsActive: 1
+  ObjData:
+    TargetObj: {fileID: 4748363746059846837, guid: f7ec199f09402424a88e406ad048133e, type: 3}
+    controlType: 0
+    Offset: {x: -0.03810835, y: 0.71247214, z: -0.02866726}
+    Rot: {x: 0.13278122, y: 0.93709177, z: 0.06515668, w: 0.3162007}
+    Scale: {x: 1, y: 1, z: 1}
+    TargetNode: 0
+    FollowNode: 1
+    RotateByNode: 0
+  HitProfile: {fileID: 11400000, guid: 836dcd07a6b4fb641a14d8d18180d069, type: 2}
+  TimeType: 1
+  PlaySpeed: 1.6
+  AffectedByHitStop: 1
+  SizeMultiplier: 1
+  CenterOffset: {x: 0, y: 0, z: 0}
+  EnableCollision: 1
+  Collision:
+    Shape: 0
+    Offset: {x: -0.12362766, y: -0.24094838, z: -0.091986805}
+    Rotation: {x: 0, y: 0, z: 0}
+    BoxSize: {x: 4.4929914, y: 0.51810324, z: 1.4655967}
+    Radius: 0.20030922
+    Height: 2.092537
+    CapsuleDirection: 1
 --- !u!114 &8626308511099262925
 MonoBehaviour:
   m_ObjectHideFlags: 0

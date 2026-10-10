@@ -87,13 +87,13 @@ namespace CombatEditor
             confirmedSingleHits.Clear();
         }
 
-        public bool HasConfirmedSingleHit(AbilityEventObj_CreateHitBox sourceEvent, Transform target)
+        public bool HasConfirmedSingleHit(AbilityEventObj_HitSource sourceEvent, Transform target)
         {
             return hitExecutionActive && sourceEvent != null && target != null &&
                    confirmedSingleHits.Contains((sourceEvent.GetInstanceID(), target.root.GetInstanceID()));
         }
 
-        public void RecordConfirmedSingleHit(AbilityEventObj_CreateHitBox sourceEvent, Transform target)
+        public void RecordConfirmedSingleHit(AbilityEventObj_HitSource sourceEvent, Transform target)
         {
             if (hitExecutionActive && sourceEvent != null && target != null)
                 confirmedSingleHits.Add((sourceEvent.GetInstanceID(), target.root.GetInstanceID()));
@@ -252,12 +252,18 @@ namespace CombatEditor
                         if (eve.effect._EventObj.IsActive && eve.effect.IsRunning)
                         {
                             eve.effect.EffectRunning();
+                            // Point particles also need action frames for repeated-hit intervals.
+                            if (eve.effect is AbilityEventEffect_Particles particles)
+                                particles.EffectRunning(NormalizedTime);
                         }
                     }
                     //If self to self translation, events can't close itself cause clip is not change. So it need to close itself by percentage.
                     else
                     {
-                        eve.effect.EndEffect();
+                        if (eve.effect is AbilityEventEffect_Particles particles)
+                            particles.ReleaseOnAnimationChange();
+                        else
+                            eve.effect.EndEffect();
                     }
                 }
                 if (EveTimeType == AbilityEventObj.EventTimeType.EventRange || EveTimeType == AbilityEventObj.EventTimeType.EventMultiRange)
@@ -291,7 +297,8 @@ namespace CombatEditor
                     {
                         if (eve.effect._EventObj.IsActive)
                         {
-                            eve.effect.EndEffect();
+                            if (NormalizedTime >= EndTime && eve.effect is AbilityEventEffect_CameraShot shot) shot.CompleteEffect();
+                            else eve.effect.EndEffect();
                         }
                     }
                 }
@@ -319,7 +326,12 @@ namespace CombatEditor
 
                     for (int j = 0; j < events.Count; j++)
                         if (events[j].effect.IsRunning)
-                            events[j].effect.EndEffect();
+                        {
+                            if (events[j].effect is AbilityEventEffect_Particles particles)
+                                particles.ReleaseOnAnimationChange();
+                            else
+                                events[j].effect.EndEffect();
+                        }
                 }
             }
 

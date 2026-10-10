@@ -35,11 +35,15 @@ public static class PlayerDodgeValidation
             // Use a generic animated transform so the test needs no model or Avatar.
             clip.SetCurve("", typeof(Transform), "localPosition.x", AnimationCurve.Linear(0f, 0f, 2f, 2f));
             controller.AddLayer("Base Layer");
-            foreach (string parameter in new[] { "DodgeX", "DodgeY", "CombatWeight" })
+            foreach (string parameter in new[] { "DodgeX", "DodgeY", "CombatWeight",
+                         "MoveX", "MoveY", "MoveSpeed", "StartX", "StartY",
+                         "StopX", "StopY", "TurnDirection" })
                 controller.AddParameter(parameter, AnimatorControllerParameterType.Float);
+            controller.AddParameter("IsMoving", AnimatorControllerParameterType.Bool);
             var states = controller.layers[0].stateMachine;
             foreach (string name in new[] { "Idle", "DodgeNormal", "DodgeCombat", "DodgeToFastRunNormal", "DodgeToFastRunCombat" })
                 states.AddState(name).motion = clip;
+            states.AddStateMachine("NormalLocomotion").AddState("Loop").motion = clip;
             var animator = player.AddComponent<Animator>();
             animator.runtimeAnimatorController = controller;
             animator.Rebind();
@@ -74,7 +78,7 @@ public static class PlayerDodgeValidation
                     checks++;
                 }
             }
-            checks += ValidateSteeringRecovery(player, profile, playback);
+            checks += ValidateMovementCancel(player, profile, playback);
             File.WriteAllText(Report, $"PASS: {checks} dodge playback checks. {DateTime.Now:O}\n");
             Debug.Log($"Dodge playback validation passed: {checks} checks.");
         }
@@ -92,7 +96,7 @@ public static class PlayerDodgeValidation
         }
     }
 
-    private static int ValidateSteeringRecovery(GameObject player,
+    private static int ValidateMovementCancel(GameObject player,
         PlayerAnimationProfile profile, PlayerActionAnimator playback)
     {
         const System.Reflection.BindingFlags fields =
@@ -101,37 +105,30 @@ public static class PlayerDodgeValidation
         var movement = player.GetComponent<PlayerMovement>();
         var combat = player.AddComponent<PlayerCombatAdapter>();
         var dodge = new DodgeState(machine);
+        var locomotion = new LocomotionState(machine);
         typeof(PlayerStateMachine).GetField("playerMovement", fields).SetValue(machine, movement);
         typeof(PlayerStateMachine).GetField("combatAdapter", fields).SetValue(machine, combat);
         typeof(PlayerStateMachine).GetField("animationProfile", fields).SetValue(machine, profile);
         typeof(PlayerStateMachine).GetProperty("ActionAnimator").SetValue(machine, playback);
         typeof(PlayerStateMachine).GetProperty("DodgeState").SetValue(machine, dodge);
+        typeof(PlayerStateMachine).GetProperty("LocomotionState").SetValue(machine, locomotion);
         typeof(PlayerStateMachine).GetProperty("CurrentState").SetValue(machine, dodge);
-        typeof(DodgeState).GetField("animationStarted", fields).SetValue(dodge, true);
-        var direction = typeof(PlayerMovement).GetField("worldMoveDirection", fields);
-        var rotation = typeof(PlayerMovement).GetField("rotationMode", fields);
         var windows = (System.Collections.IDictionary)typeof(PlayerCombatAdapter)
             .GetField("interruptWindows", fields).GetValue(combat);
         var window = ScriptableObject.CreateInstance<AbilityEventObj_InterruptWindow>();
         try
         {
-            dodge.Tick(Vector2.right, true);
-            if ((Vector3)direction.GetValue(movement) != Vector3.zero ||
-                (PlayerRotationMode)rotation.GetValue(movement) != PlayerRotationMode.Preserve)
-                throw new InvalidOperationException("Dodge startup must retain its direction");
+            dodge.Enter();
+            player.GetComponent<Animator>().Update(0.1f);
+            dodge.Tick(Vector2.up, true);
+            if (machine.CurrentState != dodge)
+                throw new InvalidOperationException("Movement must not cancel dodge before its window");
             window.AllowMovement = true;
             windows.Add(default(CombatWindowHandle), window);
-            dodge.Tick(Vector2.right, true);
-            if ((Vector3)direction.GetValue(movement) != Vector3.right ||
-                (PlayerRotationMode)rotation.GetValue(movement) != PlayerRotationMode.MovementDirection ||
-                machine.CurrentState != dodge)
-                throw new InvalidOperationException("Movement window must unlock steering without replacing the dodge animation");
-            windows.Clear();
-            dodge.Tick(Vector2.left, true);
-            if ((Vector3)direction.GetValue(movement) != Vector3.left ||
-                (PlayerRotationMode)rotation.GetValue(movement) != PlayerRotationMode.MovementDirection)
-                throw new InvalidOperationException("Steering must remain available throughout dodge recovery");
-            return 3;
+            dodge.Tick(Vector2.up, true);
+            if (machine.CurrentState != locomotion)
+                throw new InvalidOperationException("Movement window must cancel the dodge animation");
+            return 2;
         }
         finally
         {

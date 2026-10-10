@@ -28,7 +28,7 @@ namespace CombatCamera
 
         public void ApplyShake(ref CameraState state)
         {
-            CameraShakeSample sample = CameraShakeRuntime.EvaluateCurrent(state.CorrectedOrientation);
+            CameraShakeSample sample = CameraShakeRuntime.EvaluateCurrent();
             Vector3 worldPosition = state.CorrectedOrientation * sample.Position +
                                     sample.WorldPosition;
             Vector3 position = SoftLimit(worldPosition, MaximumPositionOffset);

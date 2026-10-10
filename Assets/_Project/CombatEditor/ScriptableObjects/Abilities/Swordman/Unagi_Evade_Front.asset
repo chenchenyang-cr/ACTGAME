@@ -1,0 +1,52 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 757d9b080c65e9847b379b2a8a5ae8ab, type: 3}
+  m_Name: Unagi_Evade_Front
+  m_EditorClassIdentifier: 
+  AbilityType: 3
+  Clip: {fileID: 7400000, guid: 6b4a809da33880f4cbb3c36c32e5fecd, type: 2}
+  AdditionalClips:
+  - {fileID: 7400000, guid: d4170f85a43015e43b63c0d0ce2cabfa, type: 2}
+  - {fileID: 7400000, guid: d5233eed04bee7046af1bece7b5991f3, type: 2}
+  - {fileID: 7400000, guid: aa2d703009c99d04b93032ea750bd4dc, type: 2}
+  - {fileID: 7400000, guid: d7005e462acd13a4eade67d7c586d0dc, type: 2}
+  - {fileID: 7400000, guid: 4bf7f6ba327e189468578c3063fba9e5, type: 2}
+  PreviewPercentageRange: {x: 0, y: 1}
+  loopCount: 0
+  events:
+  - EventTime: 0
+    EventRange: {x: 0.14049587, y: 1}
+    EventMultiRange:
+    - 0.2
+    - 0.4
+    - 0.6
+    - 0.8
+    Previewable: 0
+    Obj: {fileID: 771754051834780335}
+--- !u!114 &771754051834780335
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f589d20422384f75962aaf6a2b81617a, type: 3}
+  m_Name: InterruptWindow
+  m_EditorClassIdentifier: 
+  IsActive: 1
+  Priority: 0
+  AllowedCommands: 0200000001000000
+  AllowMovement: 1
+  MinimumPriority: 0
+  AllowHitReaction: 1

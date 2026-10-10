@@ -33,12 +33,18 @@ namespace CombatCamera
             public Quaternion ActorStartFrame;
             public bool HasActorStartFrame;
             public CameraShotPose LastPose;
+            public CameraShotTiming Timing;
+            public bool Simulating, HasEntry, HasComposed;
+            public float SimulationDelta;
+            public CameraShotPose EntryPose, ComposedPose, ReleasePose;
+            public Vector3 EntryActorPosition, ReleaseActorPosition;
         }
 
         private static readonly Dictionary<int, Shot> shots = new();
         private static readonly List<Shot> ordered = new();
         private static readonly List<int> expired = new();
         private static int nextHandle;
+        private static readonly Dictionary<int, CameraShotPose> channelOutputs = new();
         public static int ActiveCount => shots.Count;
 
         public static void FinishReleases(int channel)
@@ -61,7 +67,7 @@ namespace CombatCamera
                 if (selected != null) return false;
                 selected = candidate;
             }
-            if (selected == null || selected.Releasing ||
+            if (selected == null || selected.Timing.Enabled || selected.Releasing ||
                 (!selected.ProgressDriven && !selected.Preview) ||
                 !selected.Profile.TryGetReturnBlend(selected.Progress, out float start, out blend)) return false;
             // Sampling a return origin must not advance the live follow/obstacle integrators.
@@ -85,6 +91,7 @@ namespace CombatCamera
             foreach (var shot in shots.Values)
             {
                 if (shot.Channel != channel || shot.Profile == null || shot.Preview) continue;
+                if (shot.Timing.Enabled) return false;
                 // A lower live shot still owns the camera; don't hand control back yet.
                 if (!shot.Releasing) return false;
                 remaining = Mathf.Max(remaining, shot.Profile.BlendOut - (float)(Now(shot.UnscaledTime) - shot.Released));
@@ -103,7 +110,8 @@ namespace CombatCamera
             private readonly Shot shot = new Shot { Preview = true };
             public Quaternion Frame => shot.Frame;
             public Vector3 PositionAnchor => shot.AnchorPosition;
-            public void Reset() { shot.Initialized = false; shot.HasActorStartFrame = false; }
+            public void Reset() { shot.Initialized = false; shot.HasActorStartFrame = false;
+                shot.AnchorVelocity = Vector3.zero; shot.HasObstacleDistance = false; shot.ObstacleVelocity = 0; }
             public void CaptureStart(CameraShotProfile profile, Transform actor, Vector3 actorPosition, Vector3 actorForward)
             {
                 shot.Profile = profile; shot.Actor = actor;
@@ -113,11 +121,13 @@ namespace CombatCamera
                 shot.Initialized = true;
             }
             public CameraShotPose Evaluate(CameraShotProfile profile, Transform actor,
-                Quaternion initialCameraRotation, float baseFov, float progress, Vector3 basePosition = default, TargetConstraint constraint = null)
+                Quaternion initialCameraRotation, float baseFov, float progress, Vector3 basePosition = default, TargetConstraint constraint = null,
+                float deltaTime = -1f)
             {
                 if (shot.Profile != profile || shot.Actor != actor) Reset();
                 shot.Profile = profile; shot.Actor = actor;
                 shot.Progress = Mathf.Clamp01(progress);
+                shot.Simulating = deltaTime >= 0; shot.SimulationDelta = Mathf.Max(0, deltaTime);
                 if (profile == null || actor == null) return default;
                 TryPose(shot, basePosition, initialCameraRotation, baseFov, out var pose, constraint);
                 return pose;
@@ -127,11 +137,11 @@ namespace CombatCamera
         }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-        public static void Reset() { shots.Clear(); ordered.Clear(); expired.Clear(); }
+        public static void Reset() { shots.Clear(); ordered.Clear(); expired.Clear(); channelOutputs.Clear(); }
 
         /// <param name="duration">Seconds held before blend-out. Negative means explicit Release.</param>
         public static int Begin(CameraShotProfile profile, Transform actor,
-            float duration = -1f, int channel = 0, Behaviour lifetimeOwner = null)
+            float duration = -1f, int channel = 0, Behaviour lifetimeOwner = null, CameraShotTiming timing = default)
         {
             if (profile == null || actor == null) return 0;
             int handle = ++nextHandle;
@@ -139,7 +149,7 @@ namespace CombatCamera
                 Actor = actor, Duration = duration, Started = Now(profile.UseUnscaledTime),
                 UnscaledTime = profile.UseUnscaledTime,
                 ActorStartFrame = ActorFrame(actor.forward), HasActorStartFrame = true,
-                LifetimeOwner = lifetimeOwner, HadLifetimeOwner = lifetimeOwner != null });
+                LifetimeOwner = lifetimeOwner, HadLifetimeOwner = lifetimeOwner != null, Timing = timing });
             return handle;
         }
 
@@ -168,6 +178,8 @@ namespace CombatCamera
             // its handle, but the runtime owns the short release until it completes.
             if (immediate || shot.Preview || shot.Profile == null)
             { shots.Remove(handle); return; }
+            if (shot.Timing.Enabled && shot.ProgressDriven && shot.Timing.Exit > 0f && shot.Progress >= .9999f)
+            { shots.Remove(handle); return; }
             BeginRelease(shot, Now(shot.UnscaledTime));
         }
 
@@ -181,8 +193,10 @@ namespace CombatCamera
         {
             if (shot.Releasing) return;
             shot.ReleaseWeight = shot.ProgressDriven
-                ? shot.Profile.EvaluateWeight(shot.Progress)
+                ? (shot.Timing.Enabled ? shot.Timing.Evaluate(shot.Progress) : shot.Profile.EvaluateWeight(shot.Progress))
                 : EntryWeight(shot, now);
+            shot.ReleasePose = shot.HasComposed ? shot.ComposedPose : shot.LastPose;
+            shot.ReleaseActorPosition = shot.Actor != null ? shot.Actor.position : Vector3.zero;
             shot.Released = now;
             shot.Releasing = true;
         }
@@ -191,7 +205,7 @@ namespace CombatCamera
         {
             if (shot.Preview) return shot.PreviewWeight;
             if (shot.ProgressDriven && !shot.Releasing)
-                return shot.Profile.EvaluateWeight(shot.Progress);
+                return shot.Timing.Enabled ? shot.Timing.Evaluate(shot.Progress) : shot.Profile.EvaluateWeight(shot.Progress);
             if (!shot.Releasing) return EntryWeight(shot, now);
             if (shot.Profile.BlendOut <= 0f) return 0f;
             return shot.ReleaseWeight * (1f - Mathf.SmoothStep(0f, 1f,
@@ -230,17 +244,61 @@ namespace CombatCamera
                 float weight = Weight(shot, Now(shot.UnscaledTime));
                 if (!TryPose(shot, basePosition, baseRotation, baseFov, out CameraShotPose target, constraint)) continue;
                 active = true;
-                lockInput |= shot.Profile.LockCameraInput;
+                lockInput |= shot.Profile.LockCameraInput && (!shot.Timing.Enabled || weight > .0001f);
                 if (!shot.Profile.OverrideFieldOfView && shot.Profile.Composition != CameraShotComposition.ActorStartPose)
                     target.FieldOfView = pose.FieldOfView;
-                pose = Blend(pose, target, weight, shot.AnchorPosition + Vector3.up * 1.2f,
+                if (shot.Timing.Enabled)
+                {
+                    if (!shot.HasEntry)
+                    {
+                        shot.EntryPose = channelOutputs.TryGetValue(channel, out var previous) ? previous : pose;
+                        shot.EntryActorPosition = shot.Actor.position; shot.HasEntry = true;
+                    }
+                    var entry = shot.EntryPose;
+                    entry.Position += shot.Actor.position - shot.EntryActorPosition;
+                    if (shot.Releasing && shot.HasComposed)
+                    {
+                        var released = shot.ReleasePose;
+                        released.Position += shot.Actor.position - shot.ReleaseActorPosition;
+                        float t = shot.Profile.BlendOut <= 0 ? 1 : Mathf.SmoothStep(0, 1,
+                            (float)(Now(shot.UnscaledTime) - shot.Released) / shot.Profile.BlendOut);
+                        pose = Blend(released, pose, t, shot.Actor.position + Vector3.up * 1.2f, shot.Profile.OrbitBlend);
+                    }
+                    else pose = ComposeClip(shot.Profile, shot.Timing, entry, pose, target, shot.Progress, shot.Actor.position);
+                    pose = ConstrainFinalPose(shot.Profile, shot.Actor.position, pose);
+                    shot.ComposedPose = pose; shot.HasComposed = true;
+                }
+                else pose = Blend(pose, target, weight, shot.AnchorPosition + Vector3.up * 1.2f,
                     shot.Profile.OrbitBlend && shot.Profile.Composition != CameraShotComposition.GameCameraRelative);
             }
+            if (active) channelOutputs[channel] = pose;
+            else channelOutputs.Remove(channel);
             return active;
         }
 
+        public static CameraShotPose ComposeClip(CameraShotProfile profile, CameraShotTiming timing,
+            CameraShotPose entry, CameraShotPose basis, CameraShotPose target, float progress, Vector3 actorPosition)
+        {
+            bool orbit = profile.OrbitBlend && profile.Composition != CameraShotComposition.GameCameraRelative;
+            // Relative modifiers remain relative to the current gameplay camera.
+            var from = progress < timing.Enter && profile.Composition != CameraShotComposition.GameCameraRelative ? entry : basis;
+            return Blend(from, target, timing.Evaluate(progress), actorPosition + Vector3.up * 1.2f, orbit);
+        }
+
+        public static CameraShotPose ConstrainFinalPose(CameraShotProfile profile, Vector3 actorPosition, CameraShotPose pose)
+        {
+            if (!profile.AvoidObstacles) return pose;
+            Vector3 origin = actorPosition + Vector3.up * 1.2f;
+            Vector3 ray = pose.Position - origin;
+            float length = ray.magnitude;
+            if (length > .0001f && Physics.SphereCast(origin, Mathf.Max(.01f, profile.CollisionRadius), ray / length,
+                out var hit, length, profile.ObstacleLayers, QueryTriggerInteraction.Ignore))
+                pose.Position = origin + ray / length * Mathf.Max(0, hit.distance - .02f);
+            return pose;
+        }
+
         private static Vector3 Follow(Vector3 current, Vector3 target, ref Vector3 velocity,
-            Shot shot, float dt) => !shot.Initialized || shot.Preview || !Application.isPlaying || shot.Profile.FollowDamping <= 0f
+            Shot shot, float dt) => !shot.Initialized || (!shot.Simulating && (shot.Preview || !Application.isPlaying)) || shot.Profile.FollowDamping <= 0f
                 ? target : dt <= 0f ? current : Vector3.SmoothDamp(current, target, ref velocity, shot.Profile.FollowDamping, Mathf.Infinity, dt);
 
         // Follow an arc around the subject and compensate aim so the path does not
@@ -279,7 +337,7 @@ namespace CombatCamera
             if (blocked)
                 distance = Mathf.Max(0f, hit.distance - .02f);
             // Retract immediately for safety; ease outward after the obstacle clears.
-            if (!shot.HasObstacleDistance || shot.Preview || !Application.isPlaying ||
+            if (!shot.HasObstacleDistance || (!shot.Simulating && (shot.Preview || !Application.isPlaying)) ||
                 distance <= shot.ObstacleDistance || p.ObstacleRecovery <= 0f)
             { shot.ObstacleDistance = distance; shot.ObstacleVelocity = 0f; }
             else if (dt > 0f) shot.ObstacleDistance = Mathf.SmoothDamp(shot.ObstacleDistance, distance,
@@ -301,7 +359,9 @@ namespace CombatCamera
             CameraShotProfile p = shot.Profile;
             double now = Now(shot.UnscaledTime);
             float dt = shot.Initialized ? Mathf.Max(0f, (float)(now - shot.PoseUpdated)) : 0f;
+            if (shot.Simulating) dt = shot.SimulationDelta;
             shot.PoseUpdated = now;
+            var motion = p.SampleMotion(shot.Progress);
             if (p.Composition == CameraShotComposition.ActorStartPose)
             {
                 if (!shot.HasActorStartFrame)
@@ -311,13 +371,12 @@ namespace CombatCamera
                 }
                 shot.Frame = shot.ActorStartFrame;
                 shot.AnchorPosition = Follow(shot.AnchorPosition, shot.Actor.position, ref shot.AnchorVelocity, shot, dt);
-                float amount = p.MotionCurve != null ? p.MotionCurve.Evaluate(shot.Progress) : shot.Progress;
-                Vector3 destination = shot.AnchorPosition + shot.Frame * (p.TargetPosition + p.PositionTravel * amount);
+                Vector3 destination = shot.AnchorPosition + shot.Frame * motion.Position;
                 Vector3 origin = shot.Actor.position + Vector3.up * 1.2f;
                 if (!p.LimitToGameCameraOrbit) destination = Avoid(shot, origin, destination, dt);
                 pose = new CameraShotPose { Position = destination,
-                    Rotation = shot.Frame * Quaternion.Euler(p.TargetRotation),
-                    FieldOfView = Mathf.Clamp(p.FieldOfView, 1, 179) };
+                    Rotation = shot.Frame * motion.Rotation,
+                    FieldOfView = Mathf.Clamp(motion.FieldOfView, 1, 179) };
                 if (p.LimitToGameCameraOrbit)
                 {
                     if (constraint == null || !constraint(pose, out var constrained)) return false;
@@ -343,14 +402,13 @@ namespace CombatCamera
                 // Always derive from it, never from last frame's modified camera.
                 shot.AnchorPosition = cameraPosition;
                 shot.Frame = cameraRotation;
-                float amount = p.MotionCurve != null ? p.MotionCurve.Evaluate(shot.Progress) : shot.Progress;
-                Vector3 displacement = cameraRotation * (p.CameraPositionOffset + p.PositionTravel * amount);
+                Vector3 displacement = cameraRotation * motion.Position;
                 Vector3 finalPosition = cameraPosition + displacement;
                 finalPosition = Avoid(shot, cameraPosition, finalPosition, dt);
                 pose = new CameraShotPose {
                     Position = finalPosition,
-                    Rotation = cameraRotation * Quaternion.Euler(p.CameraRotationOffset),
-                    FieldOfView = p.OverrideFieldOfView ? Mathf.Clamp(p.FieldOfView, 1, 179) : baseFov
+                    Rotation = cameraRotation * motion.Rotation,
+                    FieldOfView = p.OverrideFieldOfView ? Mathf.Clamp(motion.FieldOfView, 1, 179) : baseFov
                 };
                 shot.Initialized = true; shot.LastPose = pose;
                 return true;

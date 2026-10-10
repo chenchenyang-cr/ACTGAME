@@ -1,3 +1,4 @@
+using CombatEditor;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -25,13 +26,10 @@ namespace UnityLearning.EnemySystem
         private int isMovingHash;
         private int startXHash;
         private int startYHash;
-        private int stopXHash;
-        private int stopYHash;
         private bool hasSpeedParameter;
         private bool hasDirectionalParameters;
         private bool hasIsMovingParameter;
         private bool hasStartParameters;
-        private bool hasStopParameters;
         private bool wasMoving;
         private bool warnedOffNavMesh;
         private bool hasMovementRequest;
@@ -39,13 +37,14 @@ namespace UnityLearning.EnemySystem
         private Vector3 currentMovementVelocity;
         private Vector3 stabilizedMovementDirection;
         private bool hasStabilizedMovementDirection;
-        private Vector2 lastNonZeroDirection = Vector2.up;
         private Vector3 hitRecoilDirection;
         private AnimationCurve hitRecoilDecayCurve;
         private float hitRecoilDuration;
         private float hitRecoilSpeed;
         private float hitRecoilElapsed;
         private bool hitRecoilActive;
+        private bool hitRecoilAffectedByHitStop;
+        private CombatController hitRecoilOwner;
 
         public bool HasValidPath => navMeshAgent != null && navMeshAgent.isOnNavMesh &&
                                     navMeshAgent.pathStatus != NavMeshPathStatus.PathInvalid;
@@ -107,14 +106,6 @@ namespace UnityLearning.EnemySystem
                                  HasAnimatorParameter(
                                      config.StartYParameter,
                                      AnimatorControllerParameterType.Float);
-            stopXHash = Animator.StringToHash(config.StopXParameter);
-            stopYHash = Animator.StringToHash(config.StopYParameter);
-            hasStopParameters = HasAnimatorParameter(
-                                    config.StopXParameter,
-                                    AnimatorControllerParameterType.Float) &&
-                                HasAnimatorParameter(
-                                    config.StopYParameter,
-                                    AnimatorControllerParameterType.Float);
         }
 
         private void Update()
@@ -136,13 +127,8 @@ namespace UnityLearning.EnemySystem
             if (moving && localDirection.sqrMagnitude > 0.0001f)
             {
                 localDirection.Normalize();
-                lastNonZeroDirection = localDirection;
                 if (!wasMoving && hasStartParameters)
                     SetDiscreteDirection(startXHash, startYHash, localDirection);
-            }
-            else if (!moving && wasMoving && hasStopParameters)
-            {
-                SetDiscreteDirection(stopXHash, stopYHash, lastNonZeroDirection);
             }
 
             if (hasSpeedParameter)
@@ -172,21 +158,26 @@ namespace UnityLearning.EnemySystem
             if (!hitRecoilActive)
                 return;
 
+            float speedScale = hitRecoilAffectedByHitStop && hitRecoilOwner != null &&
+                               hitRecoilOwner._animSpeedExecutor != null
+                ? hitRecoilOwner._animSpeedExecutor.CurrentHitStopSpeedScale : 1f;
+            float recoilDeltaTime = Time.deltaTime * speedScale;
             float normalizedTime = Mathf.Clamp01(hitRecoilElapsed / hitRecoilDuration);
             float decay = hitRecoilDecayCurve != null &&
                           hitRecoilDecayCurve.length > 0
                 ? Mathf.Max(0f, hitRecoilDecayCurve.Evaluate(normalizedTime))
                 : 1f - normalizedTime;
             ApplyExternalDisplacement(hitRecoilDirection *
-                                      (hitRecoilSpeed * decay * Time.deltaTime));
+                                      (hitRecoilSpeed * decay * recoilDeltaTime));
 
-            hitRecoilElapsed += Time.deltaTime;
+            hitRecoilElapsed += recoilDeltaTime;
             if (hitRecoilElapsed >= hitRecoilDuration)
                 hitRecoilActive = false;
         }
 
         public void PlayHitRecoil(Vector3 direction, float duration, float speed,
-            AnimationCurve decayCurve)
+            AnimationCurve decayCurve, bool affectedByHitStop = false,
+            CombatController owner = null)
         {
             direction.y = 0f;
             if (direction.sqrMagnitude <= 0.0001f || duration <= 0f || speed <= 0f)
@@ -199,6 +190,8 @@ namespace UnityLearning.EnemySystem
             hitRecoilDuration = duration;
             hitRecoilSpeed = speed;
             hitRecoilDecayCurve = decayCurve;
+            hitRecoilAffectedByHitStop = affectedByHitStop;
+            hitRecoilOwner = owner;
             hitRecoilElapsed = 0f;
             hitRecoilActive = true;
         }

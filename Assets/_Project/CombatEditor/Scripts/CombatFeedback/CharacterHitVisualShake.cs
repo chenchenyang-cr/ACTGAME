@@ -12,6 +12,10 @@ namespace CombatEditor
         private float frequency;
         private float amplitude;
         private float startTime;
+        private float elapsedTime;
+        private float lastSampleTime;
+        private bool affectedByHitStop;
+        private CombatController hitStopOwner;
         private Vector3 impulse;
         private Vector3 restartCorrection;
         private bool playing;
@@ -42,7 +46,8 @@ namespace CombatEditor
         }
 
         public void Play(float shakeDuration, float shakeFrequency,
-            float shakeAmplitude, AnimationCurve shakeDecayCurve, Vector3 worldDirection)
+            float shakeAmplitude, AnimationCurve shakeDecayCurve, Vector3 worldDirection,
+            bool useHitStop = false, CombatController owner = null)
         {
             if (shakePivot == null || shakeDuration <= 0f || shakeAmplitude <= 0f)
             {
@@ -68,6 +73,10 @@ namespace CombatEditor
                 : impulse;
             restartCorrection = initialOffset - impulse;
             startTime = Time.unscaledTime;
+            elapsedTime = 0f;
+            lastSampleTime = startTime;
+            affectedByHitStop = useHitStop;
+            hitStopOwner = owner;
             playing = true;
             shakePivot.localPosition = pivotBaseLocalPosition + initialOffset;
         }
@@ -78,6 +87,16 @@ namespace CombatEditor
                 return;
 
             float elapsed = Time.unscaledTime - startTime;
+            if (affectedByHitStop)
+            {
+                float now = Time.unscaledTime;
+                float speedScale = hitStopOwner != null &&
+                                   hitStopOwner._animSpeedExecutor != null
+                    ? hitStopOwner._animSpeedExecutor.CurrentHitStopSpeedScale : 1f;
+                elapsedTime += Mathf.Max(0f, now - lastSampleTime) * speedScale;
+                lastSampleTime = now;
+                elapsed = elapsedTime;
+            }
             if (elapsed >= duration)
             {
                 StopAndRestore();
@@ -115,6 +134,7 @@ namespace CombatEditor
         private void StopAndRestore()
         {
             playing = false;
+            hitStopOwner = null;
             restartCorrection = Vector3.zero;
             if (shakePivot != null)
                 shakePivot.localPosition = pivotBaseLocalPosition;

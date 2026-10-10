@@ -4,6 +4,16 @@ using UnityEngine;
 
  namespace CombatEditor
 {
+    public struct HitStopFadeSettings
+    {
+        public bool FadeIn;
+        public int FadeInFrames;
+        public AnimationCurve FadeInCurve;
+        public bool FadeOut;
+        public int FadeOutFrames;
+        public AnimationCurve FadeOutCurve;
+    }
+
     [System.Serializable]
 	public class CharacterAnimSpeedModifier
 	{
@@ -13,6 +23,7 @@ using UnityEngine;
 	    public bool SelfDestroy;
 	    public AnimationCurve SpeedCurve;
 	    public bool UseUnscaledTime;
+	    public HitStopFadeSettings HitStopFades;
 	    public CharacterAnimSpeedModifier(float speedScale, float maxTime)
 	    {
 	        SpeedScale = speedScale;
@@ -43,6 +54,37 @@ using UnityEngine;
 
 	    public float EvaluateSpeedScale()
 	    {
+	        if (HitStopFades.FadeIn || HitStopFades.FadeOut)
+	        {
+	            float elapsed = Mathf.Clamp(CurrentTime - StartTime, 0f, MaxTime);
+	            float fadeInDuration = HitStopFades.FadeIn
+	                ? Mathf.Max(0, HitStopFades.FadeInFrames) / CombatTimeline.FramesPerSecond : 0f;
+	            float fadeOutDuration = HitStopFades.FadeOut
+	                ? Mathf.Max(0, HitStopFades.FadeOutFrames) / CombatTimeline.FramesPerSecond : 0f;
+	            float fadeTotal = fadeInDuration + fadeOutDuration;
+	            if (fadeTotal > MaxTime)
+	            {
+	                float scale = MaxTime / fadeTotal;
+	                fadeInDuration *= scale;
+	                fadeOutDuration *= scale;
+	            }
+
+	            float strength = 1f;
+	            if (fadeInDuration > 0f && elapsed < fadeInDuration)
+	            {
+	                float progress = elapsed / fadeInDuration;
+	                strength = HitStopFades.FadeInCurve != null && HitStopFades.FadeInCurve.length > 0
+	                    ? Mathf.Clamp01(HitStopFades.FadeInCurve.Evaluate(progress)) : progress;
+	            }
+	            if (fadeOutDuration > 0f && elapsed >= MaxTime - fadeOutDuration)
+	            {
+	                float progress = (elapsed - (MaxTime - fadeOutDuration)) / fadeOutDuration;
+	                float outgoingStrength = HitStopFades.FadeOutCurve != null && HitStopFades.FadeOutCurve.length > 0
+	                    ? Mathf.Clamp01(HitStopFades.FadeOutCurve.Evaluate(progress)) : 1f - progress;
+	                strength = Mathf.Min(strength, outgoingStrength);
+	            }
+	            return Mathf.Lerp(1f, Mathf.Clamp01(SpeedScale), strength);
+	        }
 	        if (SpeedCurve == null || SpeedCurve.length == 0)
 	            return Mathf.Max(0f, SpeedScale);
 
@@ -60,7 +102,7 @@ using UnityEngine;
 	    {
 	        if (_pendingHitStopFrames > 0 && Time.frameCount >= _hitStopStartFrame)
 	        {
-	            StartHitStop(_pendingHitStopFrames, _pendingHitStopSpeed);
+	            StartHitStop(_pendingHitStopFrames, _pendingHitStopSpeed, _pendingHitStopFades);
 	            _pendingHitStopFrames = 0;
 	        }
 	        _combatController._animator.speed = GetCurrentSpeedModifier();
@@ -71,14 +113,19 @@ using UnityEngine;
 	    private CharacterAnimSpeedModifier _hitStopModifier;
 	    private int _pendingHitStopFrames;
 	    private float _pendingHitStopSpeed;
+	    private HitStopFadeSettings _pendingHitStopFades;
 	    private int _hitStopStartFrame;
 
 	    public float CurrentHitStopSpeedScale => _hitStopModifier != null &&
 	        _hitStopModifier.CurrentTime - _hitStopModifier.StartTime < _hitStopModifier.MaxTime
 	            ? _hitStopModifier.EvaluateSpeedScale()
 	            : 1f;
+	    public bool IsHitStopActive => _pendingHitStopFrames > 0 ||
+	        _hitStopModifier != null &&
+	        _hitStopModifier.CurrentTime - _hitStopModifier.StartTime < _hitStopModifier.MaxTime;
 
-	    public void PlayHitStop(int frames, bool delayOneFrame = false, float animationSpeed = 0f)
+	    public void PlayHitStop(int frames, bool delayOneFrame = false, float animationSpeed = 0f,
+	        HitStopFadeSettings fades = default)
 	    {
 	        if (frames <= 0)
 	            return;
@@ -91,15 +138,16 @@ using UnityEngine;
 	                _hitStopStartFrame = Time.frameCount + 1;
 	            _pendingHitStopFrames = frames;
 	            _pendingHitStopSpeed = animationSpeed;
+	            _pendingHitStopFades = fades;
 	            return;
 	        }
 
 	        _pendingHitStopFrames = 0;
-	        StartHitStop(frames, animationSpeed);
+	        StartHitStop(frames, animationSpeed, fades);
 	        Execute();
 	    }
 
-	    private void StartHitStop(int frames, float animationSpeed)
+	    private void StartHitStop(int frames, float animationSpeed, HitStopFadeSettings fades)
 	    {
 	        if (_hitStopModifier != null)
 	            _animSpeedModifiers.Remove(_hitStopModifier);
@@ -109,7 +157,8 @@ using UnityEngine;
 	            frames / CombatTimeline.FramesPerSecond)
 	        {
 	            UseUnscaledTime = true,
-	            StartTime = Time.unscaledTime
+	            StartTime = Time.unscaledTime,
+	            HitStopFades = fades
 	        };
 	        _animSpeedModifiers.Add(_hitStopModifier);
 	    }

@@ -1,0 +1,49 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 02_PinkVioletGlow
+  m_Shader: {fileID: 4800000, guid: 6649a6380b100477e88a86eb8c7944c1, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _GrowthCurve:
+        m_Texture: {fileID: 2800000, guid: a367130666eab4bcfb600e96c31104a2, type: 2}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _AirFlow: 1
+    - _BlurRadius: 2.2
+    - _CenterWidth: 1
+    - _ControllerBrightness: 1
+    - _ControllerLineWidth: 1
+    - _DissolveEnd: 1
+    - _DissolveStart: 0.44
+    - _DistortionStrength: 0.012
+    - _DstBlend: 1
+    - _FlowSpeed: 1
+    - _GrowthFraction: 0.2
+    - _InnerFill: 0
+    - _InwardFade: 1
+    - _Softness: 5.6
+    - _TailFadePower: 1.2
+    m_Colors:
+    - _Tint: {r: 0, g: 0.6526163, b: 2.9960785, a: 0.45}
+  m_BuildTextureStacks: []

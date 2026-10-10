@@ -2,6 +2,31 @@ using UnityEngine;
 
 namespace CombatCamera
 {
+    [System.Serializable]
+    public struct CameraShotTiming
+    {
+        public bool Enabled;
+        [Range(0f, 1f)] public float Enter;
+        [Range(0f, 1f)] public float Exit;
+        public float Evaluate(float time)
+        {
+            time = Mathf.Clamp01(time);
+            float enter = Mathf.Clamp01(Enter);
+            float exit = Mathf.Min(Mathf.Clamp01(Exit), 1f - enter);
+            if (enter > 0f && time < enter) return Mathf.SmoothStep(0, 1, time / enter);
+            if (exit > 0f && time > 1f - exit) return Mathf.SmoothStep(1, 0, (time - 1f + exit) / exit);
+            return 1f;
+        }
+    }
+
+    [System.Serializable]
+    public struct CameraShotKey
+    {
+        [Range(0f, 1f)] public float Time;
+        public Vector3 Position;
+        public Vector3 Rotation;
+        [Range(1f, 179f)] public float FieldOfView;
+    }
     // Keep serialized values stable after removing the former mode at value 0.
     public enum CameraShotComposition
     {
@@ -30,6 +55,33 @@ namespace CombatCamera
         public AnimationCurve MotionCurve = AnimationCurve.Linear(0f, 0f, 1f, 1f);
         public bool OverrideFieldOfView = true;
         [Range(1f, 179f)] public float FieldOfView = 50f;
+        // Opt-in: existing assets keep their original motion and curves.
+        public bool UseKeyframes;
+        public System.Collections.Generic.List<CameraShotKey> Keys = new();
+
+        public CameraShotPose SampleMotion(float progress)
+        {
+            var result = new CameraShotPose {
+                Position = (Composition == CameraShotComposition.ActorStartPose ? TargetPosition : CameraPositionOffset)
+                    + PositionTravel * (MotionCurve != null ? MotionCurve.Evaluate(progress) : progress),
+                Rotation = Quaternion.Euler(Composition == CameraShotComposition.ActorStartPose ? TargetRotation : CameraRotationOffset),
+                FieldOfView = FieldOfView
+            };
+            if (!UseKeyframes || Keys == null || Keys.Count == 0) return result;
+            CameraShotKey? before = null, after = null;
+            foreach (var key in Keys)
+            {
+                if (key.Time <= progress && (!before.HasValue || key.Time > before.Value.Time)) before = key;
+                if (key.Time >= progress && (!after.HasValue || key.Time < after.Value.Time)) after = key;
+            }
+            if (!before.HasValue) before = after;
+            if (!after.HasValue) after = before;
+            var a = before.Value; var b = after.Value;
+            float t = Mathf.SmoothStep(0, 1, Mathf.InverseLerp(a.Time, b.Time, progress));
+            return new CameraShotPose { Position = Vector3.Lerp(a.Position, b.Position, t),
+                Rotation = Quaternion.Slerp(Quaternion.Euler(a.Rotation), Quaternion.Euler(b.Rotation), t),
+                FieldOfView = Mathf.Clamp(Mathf.Lerp(a.FieldOfView, b.FieldOfView, t), 1, 179) };
+        }
 
         [Header("Blending and Priority")]
         [Tooltip("X: progress through the Camera Shot track (0–1). Y: shot weight (0 = game camera, 1 = target composition).")]

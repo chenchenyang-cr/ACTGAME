@@ -76,7 +76,7 @@ namespace UnityLearning.EnemySystem
                 float duration = request.StaggerDuration > 0f
                     ? request.StaggerDuration
                     : controller.Config.DefaultStaggerDuration;
-                controller.NotifyStagger(duration, request.AttackDirection,
+                controller.NotifyStagger(duration,
                     request.Attacker != null ? request.Attacker.transform : null);
             }
 

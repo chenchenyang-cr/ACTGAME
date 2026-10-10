@@ -9,6 +9,8 @@ namespace CombatEditor
     {
         public CameraShotProfile Profile;
         public int Channel;
+        public CameraShotTiming Timing;
+        public float EvaluateWeight(float progress) => Timing.Enabled ? Timing.Evaluate(progress) : Profile != null ? Profile.EvaluateWeight(progress) : 0f;
         [Tooltip("Opt in to previewing this shot in Game view while scrubbing. Requires the shot extension on the scene camera.")]
         public bool PreviewCamera;
         public override EventTimeType GetEventTimeType() => EventTimeType.EventRange;
@@ -31,7 +33,7 @@ namespace CombatEditor
             CameraShotRuntime.Release(handle, true);
             if (_combatController == null) return;
             handle = CameraShotRuntime.Begin(Config.Profile, _combatController.transform,
-                channel: Config.Channel, lifetimeOwner: _combatController);
+                channel: Config.Channel, lifetimeOwner: _combatController, timing: Config.Timing);
             CameraShotRuntime.SetProgress(handle, 0f);
         }
         public override void EffectRunning(float time) => CameraShotRuntime.SetProgress(handle,
@@ -41,6 +43,11 @@ namespace CombatEditor
             CameraShotRuntime.Release(handle);
             handle = 0;
             base.EndEffect();
+        }
+        public void CompleteEffect()
+        {
+            if (Config.Timing.Enabled) CameraShotRuntime.SetProgress(handle, 1f);
+            EndEffect();
         }
     }
 
@@ -81,9 +88,9 @@ namespace CombatEditor
                 !PreviewInRange(time) || Config.Profile == null || _combatController == null)
             { Release(); return; }
             if (handle == 0) handle = CameraShotRuntime.Begin(Config.Profile,
-                _combatController.transform, channel: Config.Channel);
+                _combatController.transform, channel: Config.Channel, timing: Config.Timing);
             float t = Mathf.InverseLerp(StartTimePercentage, EndTimePercentage, time);
-            CameraShotRuntime.SetPreview(handle, t, Config.Profile.EvaluateWeight(t));
+            CameraShotRuntime.SetPreview(handle, t, Config.EvaluateWeight(t));
             UnityEditor.EditorApplication.QueuePlayerLoopUpdate();
             UnityEditor.SceneView.RepaintAll();
         }

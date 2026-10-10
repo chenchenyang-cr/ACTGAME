@@ -75,7 +75,7 @@ Enemy/
 
 - 每个移动周期在区域内选择一个临时随机目标点，并持续移动到该点。
 - 抵达目标点或移动超时后，按 `Orbit Wait Chance` 随机决定是否停顿。
-- 需要停顿时，先完整播放 Stop 并稳定进入 Idle，再计算额外停顿时间，最后选择下一个目标点。
+- 需要停顿时直接进入 Idle，再计算额外停顿时间，最后选择下一个目标点。
 - 不停顿时保持 Locomotion，直接选择下一个临时目标点，方向变化仍由 `EnemyMotor` 平滑。
 - 从 `ApproachSlot / Pressure / Retreat` 进入 `Orbit` 时也使用同一等待门，不会携带上一段移动直接切换方向。
 - 行走 0.8～2 秒。
@@ -135,8 +135,8 @@ Main 场景默认参数：
 | Orbit Minimum Target Distance | 0.8 | 新随机目标点与敌人当前位置需要保持的最小距离 |
 | Orbit Radial Freedom | 0.35 | 自由方向中允许的前后分量；0 为纯横移 |
 | Orbit Walk Duration Min / Max | 1 / 2 | 朝当前随机目标点移动的最长时间范围（秒） |
-| Orbit Wait Chance | 0.65 | 每次换目标点时进入完整 Stop→Idle 等待流程的概率 |
-| Orbit Idle Duration Min / Max | 0.3 / 0.5 | Stop 动画完整结束并进入 Idle 后的额外观察停顿范围（秒） |
+| Orbit Wait Chance | 0.65 | 每次换目标点时进入 Idle 等待流程的概率 |
+| Orbit Idle Duration Min / Max | 0.3 / 0.5 | 进入 Idle 后的额外观察停顿范围（秒） |
 | Orbit Target Retry Pause Min / Max | 0.18 / 0.32 | 随机点不可用时，完整停稳后重新选点前的等待范围（秒） |
 | Pressure Chance | 0.3 | 停顿后进入施压的概率 |
 | Orbit Reverse Chance | 0.2 | 停顿后将下一个目标点选在当前角度另一侧的概率 |
@@ -182,30 +182,23 @@ Animator 参数：
 | MoveX / MoveY | 连续的局部横移、前进和后退方向 |
 | MoveSpeed | 归一化期望速度 |
 | StartX / StartY | 起步瞬间冻结的八方向输入 |
-| StopX / StopY | 停步瞬间冻结的八方向输入 |
 | IsMoving | 当前是否存在有效移动请求 |
 
 Animator 状态检测使用短名称 Hash，同时兼容完整路径，避免 `LocomotionStart` 被反复从第 0 帧重播。`MoveTo/Stop` 会维护明确的移动请求；移动方向由“角色真实 Transform 到当前路径拐点”计算，不直接使用 `NavMeshAgent.isStopped` 或 Agent 内部可能提前归零的 `desiredVelocity` 控制融合树。
 
-Locomotion 使用完整的 `IsMoving` 过渡环：`Idle → Start → Loop → Stop → Idle`。`Start` 中途停止会融合到 `Stop`，`Stop` 中途重新移动会融合回 `Start`。移动状态之间不再由代码直接 CrossFade，避免 Animator 过渡和脚本同时抢占状态；攻击、受击等非移动状态返回移动时仍使用安全 CrossFade。
+Locomotion 使用 `IsMoving` 过渡：`Idle → Start → Loop → Idle`。停止移动时直接进入 Idle；攻击、受击等非移动状态返回移动时仍使用安全 CrossFade。
 
-SwordEnemy Controller 使用 SwordAnimationPack 的 24 个 Humanoid Root Motion 动画：八方向 Start、八方向 Loop、八方向 Stop。模型必须保留 `9CG_SwordAvatar`，不能在场景实例上覆盖为 `None`。
+SwordEnemy Controller 与 Prefab 当前引用怪兽模型及其动画。不要使用旧剑士模型的重建工具覆盖这些资源。
 
 `EnemyMotor.Configure` 会主动解析 `NavMeshAgent` 和子节点 Animator，不依赖同一 GameObject 上多个组件的 Awake 调用顺序，避免启动时把实际存在的 Blend Tree 参数误判为缺失。
 
-移动方向不会直接采用 NavMesh 每帧给出的瞬时拐点方向。`EnemyMotor` 会限制方向变化角速度，并过滤小角度抖动，使 `MoveX/MoveY` 沿八方向融合树相邻区域连续变化。`Orbit` 会保留当前临时目标点直到抵达或超时，再执行“Stop → 停顿 → 选择新点 → Start”，不会每帧把目标点推到敌人前方。
+移动方向不会直接采用 NavMesh 每帧给出的瞬时拐点方向。`EnemyMotor` 会限制方向变化角速度，并过滤小角度抖动，使 `MoveX/MoveY` 连续变化。`Orbit` 会保留当前临时目标点直到抵达或超时，再执行“Idle → 停顿 → 选择新点 → Start”，不会每帧把目标点推到敌人前方。
 
-敌人对峙朝向由 `EnemyMotor.FaceTarget` 独占。`RootMotionParentApplier` 会保留动画位移，但过滤普通移动动画的根旋转，避免横移动画在 LateUpdate 把敌人转向移动方向，从而把本应输入 `MoveX` 的切线运动错误地变成 `MoveY`。`LocomotionStart / LocomotionLoop / LocomotionStop` Tag 用于识别并平滑 Start→Loop 的 Root Motion 速度差。
+敌人对峙朝向由 `EnemyMotor.FaceTarget` 独占。`RootMotionParentApplier` 会保留动画位移，但过滤普通移动动画的根旋转，避免横移动画在 LateUpdate 把敌人转向移动方向。`LocomotionStart / LocomotionLoop` Tag 用于识别并平滑 Start→Loop 的 Root Motion 速度差。
 
-## 6. 配置与生成
+## 6. 配置
 
-重新生成敌人 Prefab：
-
-```text
-Tools → Enemy → Rebuild Sword Enemy Prefab
-```
-
-重新配置 Main 场景导演与敌人 Animator：
+重新配置 Main 场景导演参数：
 
 ```text
 Tools → Enemy → Configure Main Scene Combat Director

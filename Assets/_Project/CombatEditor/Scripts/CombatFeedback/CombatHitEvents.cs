@@ -34,7 +34,7 @@ namespace CombatEditor
     public readonly struct CombatHitConfirmedEvent
     {
         public CombatHitConfirmedEvent(CombatController attacker,
-            AbilityScriptableObject ability, AbilityEventObj_CreateHitBox sourceHitBoxEvent,
+            AbilityScriptableObject ability, AbilityEventObj_HitSource sourceHitBoxEvent,
             HitBox hitBox, Component targetCollider, GameObject target, Vector3 hitPoint,
             Vector3 attackDirection, HitBoxHitContext hitContext,
             CombatHitResolution resolution)
@@ -60,7 +60,7 @@ namespace CombatEditor
 
         public CombatController Attacker { get; }
         public AbilityScriptableObject Ability { get; }
-        public AbilityEventObj_CreateHitBox SourceHitBoxEvent { get; }
+        public AbilityEventObj_HitSource SourceHitBoxEvent { get; }
         public HitBox HitBox { get; }
         public Component TargetCollider { get; }
         public GameObject Target { get; }

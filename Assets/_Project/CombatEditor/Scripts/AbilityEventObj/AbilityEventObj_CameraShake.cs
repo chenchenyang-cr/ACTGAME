@@ -27,9 +27,10 @@ namespace CombatEditor
         [Header("命中后触发")]
         [Min(0.01f)] public float HitShakeDuration = 0.16f;
         public bool UseUnscaledTime = true;
+        public bool StartAfterHitStop;
         public CameraShakeHitBoxFilter HitBoxFilter =
             CameraShakeHitBoxFilter.AnyHitBoxInAbility;
-        public AbilityEventObj_CreateHitBox SpecificHitBox;
+        public AbilityEventObj_HitSource SpecificHitBox;
         public CameraShakeHitTriggerPolicy TriggerPolicy =
             CameraShakeHitTriggerPolicy.FirstHitOnly;
         public CombatHitResultMask AcceptedResults = CombatHitResultMask.Normal |
@@ -98,6 +99,7 @@ namespace CombatEditor
                     Cooldown = Config.TriggerCooldown,
                     Duration = Config.HitShakeDuration,
                     UseUnscaledTime = Config.UseUnscaledTime,
+                    StartAfterHitStop = Config.StartAfterHitStop,
                     AffectedByHitStop = Config.AffectedByHitStop,
                     HitStopWeight = Config.HitStopWeight,
                     Settings = Config.Settings
@@ -301,6 +303,8 @@ namespace CombatEditor
             }
             if (shakeHandle == 0)
                 shakeHandle = CameraShakeRuntime.Add(Config.Settings, intensityScale);
+            if (Config.TriggerMode == CameraShakeTriggerMode.OnConfirmedHit)
+                intensityScale = Config.Settings.EvaluateHitIntensity(normalizedTime, intensityScale);
             CameraShakeRuntime.Update(shakeHandle, Config.Settings, waveTime, normalizedTime,
                 intensityScale, _combatController != null && _combatController._animator != null
                     ? _combatController._animator.transform.forward : Vector3.forward,

@@ -128,6 +128,7 @@ namespace CombatEditor
 
             int StartFrame = Mathf.RoundToInt(AnimEventTracks[i].eve.EventRange.x * AnimFrameCount);
             int EndFrame = Mathf.RoundToInt(AnimEventTracks[i].eve.EventRange.y * AnimFrameCount);
+            PaintCameraShotBlend(i, AvilableTrackRect, StartFrame, EndFrame, false);
             bool finishedDrag = false;
             int[] TimeRange =
                 AnimEventTracks[i].helper.DrawHorizontalDraggableRange(
@@ -150,7 +151,52 @@ namespace CombatEditor
                 AnimEventTracks[i].eve.EventRange.y = (float)TimeRange[1] / (float)AnimFrameCount;
             }
             if (finishedDrag) OnDragEventTimePoint();
+            PaintCameraShotBlend(i, AvilableTrackRect, StartFrame, EndFrame, true);
         }
+
+        private void PaintCameraShotBlend(int index, Rect track, int start, int end, bool paint)
+        {
+            if (!(AnimEventTracks[index].eve.Obj is AbilityEventObj_CameraShot shot) || AnimFrameCount <= 0 || end <= start) return;
+            float left = track.x + track.width * start / AnimFrameCount;
+            float width = track.width * (end - start) / AnimFrameCount;
+            var bounds = new Rect(left, track.y + 2, width, track.height - 4);
+            var e = Event.current;
+            if (!paint && e.type == EventType.MouseDown && e.clickCount == 2 && bounds.Contains(e.mousePosition))
+            { CombatCamera.Editor.CameraShotWindow.Open(shot.Profile, shot); e.Use(); return; }
+            if (!shot.Timing.Enabled) return;
+            float enterX = left + width * shot.Timing.Enter;
+            float exitX = left + width * (1 - shot.Timing.Exit);
+            int id = GUIUtility.GetControlID(index + 756810, FocusType.Passive);
+            if (paint)
+            {
+                EditorGUI.DrawRect(new Rect(left, bounds.y, width * shot.Timing.Enter, bounds.height), new Color(.1f, .7f, 1, .3f));
+                EditorGUI.DrawRect(new Rect(exitX, bounds.y, width * shot.Timing.Exit, bounds.height), new Color(1, .6f, .1f, .3f));
+                EditorGUI.DrawRect(new Rect(enterX - 2, bounds.y, 4, 7), Color.cyan);
+                EditorGUI.DrawRect(new Rect(exitX - 2, bounds.y, 4, 7), Color.yellow);
+                if (width > 110) GUI.Label(bounds, $"入 {Mathf.RoundToInt((end - start) * shot.Timing.Enter)} 帧 / 出 {Mathf.RoundToInt((end - start) * shot.Timing.Exit)} 帧", EditorStyles.miniLabel);
+                return;
+            }
+            if (e.type == EventType.MouseDown && e.button == 0 && e.mousePosition.y >= bounds.y && e.mousePosition.y <= bounds.y + 8)
+            {
+                if (Mathf.Abs(e.mousePosition.x - enterX) <= 6 || Mathf.Abs(e.mousePosition.x - exitX) <= 6)
+                {
+                    cameraShotBlendEnter = Mathf.Abs(e.mousePosition.x - enterX) <= Mathf.Abs(e.mousePosition.x - exitX);
+                    Undo.RecordObject(shot, "Resize camera shot blend"); GUIUtility.hotControl = id; e.Use();
+                }
+            }
+            if (GUIUtility.hotControl != id) return;
+            if (e.type == EventType.MouseDrag)
+            {
+                float value = Mathf.Round(Mathf.Clamp01((e.mousePosition.x - left) / width) * (end - start)) / (end - start);
+                var timing = shot.Timing;
+                if (cameraShotBlendEnter) timing.Enter = Mathf.Min(value, 1 - timing.Exit);
+                else timing.Exit = Mathf.Min(1 - value, 1 - timing.Enter);
+                shot.Timing = timing; EditorUtility.SetDirty(shot); e.Use(); Repaint();
+            }
+            if (e.type == EventType.MouseUp)
+            { GUIUtility.hotControl = 0; AssetDatabase.SaveAssetIfDirty(shot); e.Use(); }
+        }
+        private bool cameraShotBlendEnter;
 
         public void PaintMultiRangeRect(int i)
         {

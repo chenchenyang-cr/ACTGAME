@@ -14,8 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Duration: 0.25
   UseUnscaledTime: 1
+  StartAfterHitStop: 0
   AffectedByHitStop: 1
-  HitStopWeight: 0.1
+  HitStopWeight: 0.4
   Settings:
     AmplitudeDecayCurve:
       serializedVersion: 2
@@ -290,12 +291,40 @@ MonoBehaviour:
     DirectionalDirectionMode: 1
     DirectionalManualSpace: 0
     DirectionalPositionRange: 0.1
-    DirectionalManualPositionRange: {x: 0, y: 0.1, z: 0}
-    DirectionalPositionFrequency: 27
-    DirectionalPositionRangeDecay: 0.25
-    DirectionalRotationMode: 0
-    DirectionalAutoRotationRange: 1
-    DirectionalRotationFrequency: 27
-    DirectionalRotationRangeDecay: 0.25
-    DirectionalRotationRange: {x: 0.3, y: 0, z: 0}
-    DirectionalCenterSpeed: 3
+    DirectionalManualPositionRange: {x: 0, y: 0.3, z: 0}
+    DirectionalPositionFrequency: 50
+    DirectionalPositionRangeDecay: 0.6
+    DirectionalPositionDecayCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0.008598328
+        value: 0.67562866
+        inSlope: 2
+        outSlope: 2
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.23344307
+        value: 0.91136295
+        inSlope: 0.28991386
+        outSlope: 0.28991386
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.89344853
+        outWeight: 0.13186653
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    DirectionalTrajectoryStraightness: 2

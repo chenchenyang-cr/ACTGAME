@@ -26,6 +26,9 @@ namespace UnityLearning.EnemySystem
                 ? Controller.StateMachine.CombatState
                 : Controller.StateMachine.ChaseState;
             Controller.StateMachine.ChangeState(nextState);
+            // The next state's entry may request movement immediately; recover
+            // from the hit pose through Idle before locomotion starts.
+            Controller.PlayHitRecovery();
         }
     }
 }

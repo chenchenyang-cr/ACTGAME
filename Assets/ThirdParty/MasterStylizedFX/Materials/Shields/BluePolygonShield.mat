@@ -85,7 +85,7 @@ Material:
     m_Floats:
     - _AlphaCutoff: 0.5
     - _BlendOp: 0
-    - _BottomMask: -0.69
+    - _BottomMask: -0.09
     - _BumpScale: 1
     - _CameraFadingEnabled: 0
     - _CameraFarFadeDistance: 2

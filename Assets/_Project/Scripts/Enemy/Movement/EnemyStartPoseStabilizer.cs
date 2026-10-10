@@ -35,12 +35,25 @@ namespace UnityLearning.EnemySystem
 
             AnimatorStateInfo current = animator.GetCurrentAnimatorStateInfo(0);
             bool transitioning = animator.IsInTransition(0);
-            bool starting = current.IsTag("LocomotionStart") ||
-                            (transitioning && animator.GetNextAnimatorStateInfo(0).IsTag("LocomotionStart"));
+            AnimatorStateInfo next = transitioning
+                ? animator.GetNextAnimatorStateInfo(0)
+                : default;
+            bool currentMoving = current.IsTag("LocomotionStart") ||
+                                 current.IsTag("LocomotionLoop");
+            bool nextMoving = transitioning &&
+                              (next.IsTag("LocomotionStart") || next.IsTag("LocomotionLoop"));
+            bool moving = currentMoving || nextMoving;
 
-            if (!starting)
+            if (!moving)
             {
                 if (!transitioning && current.IsName("Idle"))
+                {
+                    idlePelvisHeight = RelativeHeight(pelvisRoot);
+                    idleLeftFootHeight = RelativeHeight(leftFoot);
+                    idleRightFootHeight = RelativeHeight(rightFoot);
+                    hasIdlePose = true;
+                }
+                else if (!hasIdlePose && !transitioning)
                 {
                     idlePelvisHeight = RelativeHeight(pelvisRoot);
                     idleLeftFootHeight = RelativeHeight(leftFoot);
@@ -56,6 +69,13 @@ namespace UnityLearning.EnemySystem
             float leftHeight = RelativeHeight(leftFoot);
             float rightHeight = RelativeHeight(rightFoot);
             float lift = Mathf.Max(0f, idlePelvisHeight - RelativeHeight(pelvisRoot));
+            if (transitioning && currentMoving && !nextMoving)
+            {
+                if (!next.IsName("Idle"))
+                    return;
+                lift *= 1f - Mathf.Clamp01(
+                    animator.GetAnimatorTransitionInfo(0).normalizedTime);
+            }
             if (lift > 0f)
                 pelvisRoot.position += Vector3.up * lift;
             KeepPlantedFoot(leftFoot, leftHeight, idleLeftFootHeight, lift);

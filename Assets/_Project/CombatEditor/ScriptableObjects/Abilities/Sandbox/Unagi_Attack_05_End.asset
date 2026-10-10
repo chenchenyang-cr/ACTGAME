@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   IsActive: 1
   Priority: 0
-  AllowedCommandIds: LightAttack
+  AllowedCommands:
+  - 2
   AllowMovement: 1
   MinimumPriority: 0
   AllowHitReaction: 1

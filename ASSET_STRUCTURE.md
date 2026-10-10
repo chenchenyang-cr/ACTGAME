@@ -2,11 +2,11 @@
 
 ## 目录职责
 
-- `Assets/_Project`：项目自有资源，可以按项目需要修改。
+- `Assets/_Project`：项目自有资源，可以按项目需要修改；使用中的特效集中在 `VFX`。
 - `Assets/ThirdParty`：外部导入的完整资源包，尽量不要拆散包内结构。
 - `Assets/TextMesh Pro`：Unity 生成的 TextMesh Pro 资源，保留默认位置。
 
-`Assets` 根目录只保留以上三个一级目录，避免项目资源和第三方资源散落。
+`Assets` 根目录以以上三个目录为主；`TutorialInfo` 是 Unity 示例资源，保留原位以维持其编辑器脚本中的路径。
 
 ## 常用存放位置
 
@@ -22,6 +22,10 @@
 - 代码：`Assets/_Project/Scripts`
 - 渲染与项目资源设置：`Assets/_Project/Settings`
 - 战斗编辑器能力配置：`Assets/_Project/CombatEditor/ScriptableObjects`
+- 伤害跳字：`Assets/_Project/UI/DamageNumbers`（预设、数字 Prefab 和自动加载的 Canvas）；代码在 `Assets/_Project/Scripts/UI/DamageNumbers`
+- 项目特效资源：`Assets/_Project/VFX/Effects`（预制体、材质、网格、脚本和说明按类型存放）
+- 已选用的第三方特效预制体：`Assets/_Project/VFX/Effects/Prefabs/Selected`
+- 已选用特效的专用材质：`Assets/_Project/VFX/Effects/Materials/Selected`
 - Master Stylized FX：`Assets/ThirdParty/MasterStylizedFX`
 - Red Clue 刀光特效：`Assets/ThirdParty/Red_clue`
 

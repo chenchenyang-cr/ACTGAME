@@ -38,6 +38,10 @@ Shader "Ellen/ZZZToon"
         [Toggle(_ALPHATEST_ON)] _AlphaClip("Alpha Clip", Float) = 0
         _Cutoff("Cutoff", Range(0, 1)) = 0.5
         [Enum(UnityEngine.Rendering.CullMode)] _Cull("Cull", Float) = 2
+        [HideInInspector] _CharacterFade("Character Fade", Range(0,1)) = 1
+        [HideInInspector] _FadeSrcBlend("Fade Source Blend", Float) = 1
+        [HideInInspector] _FadeDstBlend("Fade Destination Blend", Float) = 0
+        [HideInInspector] _FadeZWrite("Fade ZWrite", Float) = 1
     }
 
     SubShader
@@ -56,7 +60,8 @@ Shader "Ellen/ZZZToon"
             Name "ForwardLit"
             Tags { "LightMode" = "UniversalForward" }
             Cull [_Cull]
-            ZWrite On
+            ZWrite [_FadeZWrite]
+            Blend [_FadeSrcBlend] [_FadeDstBlend]
 
             HLSLPROGRAM
             #pragma vertex vert
@@ -99,6 +104,7 @@ Shader "Ellen/ZZZToon"
                 half4 _OutlineColor;
                 half _Cutoff;
                 half _Cull;
+                half _CharacterFade;
             CBUFFER_END
 
             struct Attributes
@@ -202,7 +208,7 @@ Shader "Ellen/ZZZToon"
                 color += _SpecularColor.rgb * spec * lerp(1.0h, albedo.rgb, metallic);
                 color += _RimColor.rgb * rim * albedo.rgb;
                 color = MixFog(color, input.fogCoord);
-                return half4(color, albedo.a);
+                return half4(color, albedo.a * _CharacterFade);
             }
             ENDHLSL
         }
@@ -212,7 +218,8 @@ Shader "Ellen/ZZZToon"
             Name "Outline"
             Tags { "LightMode" = "SRPDefaultUnlit" }
             Cull Front
-            ZWrite On
+            ZWrite [_FadeZWrite]
+            Blend [_FadeSrcBlend] [_FadeDstBlend]
 
             HLSLPROGRAM
             #pragma vertex vertOutline
@@ -246,6 +253,7 @@ Shader "Ellen/ZZZToon"
                 half4 _OutlineColor;
                 half _Cutoff;
                 half _Cull;
+                half _CharacterFade;
             CBUFFER_END
 
             struct Attributes
@@ -279,7 +287,7 @@ Shader "Ellen/ZZZToon"
             {
                 half outlineMask = SAMPLE_TEXTURE2D(_MaterialMap, sampler_MaterialMap, input.uv).r;
                 clip(outlineMask - 0.02h);
-                return _OutlineColor;
+                return half4(_OutlineColor.rgb, _OutlineColor.a * _CharacterFade);
             }
             ENDHLSL
         }

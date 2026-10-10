@@ -48,15 +48,6 @@ namespace CombatPostFX
                 envelope ?? AnimationCurve.EaseInOut(0f, 1f, 1f, 0f)));
         }
 
-        public static void Pulse(CombatPostFxCollection collection, float duration = 0.16f,
-            Vector2? center = null)
-        {
-            if (collection == null)
-                return;
-            EnsureRunner().StartCoroutine(RunCollection(collection, Mathf.Max(0.01f, duration),
-                center ?? new Vector2(0.5f, 0.5f)));
-        }
-
         public static Vector2 WorldToViewport(Vector3 worldPosition, Camera camera = null)
         {
             camera = camera != null ? camera : Camera.main;
@@ -91,21 +82,6 @@ namespace CombatPostFX
                 yield return null;
             }
 
-            Remove(handle);
-        }
-
-        private static IEnumerator RunCollection(CombatPostFxCollection collection, float duration,
-            Vector2 center)
-        {
-            int handle = Add(CombatPostFxSettings.Default);
-            float elapsed = 0f;
-            while (elapsed < duration)
-            {
-                elapsed += Time.unscaledDeltaTime;
-                CombatPostFxSettings frame = collection.Evaluate(Mathf.Clamp01(elapsed / duration), center);
-                Update(handle, frame, 1f);
-                yield return null;
-            }
             Remove(handle);
         }
 

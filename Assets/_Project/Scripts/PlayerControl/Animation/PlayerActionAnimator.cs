@@ -102,6 +102,22 @@ public sealed class PlayerActionAnimator
             return false;
         }
 
+        if (!string.IsNullOrEmpty(profile.DirectionalDodgeStateName))
+        {
+            Vector2 blendDirection = localDirection.sqrMagnitude < 0.0001f
+                ? Vector2.up : localDirection.normalized;
+            animator.SetFloat(dodgeXHash, blendDirection.x);
+            animator.SetFloat(dodgeYHash, blendDirection.y);
+            dodgeContinuesToFastRun = false;
+            if (!TryCrossFade(profile.DirectionalDodgeStateName, out int directionalHash))
+                return false;
+            dodgeAnimationStateHash = directionalHash;
+            dodgeAnimationRequestFrame = Time.frameCount;
+            hasEnteredDodgeAnimation = false;
+            isDodgeAnimationPlaying = true;
+            return true;
+        }
+
         Vector2 direction = PlayerMovement.QuantizeEightWayDirection(localDirection);
         animator.SetFloat(dodgeXHash, direction.x);
         animator.SetFloat(dodgeYHash, direction.y);
@@ -147,6 +163,7 @@ public sealed class PlayerActionAnimator
 
     public void SetDodgeContinuation(bool continueToFastRun)
     {
+        if (!string.IsNullOrEmpty(profile.DirectionalDodgeStateName)) return;
         if (continueToFastRun == dodgeContinuesToFastRun ||
             !TryGetDodgeElapsedTime(out float seconds)) return;
         int hash = Animator.StringToHash($"{animator.GetLayerName(profile.AnimatorLayer)}.{GetDodgeStateName(continueToFastRun)}");

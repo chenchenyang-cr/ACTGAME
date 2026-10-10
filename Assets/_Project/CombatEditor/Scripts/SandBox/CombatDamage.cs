@@ -38,7 +38,7 @@ namespace CombatEditor
     public readonly struct CombatHitRequest
     {
         public CombatHitRequest(CombatController attacker, AbilityScriptableObject ability,
-            AbilityEventObj_CreateHitBox sourceEvent, HitBox hitBox, Component targetCollider,
+            AbilityEventObj_HitSource sourceEvent, HitBox hitBox, Component targetCollider,
             Vector3 hitPoint, Vector3 attackDirection, int hitSequenceIndex, float damage,
             float poiseDamage, CombatHitReactionPolicy hitReaction, float staggerDuration)
         {
@@ -58,7 +58,7 @@ namespace CombatEditor
 
         public CombatController Attacker { get; }
         public AbilityScriptableObject Ability { get; }
-        public AbilityEventObj_CreateHitBox SourceEvent { get; }
+        public AbilityEventObj_HitSource SourceEvent { get; }
         public HitBox HitBox { get; }
         public Component TargetCollider { get; }
         public Vector3 HitPoint { get; }

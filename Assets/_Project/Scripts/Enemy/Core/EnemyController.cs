@@ -172,8 +172,7 @@ namespace UnityLearning.EnemySystem
             stateMachine.ChangeState(stateMachine.AlertState);
         }
 
-        public void NotifyStagger(float duration = -1f, Vector3 attackDirection = default,
-            Transform attacker = null)
+        public void NotifyStagger(float duration = -1f, Transform attacker = null)
         {
             if (LifeState == EnemyLifeState.Dead || stateMachine == null)
                 return;
@@ -181,22 +180,17 @@ namespace UnityLearning.EnemySystem
             PendingStaggerDuration = duration >= 0f
                 ? duration
                 : config.DefaultStaggerDuration;
-            PendingHitDirection = CalculateHitDirection(transform.rotation, attackDirection,
-                attacker != null ? attacker.position - transform.position : Vector3.zero);
+            Transform hitSource = attacker != null ? attacker : target;
+            PendingHitDirection = CalculateHitDirection(transform.rotation,
+                hitSource != null ? hitSource.position - transform.position : Vector3.zero);
             stateMachine.ChangeState(stateMachine.StaggerState, true);
         }
 
-        internal static Vector2 CalculateHitDirection(Quaternion facing,
-            Vector3 attackDirection, Vector3 towardAttacker)
+        internal static Vector2 CalculateHitDirection(Quaternion facing, Vector3 towardAttacker)
         {
-            // Hit_F means hit FROM the front; attack velocity points the other way.
-            Vector3 incoming = -attackDirection;
+            // Hit_F means the player is in front of the enemy.
+            Vector3 incoming = towardAttacker;
             incoming.y = 0f;
-            if (incoming.sqrMagnitude < 0.0001f)
-            {
-                incoming = towardAttacker;
-                incoming.y = 0f;
-            }
             if (incoming.sqrMagnitude < 0.0001f)
                 return Vector2.up;
 
@@ -219,7 +213,8 @@ namespace UnityLearning.EnemySystem
                 config.HitShakeDuration,
                 config.HitShakeFrequency,
                 config.HitShakeAmplitude,
-                config.HitShakeDecayCurve, direction);
+                config.HitShakeDecayCurve, direction,
+                config.HitShakeAffectedByHitStop, GetComponent<CombatController>());
         }
 
         public void PlayHitRecoil(Transform attacker, Vector3 attackDirection)
@@ -241,7 +236,8 @@ namespace UnityLearning.EnemySystem
                 recoilDirection,
                 config.HitRecoilDuration,
                 config.HitRecoilSpeed,
-                config.HitRecoilDecayCurve);
+                config.HitRecoilDecayCurve,
+                config.HitRecoilAffectedByHitStop, GetComponent<CombatController>());
         }
 
         public void NotifyDied()
@@ -265,8 +261,7 @@ namespace UnityLearning.EnemySystem
 
         public void PlayIdle()
         {
-            if (IsAnimatorInState(config.IdleState) ||
-                IsAnimatorInState(config.LocomotionStopState))
+            if (IsAnimatorInState(config.IdleState))
                 return;
             if (animator != null &&
                 (IsAnimatorInState(config.LocomotionState) ||
@@ -285,10 +280,9 @@ namespace UnityLearning.EnemySystem
             if (IsAnimatorInState(config.LocomotionState) ||
                 IsAnimatorInState(config.LocomotionStartState))
                 return;
-            if (IsAnimatorInState(config.IdleState) ||
-                IsAnimatorInState(config.LocomotionStopState))
+            if (IsAnimatorInState(config.IdleState))
             {
-                // Idle/Stop 会根据 IsMoving 自动融合到 Start，不再用 CrossFade 抢状态。
+                // Idle 会根据 IsMoving 自动融合到 Start，不再用 CrossFade 抢状态。
                 return;
             }
             // 与 Idle→Start 过渡的 0.1 偏移一致，跳过原动画开头的骨盆下压。
@@ -305,11 +299,28 @@ namespace UnityLearning.EnemySystem
 
             animator.SetFloat(config.HitXParameter, PendingHitDirection.x);
             animator.SetFloat(config.HitYParameter, PendingHitDirection.y);
+            if (IsAnimatorInState(config.StaggerState))
+            {
+                // A new confirmed hit must restart the current hit pose at frame zero.
+                animator.Play(config.StaggerState, 0, 0f);
+                return;
+            }
             animator.CrossFadeInFixedTime(
                 config.StaggerState,
                 config.AnimationBlendDuration,
                 0,
                 0f);
+        }
+        public void PlayHitRecovery()
+        {
+            if (animator == null || config == null ||
+                string.IsNullOrWhiteSpace(config.IdleState))
+                return;
+
+            animator.CrossFadeInFixedTime(
+                config.IdleState,
+                config.HitRecoveryBlendDuration,
+                0);
         }
         public void PlayDeath() => PlayAnimation(config.DeathState);
 

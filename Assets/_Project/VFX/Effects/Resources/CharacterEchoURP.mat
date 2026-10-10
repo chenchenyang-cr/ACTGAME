@@ -1,0 +1,68 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: CharacterEchoURP
+  m_Shader: {fileID: 4800000, guid: 85c35f499f154b6983722744bc005653, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords:
+  - _OFFSET_DIRECTION_X
+  m_InvalidKeywords: []
+  m_LightmapFlags: 0
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _DissovleTex:
+        m_Texture: {fileID: 2800000, guid: e3b9862068f314eea8dba2c12de8ac67, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _ScreenTex:
+        m_Texture: {fileID: 2800000, guid: e3b9862068f314eea8dba2c12de8ac67, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _AlphaFreScale: 0.5
+    - _AlphaFrepower: 1
+    - _DissSC: 0
+    - _DissovleA_R: 0
+    - _Disspower: 0
+    - _Dst: 10
+    - _EffectAlpha: 1
+    - _FrePower: 1
+    - _FreScale: 1
+    - _FreVPmaskOffset: 0
+    - _MainAlphaAdd: 0
+    - _MainColorMaskPower: 1
+    - _MainColorMaskSacle: 1
+    - _Main_Alpha: 1
+    - _MaskSmoothMax: 1
+    - _MaskSmoothMin: 0
+    - _Offset_Direction: 0
+    - _SmoothMax: 1
+    - _SmoothMaxP: 1
+    - _SmoothMin: 0
+    - _smooth: 0.5
+    - _use_disslove: 0
+    m_Colors:
+    - _Color0: {r: 0.4, g: 1.5, b: 2.5, a: 1}
+    - _DissovleTex_Panner: {r: 0, g: 0, b: 0, a: 1}
+    - _DissovleTex_Scale_Offset: {r: 1, g: 1, b: 0, a: 0}
+    - _FreColor: {r: 0.2, g: 1, b: 2, a: 1}
+    - _MainColorDiSE: {r: 0.1, g: 0.8, b: 2, a: 1}
+    - _ScreenTexColor: {r: 0.2, g: 1.4, b: 2.5, a: 1}
+    - _ScreenTex_Panner: {r: 0.1, g: 0.05, b: 1, a: 1}
+    - _ScreenTex_Scale_Offset: {r: 1, g: 1, b: 0, a: 0}
+  m_BuildTextureStacks: []

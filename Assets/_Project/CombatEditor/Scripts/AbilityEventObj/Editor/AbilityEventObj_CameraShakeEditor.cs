@@ -14,6 +14,7 @@ namespace CombatEditor
         private SerializedProperty hitStopWeight;
         private SerializedProperty hitShakeDuration;
         private SerializedProperty useUnscaledTime;
+        private SerializedProperty startAfterHitStop;
         private SerializedProperty hitBoxFilter;
         private SerializedProperty specificHitBox;
         private SerializedProperty triggerPolicy;
@@ -60,6 +61,7 @@ namespace CombatEditor
             hitStopWeight = serializedObject.FindProperty("HitStopWeight");
             hitShakeDuration = serializedObject.FindProperty("HitShakeDuration");
             useUnscaledTime = serializedObject.FindProperty("UseUnscaledTime");
+            startAfterHitStop = serializedObject.FindProperty("StartAfterHitStop");
             hitBoxFilter = serializedObject.FindProperty("HitBoxFilter");
             specificHitBox = serializedObject.FindProperty("SpecificHitBox");
             triggerPolicy = serializedObject.FindProperty("TriggerPolicy");
@@ -113,10 +115,13 @@ namespace CombatEditor
             EditorGUILayout.Space();
             DrawShakeSettings();
             EditorGUILayout.PropertyField(affectedByHitStop,
-                new GUIContent("受顿帧影响", "顿帧时按所属角色的顿帧动画速度暂停或减速震动，结束后继续。"));
+                new GUIContent("受顿帧影响", triggerMode.enumValueIndex ==
+                    (int)CameraShakeTriggerMode.OnConfirmedHit
+                    ? "震动开始播放后若遇到后续顿帧，此项控制减速程度；首次命中是否等待顿帧由“顿帧后开始震动”控制。"
+                    : "直接触发的震动在顿帧时按所属角色的顿帧动画速度暂停或减速，结束后继续。"));
             if (affectedByHitStop.boolValue)
                 EditorGUILayout.PropertyField(hitStopWeight,
-                    new GUIContent("顿帧影响权重", "0 不受顿帧影响；1 完全按顿帧速度播放。"));
+                    new GUIContent("顿帧影响权重", "控制震动开始播放后遇到后续顿帧时的速度：0 原速，1 完全按顿帧动画速度播放。"));
 
             var mode = (CameraShakeTriggerMode)triggerMode.enumValueIndex;
             if (mode == CameraShakeTriggerMode.OnConfirmedHit)
@@ -137,7 +142,7 @@ namespace CombatEditor
             if (config.TriggerMode == CameraShakeTriggerMode.OnConfirmedHit)
             {
                 EditorGUILayout.HelpBox(
-                    "轨道区间是命中监听窗口；命中后震动按设置的时长播放，结束时定向震动直接回中。“模拟位置”用于编辑器预览。",
+                    "轨道区间是命中监听窗口；开启“顿帧后开始震动”时，确认命中后等待双方顿帧结束，同一目标等待期间的新命中会替换待播震动；没有顿帧时立即播放。“模拟位置”用于编辑器预览。",
                     MessageType.Info);
                 if (config.HitBoxFilter == CameraShakeHitBoxFilter.SpecificHitBox &&
                     config.SpecificHitBox == null)
@@ -164,9 +169,9 @@ namespace CombatEditor
                 new GUIContent("普通强度变化", "只控制普通位移、转动和视野变化；定向震动不受此曲线影响。"));
             EditorGUILayout.Space(3f);
             EditorGUILayout.LabelField("震动叠加", EditorStyles.boldLabel);
-            EditorGUILayout.PropertyField(channel, new GUIContent("震动分组", "同组震动会叠加。"));
+            EditorGUILayout.PropertyField(channel, new GUIContent("震动分组", "震动按组合成；每次命中独立播放，不覆盖同组旧震动。"));
             EditorGUILayout.PropertyField(traumaPerPulse,
-                new GUIContent("命中强度", "每次确认命中增加的普通震动强度。"));
+                new GUIContent("命中强度", "每次命中的独立普通震动倍率；1 为完整强度。仅命中触发有效，不影响定向震动。"));
             EditorGUILayout.PropertyField(traumaExponent,
                 new GUIContent("轻震抑制", "数值越大，较弱的命中震动越不明显。"));
 
@@ -244,19 +249,11 @@ namespace CombatEditor
                     new GUIContent("位移每秒往返次数", "每秒完成多少轮位移往返；0 时不移动。"));
                 EditorGUILayout.PropertyField(settings.FindPropertyRelative("DirectionalPositionRangeDecay"),
                     new GUIContent("位移幅度衰减", "每轮往返后位移范围缩小的比例。0 不衰减；数值越大，回中越快。"));
-                var rotationMode = settings.FindPropertyRelative("DirectionalRotationMode");
-                EditorGUILayout.PropertyField(rotationMode, new GUIContent("旋转模式"));
-                EditorGUILayout.PropertyField(settings.FindPropertyRelative(
-                    rotationMode.intValue == (int)DirectionalRotationMode.FollowAttack
-                        ? "DirectionalAutoRotationRange" : "DirectionalRotationRange"),
-                    new GUIContent("旋转范围", "从中心到折返点的角度，单位度；0 时不产生定向旋转。"));
-                EditorGUILayout.PropertyField(settings.FindPropertyRelative("DirectionalRotationFrequency"),
-                    new GUIContent("旋转每秒往返次数", "每秒完成多少轮旋转往返；0 时不旋转。"));
-                EditorGUILayout.PropertyField(settings.FindPropertyRelative("DirectionalRotationRangeDecay"),
-                    new GUIContent("旋转幅度衰减", "每轮往返后旋转范围缩小的比例。0 不衰减；数值越大，回中越快。"));
-                EditorGUILayout.PropertyField(settings.FindPropertyRelative("DirectionalCenterSpeed"),
-                    new GUIContent("靠中心加速", "位移和旋转共用。1 为正弦运动；越大，经过中心越快、靠近折返点越慢，往返次数和范围不变。"));
-                EditorGUILayout.HelpBox("位移和旋转各自按设定周期往返，共用单周期内的速度变化。幅度可分别衰减；轨道结束时直接回中。", MessageType.Info);
+                EditorGUILayout.PropertyField(settings.FindPropertyRelative("DirectionalPositionDecayCurve"),
+                    new GUIContent("位移衰减强度曲线", "横轴是整段震动进度，纵轴是位移幅度衰减的倍率；1 保持原效果，后段高于 1 会逐渐增强衰减。"));
+                EditorGUILayout.PropertyField(settings.FindPropertyRelative("DirectionalTrajectoryStraightness"),
+                    new GUIContent("轨迹直线度", "1 为圆滑的正弦曲线；越大越接近直线运动，并在折返点直接折返。往返次数和范围不变。"));
+                EditorGUILayout.HelpBox("位移按设定周期往返，幅度随时间衰减；轨道结束时直接回中。", MessageType.Info);
             }
         }
 
@@ -276,6 +273,8 @@ namespace CombatEditor
                 new GUIContent("震动时长", "命中后普通震动和定向震动持续多久，单位秒；结束时定向震动直接回中。"));
             EditorGUILayout.PropertyField(useUnscaledTime,
                 new GUIContent("真实计时", "开启后不受游戏暂停或慢动作影响。"));
+            EditorGUILayout.PropertyField(startAfterHitStop,
+                new GUIContent("顿帧后开始震动", "开启时等待攻击者和受击者的顿帧都结束；没有顿帧时立即播放。等待期间同一目标仅保留最新一次命中震动。"));
             EditorGUILayout.PropertyField(hitBoxFilter,
                 new GUIContent("监听范围", "监听本动作的全部碰撞盒或指定碰撞盒。"));
 
@@ -322,7 +321,7 @@ namespace CombatEditor
             for (int i = 0; i < ability.events.Count; i++)
             {
                 AbilityEvent entry = ability.events[i];
-                if (entry?.Obj is not AbilityEventObj_CreateHitBox hitBox) continue;
+                if (entry?.Obj is not AbilityEventObj_HitSource hitBox || !hitBox.HasHitBox) continue;
                 if (config.HitBoxFilter == CameraShakeHitBoxFilter.SpecificHitBox &&
                     hitBox != config.SpecificHitBox) continue;
 
@@ -356,11 +355,13 @@ namespace CombatEditor
                 new GUIContent("震动时长", "命中后普通震动和定向震动持续多久；结束时定向震动直接回中。"));
             EditorGUILayout.PropertyField(serializedObject.FindProperty("UseUnscaledTime"),
                 new GUIContent("使用真实时间"));
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("StartAfterHitStop"),
+                new GUIContent("顿帧后开始震动", "开启时等待攻击者和受击者的顿帧都结束；没有顿帧时立即播放。等待期间同一目标仅保留最新一次命中震动。"));
             EditorGUILayout.PropertyField(serializedObject.FindProperty("AffectedByHitStop"),
-                new GUIContent("受顿帧影响", "命中后按攻击者的顿帧动画速度暂停或减速震动，顿帧结束后继续。"));
+                new GUIContent("受顿帧影响", "震动开始播放后若遇到后续顿帧，按攻击者的顿帧动画速度暂停或减速。"));
             if (serializedObject.FindProperty("AffectedByHitStop").boolValue)
                 EditorGUILayout.PropertyField(serializedObject.FindProperty("HitStopWeight"),
-                    new GUIContent("顿帧影响权重", "0 不受顿帧影响；1 完全按顿帧速度播放。"));
+                    new GUIContent("顿帧影响权重", "控制震动开始播放后遇到后续顿帧时的速度：0 原速，1 完全按顿帧动画速度播放。"));
 
             SerializedProperty settings = serializedObject.FindProperty("Settings");
             EditorGUILayout.PropertyField(settings, new GUIContent("震动设置"), false);
@@ -372,13 +373,9 @@ namespace CombatEditor
                 bool hasNext = child.NextVisible(true);
                 while (hasNext && !SerializedProperty.EqualContents(child, end))
                 {
-                    bool automaticRotation = settings.FindPropertyRelative("DirectionalRotationMode").intValue ==
-                                             (int)DirectionalRotationMode.FollowAttack;
                     bool manualPosition = settings.FindPropertyRelative("DirectionalDirectionMode").intValue ==
                                           (int)DirectionalShakeDirectionMode.Manual;
-                    if ((child.name == "DirectionalAutoRotationRange" && !automaticRotation) ||
-                        (child.name == "DirectionalRotationRange" && automaticRotation) ||
-                        (child.name == "DirectionalPositionRange" && manualPosition) ||
+                    if ((child.name == "DirectionalPositionRange" && manualPosition) ||
                         (child.name == "DirectionalManualPositionRange" && !manualPosition) ||
                         (child.name == "DirectionalManualSpace" && !manualPosition))
                     {
@@ -395,6 +392,74 @@ namespace CombatEditor
                 EditorGUI.indentLevel--;
             }
             serializedObject.ApplyModifiedProperties();
+            if (targets.Length == 1)
+            {
+                var profile = (CameraShakeProfile)target;
+                DrawDirectionalTrajectory(profile.Settings, Mathf.Max(0.01f, profile.Duration));
+            }
+        }
+
+        private static void DrawDirectionalTrajectory(CameraShakeSettings settings, float duration)
+        {
+            EditorGUILayout.Space(8f);
+            EditorGUILayout.LabelField("定向位移轨迹", EditorStyles.boldLabel);
+            if (settings == null || !settings.EnableDirectionalImpulse)
+            {
+                EditorGUILayout.HelpBox("启用定向震动后显示位移轨迹。", MessageType.Info);
+                return;
+            }
+            EditorGUILayout.LabelField("横轴：震动时间（秒）    纵轴：沿震动方向的位移（米）",
+                EditorStyles.miniLabel);
+
+            Rect area = EditorGUILayout.GetControlRect(false, 176f);
+            Rect graph = new Rect(area.x + 48f, area.y + 8f,
+                Mathf.Max(1f, area.width - 58f), area.height - 32f);
+            EditorGUI.DrawRect(graph, new Color(0.13f, 0.13f, 0.13f, 1f));
+
+            Vector3 direction = settings.DirectionalDirectionMode == DirectionalShakeDirectionMode.Manual
+                ? settings.DirectionalManualPositionRange : Vector3.right;
+            float range = settings.DirectionalDirectionMode == DirectionalShakeDirectionMode.Manual
+                ? direction.magnitude : Mathf.Abs(settings.DirectionalPositionRange);
+            range = Mathf.Max(0.001f, range);
+            float middle = graph.center.y;
+            float halfHeight = graph.height * 0.45f;
+            Handles.color = new Color(0.5f, 0.5f, 0.5f, 1f);
+            Handles.DrawLine(new Vector3(graph.xMin, middle), new Vector3(graph.xMax, middle));
+
+            int sampleCount = Mathf.Clamp(Mathf.CeilToInt(
+                duration * settings.DirectionalPositionFrequency * 16f), 256, 2048);
+            var points = new Vector3[sampleCount + 1];
+            Vector3 unitDirection = direction.sqrMagnitude > 0f ? direction.normalized : Vector3.right;
+            for (int i = 0; i <= sampleCount; i++)
+            {
+                float seconds = duration * i / sampleCount;
+                // A finished shake is removed immediately, returning the camera to center.
+                float displacement = 0f;
+                if (i < sampleCount)
+                {
+                    CameraShakeSample sample = settings.EvaluateDirectional(
+                        seconds, seconds / duration, Vector3.right, 1f);
+                    displacement = Vector3.Dot(unitDirection,
+                        sample.Position + sample.WorldPosition);
+                }
+                points[i] = new Vector3(
+                    Mathf.Lerp(graph.xMin, graph.xMax, i / (float)sampleCount),
+                    middle - Mathf.Clamp(displacement / range, -1f, 1f) * halfHeight);
+            }
+            Handles.color = new Color(0.3f, 0.85f, 1f, 1f);
+            Handles.DrawAAPolyLine(2f, points);
+            Handles.color = Color.white;
+
+            GUI.Label(new Rect(area.x, graph.yMin - 8f, 46f, 18f), $"+{range:0.###}",
+                EditorStyles.miniLabel);
+            GUI.Label(new Rect(area.x, middle - 8f, 46f, 18f), "0",
+                EditorStyles.miniLabel);
+            GUI.Label(new Rect(area.x, graph.yMax - 10f, 46f, 18f), $"-{range:0.###}",
+                EditorStyles.miniLabel);
+            GUI.Label(new Rect(graph.xMin, graph.yMax + 2f, 60f, 18f), "0 秒",
+                EditorStyles.miniLabel);
+            GUI.Label(new Rect(graph.xMax - 80f, graph.yMax + 2f, 80f, 18f),
+                $"{duration:0.###} 秒", EditorStyles.miniLabel);
         }
 
         private static GUIContent ShakeLabel(string field)
@@ -431,12 +496,8 @@ namespace CombatEditor
                 case "DirectionalManualPositionRange": return new GUIContent("位移范围", "三轴数值共同决定往返方向和范围，单位米；全为 0 时不移动。");
                 case "DirectionalPositionFrequency": return new GUIContent("位移每秒往返次数", "每秒完成多少轮位移往返；0 时不移动。");
                 case "DirectionalPositionRangeDecay": return new GUIContent("位移幅度衰减", "每轮往返后位移范围缩小的比例。0 不衰减；数值越大，回中越快。");
-                case "DirectionalRotationMode": return new GUIContent("旋转模式");
-                case "DirectionalAutoRotationRange":
-                case "DirectionalRotationRange": return new GUIContent("旋转范围", "从中心到折返点的角度，单位度；0 时不产生定向旋转。");
-                case "DirectionalRotationFrequency": return new GUIContent("旋转每秒往返次数", "每秒完成多少轮旋转往返；0 时不旋转。");
-                case "DirectionalRotationRangeDecay": return new GUIContent("旋转幅度衰减", "每轮往返后旋转范围缩小的比例。0 不衰减；数值越大，回中越快。");
-                case "DirectionalCenterSpeed": return new GUIContent("靠中心加速", "位移和旋转共用。1 为正弦运动；越大，经过中心越快、靠近折返点越慢，往返次数和范围不变。");
+                case "DirectionalPositionDecayCurve": return new GUIContent("位移衰减强度曲线", "横轴是整段震动进度，纵轴是位移幅度衰减的倍率；1 保持原效果，后段高于 1 会逐渐增强衰减。");
+                case "DirectionalTrajectoryStraightness": return new GUIContent("轨迹直线度", "1 为圆滑的正弦曲线；越大越接近直线运动，并在折返点直接折返。往返次数和范围不变。");
                 default: return null;
             }
         }

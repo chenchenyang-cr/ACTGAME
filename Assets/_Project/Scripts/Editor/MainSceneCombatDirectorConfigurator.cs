@@ -1,9 +1,7 @@
 using System.IO;
-using System.Linq;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
-using UnityEngine.AI;
 using UnityEngine.SceneManagement;
 using UnityLearning.EnemySystem;
 
@@ -12,10 +10,6 @@ public static class MainSceneCombatDirectorConfigurator
     private const string ScenePath = "Assets/_Project/Scenes/Main_Nodachi.unity";
     private const string AutoConfigureRequest =
         "Temp/MainSceneCombatDirectorAutoConfigure.request";
-    private const string SourceModelPath =
-        "Assets/ThirdParty/SwordAnimationPack/Model/9CG_Sword.FBX";
-    private const string EnemyControllerPath =
-        "Assets/_Project/Enemies/SwordEnemy/Animators/SwordEnemy.controller";
 
     [MenuItem("Tools/Enemy/Configure Main Scene Combat Director")]
     public static void Configure()
@@ -72,8 +66,6 @@ public static class MainSceneCombatDirectorConfigurator
         serialized.FindProperty("yieldDuration").floatValue = 0.7f;
         serialized.ApplyModifiedPropertiesWithoutUndo();
 
-        int repairedEnemies = RepairSceneEnemies(scene);
-
         EditorUtility.SetDirty(director);
         EditorSceneManager.MarkSceneDirty(scene);
         if (!EditorSceneManager.SaveScene(scene))
@@ -81,7 +73,7 @@ public static class MainSceneCombatDirectorConfigurator
 
         Selection.activeGameObject = director.gameObject;
         Debug.Log(
-            $"Main_Nodachi 战斗导演配置完成：已修复 {repairedEnemies} 个敌人的 Animator/Root Motion 配置；" +
+            "Main_Nodachi 战斗导演配置完成；" +
             $"{director.MaximumConcurrentAttackers} 个进攻令牌，4 个扇形区域，内环 2.7 米、外环 6.5 米，并启用自由移动、施压、让位和撤退。",
             director);
     }
@@ -146,46 +138,5 @@ public static class MainSceneCombatDirectorConfigurator
         }
 
         return null;
-    }
-
-    private static int RepairSceneEnemies(Scene scene)
-    {
-        Avatar avatar = AssetDatabase.LoadAllAssetsAtPath(SourceModelPath)
-            .OfType<Avatar>()
-            .FirstOrDefault();
-        RuntimeAnimatorController controller =
-            AssetDatabase.LoadAssetAtPath<RuntimeAnimatorController>(EnemyControllerPath);
-        if (avatar == null || controller == null)
-            throw new MissingReferenceException("SwordEnemy 的 Avatar 或 AnimatorController 缺失。");
-
-        int repaired = 0;
-        foreach (GameObject root in scene.GetRootGameObjects())
-        {
-            EnemyController[] enemies = root.GetComponentsInChildren<EnemyController>(true);
-            foreach (EnemyController enemy in enemies)
-            {
-                Animator animator = enemy.GetComponentInChildren<Animator>(true);
-                if (animator == null)
-                    continue;
-
-                animator.avatar = avatar;
-                animator.runtimeAnimatorController = controller;
-                animator.applyRootMotion = true;
-                animator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
-                EditorUtility.SetDirty(animator);
-
-                NavMeshAgent agent = enemy.GetComponent<NavMeshAgent>();
-                if (agent != null)
-                {
-                    agent.updatePosition = false;
-                    agent.updateRotation = false;
-                    EditorUtility.SetDirty(agent);
-                }
-
-                repaired++;
-            }
-        }
-
-        return repaired;
     }
 }

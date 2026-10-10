@@ -29,13 +29,14 @@ namespace CombatEditor
         public CombatController Owner;
         public AbilityScriptableObject Ability;
         public CameraShakeHitBoxFilter HitBoxFilter;
-        public AbilityEventObj_CreateHitBox SpecificHitBox;
+        public AbilityEventObj_HitSource SpecificHitBox;
         public CameraShakeHitTriggerPolicy TriggerPolicy;
         public CombatHitResultMask ResultMask;
         public int MaximumTriggerCount;
         public float Cooldown;
         public float Duration;
         public bool UseUnscaledTime;
+        public bool StartAfterHitStop;
         public bool AffectedByHitStop;
         public float HitStopWeight;
         public CameraShakeSettings Settings;
@@ -69,6 +70,33 @@ namespace CombatEditor
                 CameraShakeBindings.Remove(handle);
         }
 
+        public static void TriggerHitShake(CameraShakeSettings settings, float duration,
+            float intensityScale, bool useUnscaledTime, Vector3 attackDirection,
+            CombatController attacker, GameObject target, bool waitForHitStop,
+            System.Func<float> timeScale = null)
+        {
+            Transform targetRoot = target != null ? target.transform.root : null;
+            CombatController targetController = target != null
+                ? target.GetComponentInParent<CombatController>() : null;
+            if (targetController == null && targetRoot != null)
+                targetController = targetRoot.GetComponentInChildren<CombatController>(true);
+
+            int targetId = targetRoot != null ? targetRoot.GetInstanceID()
+                : attacker != null ? attacker.GetInstanceID() : 0;
+            System.Func<bool> isHitStopActive = waitForHitStop
+                ? () => IsHitStopActive(attacker) || IsHitStopActive(targetController)
+                : null;
+            CameraShakeRuntime.PulseAfterHitStop(targetId, settings, duration,
+                intensityScale, useUnscaledTime, attackDirection, isHitStopActive,
+                timeScale);
+        }
+
+        private static bool IsHitStopActive(CombatController controller)
+        {
+            return controller != null && controller._animSpeedExecutor != null &&
+                   controller._animSpeedExecutor.IsHitStopActive;
+        }
+
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void Reset()
         {
@@ -92,8 +120,8 @@ namespace CombatEditor
             if (hitEvent.ResultType == CombatHitResultType.Parried) return;
             // Inline HitBox shake is authoritative for this confirmed hit.
             // Legacy OnConfirmedHit tracks remain available when it is disabled.
-            if (hitEvent.SourceHitBoxEvent != null &&
-                hitEvent.SourceHitBoxEvent.EnableHitCameraShake)
+            if (hitEvent.SourceHitBoxEvent != null && hitEvent.SourceHitBoxEvent.HitProfile != null &&
+                hitEvent.SourceHitBoxEvent.HitProfile.EnableHitCameraShake)
                 return;
 
             foreach (CameraShakeHitBinding binding in CameraShakeBindings.Values)
@@ -110,9 +138,12 @@ namespace CombatEditor
                     binding.TriggeredTargets.Add(targetId);
                 binding.NextTriggerTime = Time.unscaledTime + Mathf.Max(0f, binding.Cooldown);
 
-                CameraShakeRuntime.Pulse(binding.Settings, binding.Duration,
+                TriggerHitShake(binding.Settings, binding.Duration,
                     hitEvent.CameraShakeScale, binding.UseUnscaledTime,
-                    hitEvent.AttackDirection,
+                    hitEvent.AttackDirection, hitEvent.Attacker, hitEvent.Target,
+                    binding.StartAfterHitStop && hitEvent.SourceHitBoxEvent != null && hitEvent.SourceHitBoxEvent.HitProfile != null &&
+                    hitEvent.SourceHitBoxEvent.HitProfile.EnableHitAnimationSpeed &&
+                    hitEvent.SourceHitBoxEvent.HitProfile.HitStopFrames > 0,
                     binding.AffectedByHitStop && binding.HitStopWeight > 0f
                         ? () => binding.Owner != null && binding.Owner._animSpeedExecutor != null
                             ? Mathf.Lerp(1f, binding.Owner._animSpeedExecutor.CurrentHitStopSpeedScale,

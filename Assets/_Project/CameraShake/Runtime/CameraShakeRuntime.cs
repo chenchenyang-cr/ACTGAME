@@ -16,15 +16,26 @@ namespace CombatCamera
             public float DirectionalIntensityScale;
         }
 
-        private sealed class TraumaLayer
+        private sealed class HitPulse
         {
             public CameraShakeSettings Settings;
-            public float Trauma;
+            public float IntensityScale;
             public float DecayPerSecond;
             public Vector2 WaveCycles;
             public float TimeSincePulse;
             public float PulseDuration;
             public bool UseUnscaledTime;
+            public System.Func<float> TimeScale;
+        }
+
+        private sealed class PendingHitPulse
+        {
+            public CameraShakeSettings Settings;
+            public float Duration;
+            public float IntensityScale;
+            public bool UseUnscaledTime;
+            public Vector3 WorldForceDirection;
+            public System.Func<bool> IsHitStopActive;
             public System.Func<float> TimeScale;
         }
 
@@ -39,6 +50,28 @@ namespace CombatCamera
             public System.Func<float> TimeScale;
         }
 
+        private sealed class DirectionalBlend
+        {
+            public bool FadingOut;
+            public double FadeStartTime;
+
+            public float WeightAt(double now)
+            {
+                return FadingOut
+                    ? Mathf.Clamp01(1f - (float)((now - FadeStartTime) /
+                                            DirectionalHandoffDuration))
+                    : 1f;
+            }
+
+            public void BeginFade(double now)
+            {
+                if (FadingOut)
+                    return;
+                FadingOut = true;
+                FadeStartTime = now;
+            }
+        }
+
         private sealed class TimedContinuousSource
         {
             public float Duration;
@@ -48,21 +81,27 @@ namespace CombatCamera
 
         private static readonly Dictionary<int, ContinuousSource> ContinuousSources =
             new Dictionary<int, ContinuousSource>();
-        private static readonly Dictionary<CameraShakeChannel, TraumaLayer> TraumaLayers =
-            new Dictionary<CameraShakeChannel, TraumaLayer>();
+        private static readonly Dictionary<int, HitPulse> HitPulses =
+            new Dictionary<int, HitPulse>();
+        private static readonly Dictionary<int, PendingHitPulse> PendingHitPulses =
+            new Dictionary<int, PendingHitPulse>();
         private static readonly Dictionary<int, DirectionalImpulse> DirectionalImpulses =
             new Dictionary<int, DirectionalImpulse>();
+        private static readonly Dictionary<int, DirectionalBlend> DirectionalBlends =
+            new Dictionary<int, DirectionalBlend>();
         private static readonly Dictionary<int, TimedContinuousSource> TimedContinuousSources =
             new Dictionary<int, TimedContinuousSource>();
         private static readonly Dictionary<CameraShakeChannel, CameraShakeSample> ChannelMix =
             new Dictionary<CameraShakeChannel, CameraShakeSample>();
-        private static readonly List<CameraShakeChannel> ExpiredTraumaChannels =
-            new List<CameraShakeChannel>();
+        private static readonly List<int> ExpiredPulseHandles =
+            new List<int>();
+        private static readonly List<int> ReadyHitPulseTargets = new List<int>();
         private static readonly List<int> ExpiredImpulseHandles = new List<int>();
         private static readonly List<int> ExpiredContinuousHandles = new List<int>();
 
         private static int nextHandle = 1;
         private static CameraShakeRunner runner;
+        private const float DirectionalHandoffDuration = 0.08f;
 
         public static int Add(CameraShakeSettings settings, float intensityScale = 1f)
         {
@@ -111,12 +150,15 @@ namespace CombatCamera
                 DirectionalIntensityScale = Mathf.Max(0f,
                     directionalIntensityScale)
             };
+            if (settings.EnableDirectionalImpulse && directionalIntensityScale > 0f)
+                ActivateDirectional(handle);
             RefreshEditorCamera();
         }
 
         public static void Remove(int handle)
         {
             TimedContinuousSources.Remove(handle);
+            DirectionalBlends.Remove(handle);
             if (handle != 0 && ContinuousSources.Remove(handle))
                 RefreshEditorCamera();
         }
@@ -138,6 +180,8 @@ namespace CombatCamera
 
         public static void ClearContinuousSources()
         {
+            foreach (int handle in ContinuousSources.Keys)
+                DirectionalBlends.Remove(handle);
             ContinuousSources.Clear();
             TimedContinuousSources.Clear();
             RefreshEditorCamera();
@@ -161,7 +205,7 @@ namespace CombatCamera
 
             EnsureRunner();
             duration = Mathf.Max(0.01f, duration);
-            AddTrauma(settings, duration, intensityScale, useUnscaledTime, timeScale);
+            AddHitPulse(settings, duration, intensityScale, useUnscaledTime, timeScale);
 
             if (!settings.EnableDirectionalImpulse)
                 return;
@@ -177,51 +221,86 @@ namespace CombatCamera
                 UseUnscaledTime = useUnscaledTime,
                 TimeScale = timeScale
             });
+            ActivateDirectional(handle);
         }
 
-        public static CameraShakeSample EvaluateCurrent(Quaternion? cameraOrientation = null)
+        public static void PulseAfterHitStop(int targetId, CameraShakeSettings settings,
+            float duration, float intensityScale, bool useUnscaledTime,
+            Vector3 worldForceDirection, System.Func<bool> isHitStopActive,
+            System.Func<float> timeScale = null)
+        {
+            if (settings == null || intensityScale <= 0f)
+                return;
+
+            // A later hit replaces the pending shake for this target, including when
+            // the later hit has no hit stop and can play immediately.
+            PendingHitPulses.Remove(targetId);
+            if (isHitStopActive == null || !isHitStopActive())
+            {
+                Pulse(settings, duration, intensityScale, useUnscaledTime,
+                    worldForceDirection, timeScale);
+                return;
+            }
+
+            PendingHitPulses[targetId] = new PendingHitPulse
+            {
+                Settings = settings,
+                Duration = duration,
+                IntensityScale = intensityScale,
+                UseUnscaledTime = useUnscaledTime,
+                WorldForceDirection = worldForceDirection,
+                IsHitStopActive = isHitStopActive,
+                TimeScale = timeScale
+            };
+            EnsureRunner();
+        }
+
+        public static CameraShakeSample EvaluateCurrent()
         {
             ChannelMix.Clear();
 
-            foreach (ContinuousSource source in ContinuousSources.Values)
+            foreach (KeyValuePair<int, ContinuousSource> pair in ContinuousSources)
             {
+                ContinuousSource source = pair.Value;
                 if (source.Settings == null)
                     continue;
                 CameraShakeSample sample = source.Settings.EvaluateWithPhase(source.WaveCycles,
                     source.NormalizedTime, source.IntensityScale);
+                float directionalWeight = DirectionalBlends.TryGetValue(pair.Key,
+                    out DirectionalBlend blend)
+                    ? blend.WeightAt(Time.realtimeSinceStartupAsDouble) : 1f;
                 CameraShakeSample directional = source.Settings.EvaluateDirectional(
-                    source.SampleTime, source.WorldForceDirection,
-                    source.DirectionalIntensityScale,
-                    cameraOrientation);
+                    source.SampleTime, source.NormalizedTime, source.WorldForceDirection,
+                    source.DirectionalIntensityScale * directionalWeight);
                 AddToChannel(source.Settings.Channel, sample + directional);
             }
 
-            foreach (KeyValuePair<CameraShakeChannel, TraumaLayer> pair in TraumaLayers)
+            foreach (HitPulse pulse in HitPulses.Values)
             {
-                TraumaLayer layer = pair.Value;
-                if (layer.Settings == null || layer.Trauma <= 0f)
+                if (pulse.Settings == null)
                     continue;
 
-                float exponent = Mathf.Max(1f, layer.Settings.TraumaExponent);
-                float intensity = Mathf.Pow(Mathf.Clamp01(layer.Trauma), exponent);
-                float normalizedTime = Mathf.Clamp01(layer.TimeSincePulse /
-                                                      Mathf.Max(0.01f,
-                                                          layer.PulseDuration));
-                AddToChannel(pair.Key, layer.Settings.EvaluateWithPhase(layer.WaveCycles,
-                    normalizedTime, intensity));
+                float progress = Mathf.Clamp01(pulse.TimeSincePulse / pulse.PulseDuration);
+                float intensity = pulse.Settings.EvaluateHitIntensity(progress, pulse.IntensityScale);
+                AddToChannel(pulse.Settings.Channel, pulse.Settings.EvaluateWithPhase(
+                    pulse.WaveCycles, progress, intensity));
             }
-
             CameraShakeSample result = default;
             foreach (CameraShakeSample channelSample in ChannelMix.Values)
                 result += channelSample;
 
-            foreach (DirectionalImpulse impulse in DirectionalImpulses.Values)
+            foreach (KeyValuePair<int, DirectionalImpulse> pair in DirectionalImpulses)
             {
+                DirectionalImpulse impulse = pair.Value;
                 if (impulse.Settings == null)
                     continue;
+                float directionalWeight = DirectionalBlends.TryGetValue(pair.Key,
+                    out DirectionalBlend blend)
+                    ? blend.WeightAt(Time.realtimeSinceStartupAsDouble) : 1f;
 
                 result += impulse.Settings.EvaluateDirectional(impulse.Elapsed,
-                    impulse.WorldDirection, impulse.IntensityScale, cameraOrientation);
+                    impulse.Elapsed / impulse.Duration,
+                    impulse.WorldDirection, impulse.IntensityScale * directionalWeight);
             }
 
             return result;
@@ -231,51 +310,48 @@ namespace CombatCamera
         private static void Reset()
         {
             ContinuousSources.Clear();
-            TraumaLayers.Clear();
+            HitPulses.Clear();
+            PendingHitPulses.Clear();
             DirectionalImpulses.Clear();
+            DirectionalBlends.Clear();
             TimedContinuousSources.Clear();
             ChannelMix.Clear();
-            ExpiredTraumaChannels.Clear();
+            ExpiredPulseHandles.Clear();
+            ReadyHitPulseTargets.Clear();
             ExpiredImpulseHandles.Clear();
             ExpiredContinuousHandles.Clear();
             nextHandle = 1;
             runner = null;
         }
 
-        private static void AddTrauma(CameraShakeSettings settings, float duration,
+        private static void AddHitPulse(CameraShakeSettings settings, float duration,
             float intensityScale, bool useUnscaledTime, System.Func<float> timeScale)
         {
-            float amount = Mathf.Clamp01(settings.TraumaPerPulse * intensityScale);
-            if (amount <= 0f)
+            if (settings.TraumaPerPulse <= 0f)
                 return;
 
-            float decayPerSecond = amount / duration;
-            if (!TraumaLayers.TryGetValue(settings.Channel, out TraumaLayer layer))
+            // Each hit owns its clock and wave phase; later hits never restart it.
+            HitPulses.Add(nextHandle++, new HitPulse
             {
-                TraumaLayers.Add(settings.Channel, new TraumaLayer
-                {
-                    Settings = settings,
-                    Trauma = amount,
-                    DecayPerSecond = decayPerSecond,
-                    WaveCycles = Vector2.zero,
-                    TimeSincePulse = 0f,
-                    PulseDuration = duration,
-                    UseUnscaledTime = useUnscaledTime,
-                    TimeScale = timeScale
-                });
-                return;
-            }
+                Settings = settings,
+                IntensityScale = intensityScale,
+                WaveCycles = Vector2.zero,
+                TimeSincePulse = 0f,
+                PulseDuration = duration,
+                UseUnscaledTime = useUnscaledTime,
+                TimeScale = timeScale
+            });
+        }
 
-            layer.Settings = settings;
-            layer.Trauma = Mathf.Clamp01(layer.Trauma + amount);
-            layer.DecayPerSecond = layer.DecayPerSecond > 0f
-                ? Mathf.Min(layer.DecayPerSecond, decayPerSecond)
-                : decayPerSecond;
-            layer.WaveCycles = Vector2.zero;
-            layer.TimeSincePulse = 0f;
-            layer.PulseDuration = Mathf.Max(layer.PulseDuration, duration);
-            layer.UseUnscaledTime = useUnscaledTime;
-            layer.TimeScale = timeScale;
+        private static void ActivateDirectional(int handle)
+        {
+            if (DirectionalBlends.ContainsKey(handle))
+                return;
+
+            double now = Time.realtimeSinceStartupAsDouble;
+            foreach (DirectionalBlend blend in DirectionalBlends.Values)
+                blend.BeginFade(now);
+            DirectionalBlends.Add(handle, new DirectionalBlend());
         }
 
         private static void AddToChannel(CameraShakeChannel channel,
@@ -316,26 +392,26 @@ namespace CombatCamera
             for (int i = 0; i < ExpiredContinuousHandles.Count; i++)
                 Remove(ExpiredContinuousHandles[i]);
 
-            ExpiredTraumaChannels.Clear();
-            foreach (KeyValuePair<CameraShakeChannel, TraumaLayer> pair in TraumaLayers)
+            ExpiredPulseHandles.Clear();
+            foreach (KeyValuePair<int, HitPulse> pair in HitPulses)
             {
-                TraumaLayer layer = pair.Value;
-                float deltaTime = layer.UseUnscaledTime
-                    ? unscaledDeltaTime
-                    : scaledDeltaTime;
-                if (layer.TimeScale != null)
-                    deltaTime *= Mathf.Max(0f, layer.TimeScale());
-                float progress = Mathf.Clamp01(layer.TimeSincePulse / Mathf.Max(0.01f, layer.PulseDuration));
-                layer.WaveCycles += deltaTime * layer.Settings.EvaluateFrequencies(progress);
-                layer.TimeSincePulse += deltaTime;
-                layer.Trauma = Mathf.Max(0f,
-                    layer.Trauma - layer.DecayPerSecond * deltaTime);
-                if (layer.Trauma <= 0f)
-                    ExpiredTraumaChannels.Add(pair.Key);
+                HitPulse pulse = pair.Value;
+                if (pulse.Settings == null)
+                {
+                    ExpiredPulseHandles.Add(pair.Key);
+                    continue;
+                }
+                float deltaTime = pulse.UseUnscaledTime ? unscaledDeltaTime : scaledDeltaTime;
+                if (pulse.TimeScale != null)
+                    deltaTime *= Mathf.Max(0f, pulse.TimeScale());
+                float progress = Mathf.Clamp01(pulse.TimeSincePulse / pulse.PulseDuration);
+                pulse.WaveCycles += deltaTime * pulse.Settings.EvaluateFrequencies(progress);
+                pulse.TimeSincePulse += deltaTime;
+                if (pulse.TimeSincePulse >= pulse.PulseDuration)
+                    ExpiredPulseHandles.Add(pair.Key);
             }
-            for (int i = 0; i < ExpiredTraumaChannels.Count; i++)
-                TraumaLayers.Remove(ExpiredTraumaChannels[i]);
-
+            for (int i = 0; i < ExpiredPulseHandles.Count; i++)
+                HitPulses.Remove(ExpiredPulseHandles[i]);
             ExpiredImpulseHandles.Clear();
             foreach (KeyValuePair<int, DirectionalImpulse> pair in DirectionalImpulses)
             {
@@ -350,7 +426,27 @@ namespace CombatCamera
                     ExpiredImpulseHandles.Add(pair.Key);
             }
             for (int i = 0; i < ExpiredImpulseHandles.Count; i++)
+            {
+                DirectionalBlends.Remove(ExpiredImpulseHandles[i]);
                 DirectionalImpulses.Remove(ExpiredImpulseHandles[i]);
+            }
+
+            // Start ready shakes after advancing existing sources so their first
+            // sample remains at time zero, even after a long frame.
+            ReadyHitPulseTargets.Clear();
+            foreach (KeyValuePair<int, PendingHitPulse> pair in PendingHitPulses)
+            {
+                if (pair.Value.IsHitStopActive == null || !pair.Value.IsHitStopActive())
+                    ReadyHitPulseTargets.Add(pair.Key);
+            }
+            for (int i = 0; i < ReadyHitPulseTargets.Count; i++)
+            {
+                int targetId = ReadyHitPulseTargets[i];
+                PendingHitPulse pending = PendingHitPulses[targetId];
+                PendingHitPulses.Remove(targetId);
+                Pulse(pending.Settings, pending.Duration, pending.IntensityScale,
+                    pending.UseUnscaledTime, pending.WorldForceDirection, pending.TimeScale);
+            }
         }
 
         private static CameraShakeRunner EnsureRunner()

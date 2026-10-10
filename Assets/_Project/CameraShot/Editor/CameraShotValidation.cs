@@ -337,6 +337,7 @@ namespace CombatCamera.Editor
                 Pose(); actor.SetActive(false);
                 Check(!CameraShotRuntime.Evaluate(channel, Vector3.zero, Quaternion.identity, 60, out _, out _), "Disabled actor releases");
                 Check(AssetDatabase.LoadAssetAtPath<CameraShotProfile>("Assets/_Project/CameraShot/Profiles/ParryCameraShot.asset") != null, "Preset imports");
+                checks += CameraShotAuthoringValidation.Run();
                 string result = $"PASS: CameraShot {checks} checks";
                 File.WriteAllText("Temp/CameraShotValidation.txt", result); Debug.Log(result);
             }

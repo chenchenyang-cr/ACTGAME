@@ -34,27 +34,37 @@ MonoBehaviour:
     priority: 1
     facingTolerance: 18
     entryTolerance: 0.3
-  enableHitVisualShake: 0
-  hitShakeDuration: 0.2
-  hitShakeFrequency: 15
-  hitShakeAmplitude: 0.15
+  enableHitVisualShake: 1
+  hitShakeAffectedByHitStop: 1
+  hitShakeDuration: 0.1
+  hitShakeFrequency: 20
+  hitShakeAmplitude: 0.08
   hitShakeDecayCurve:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
-      time: 0
-      value: 1
-      inSlope: -1
-      outSlope: -1
+      time: -0.009967804
+      value: 0.97927856
+      inSlope: -0.24266388
+      outSlope: -0.24266388
       tangentMode: 0
       weightedMode: 0
       inWeight: 0
-      outWeight: 0
+      outWeight: 0.58238155
+    - serializedVersion: 3
+      time: 0.32561
+      value: 0.86131924
+      inSlope: -0.14703494
+      outSlope: -0.14703494
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
     - serializedVersion: 3
       time: 1
       value: 0
-      inSlope: -1
-      outSlope: -1
+      inSlope: 0
+      outSlope: 0
       tangentMode: 0
       weightedMode: 0
       inWeight: 0
@@ -63,6 +73,7 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   enableHitRecoil: 1
+  hitRecoilAffectedByHitStop: 1
   hitRecoilDuration: 0.1
   hitRecoilSpeed: 8
   hitRecoilDecayCurve:
@@ -97,7 +108,6 @@ MonoBehaviour:
   alertState: Alert
   locomotionState: Locomotion
   locomotionStartState: LocomotionStart
-  locomotionStopState: LocomotionStop
   staggerState: Hit
   hitXParameter: HitX
   hitYParameter: HitY
@@ -108,6 +118,5 @@ MonoBehaviour:
   isMovingParameter: IsMoving
   startXParameter: StartX
   startYParameter: StartY
-  stopXParameter: StopX
-  stopYParameter: StopY
   animationBlendDuration: 0.12
+  hitRecoveryBlendDuration: 0.3

@@ -324,7 +324,9 @@ namespace CombatEditor
                 return $"Target Assist: {assist.AcquireRadius:0.#}m";
             if (abilityEvent?.Obj is AbilityEventObj_InterruptWindow interrupt)
             {
-                string allowed = interrupt.AllowedCommandIds;
+                string allowed = interrupt.AllowedCommands != null
+                    ? string.Join(",", interrupt.AllowedCommands)
+                    : string.Empty;
                 if (interrupt.AllowMovement)
                 {
                     allowed = string.IsNullOrWhiteSpace(allowed)

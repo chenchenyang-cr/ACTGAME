@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using CombatCamera;
 using UnityEditor;
@@ -66,30 +66,34 @@ using UnityEngine;
 
 	    private void UpdateHitShakePreview(float currentTimePercentage)
 	    {
-	        CameraShakeSettings settings = Obj.ResolveHitCameraShakeSettings();
-	        if (eve == null || !eve.Previewable ||
-	            !Obj.EnableHitCameraShake || !Obj.PreviewHitCameraShake ||
+	        var profile = Obj.HitProfile;
+            CameraShakeSettings settings = profile != null ? profile.ResolveHitCameraShakeSettings() : null;
+	        if (profile == null || eve == null || !eve.Previewable ||
+	            !profile.EnableHitCameraShake || !profile.PreviewHitCameraShake ||
 	            settings == null || !settings.HasVisibleOutput())
 	        {
 	            ReleaseHitShakePreview();
 	            return;
 	        }
 
-	        float elapsed = (currentTimePercentage - StartTimePercentage) *
-	                        Mathf.Max(0.01f, AnimLength);
-	        float duration = Mathf.Max(0.01f, Obj.ResolveHitCameraShakeDuration());
+		float elapsed = (currentTimePercentage - StartTimePercentage) *
+		                Mathf.Max(0.01f, AnimLength);
+		if (profile.ResolveHitCameraShakeStartAfterHitStop() &&
+		    profile.EnableHitAnimationSpeed && profile.HitStopFrames > 0)
+		    elapsed -= (profile.HitStopFrames + 1f) / CombatTimeline.FramesPerSecond;
+	        float duration = Mathf.Max(0.01f, profile.ResolveHitCameraShakeDuration());
 		if (elapsed < 0f || elapsed >= duration)
 	        {
 	            ReleaseHitShakePreview();
 	            return;
 	        }
 
-	        float trauma = Mathf.Clamp01(settings.TraumaPerPulse);
-	        float noiseIntensity = Mathf.Pow(trauma,
-	            Mathf.Max(1f, settings.TraumaExponent));
+        float trauma = Mathf.Clamp01(settings.TraumaPerPulse);
+        float noiseIntensity = Mathf.Pow(trauma,
+            Mathf.Max(1f, settings.TraumaExponent));
 	        if (hitShakePreviewHandle == 0)
 	            hitShakePreviewHandle = CameraShakeRuntime.Add(settings,
-	                noiseIntensity);
+                noiseIntensity);
 
 	        Vector3 previewForceDirection = _combatController != null &&
 	                                        _combatController._animator != null
@@ -99,12 +103,12 @@ using UnityEngine;
 	        bool isPlaying = CombatGlobalEditorValue.IsPlaying || CombatGlobalEditorValue.IsLooping;
 		float sampleTime = hitShakeClock.Sample(elapsed, isPlaying,
 	            EditorApplication.timeSinceStartup, out bool resetPhase,
-	            Obj.ResolveHitCameraShakeAffectedByHitStop() && _combatController != null &&
+	            profile.ResolveHitCameraShakeAffectedByHitStop() && _combatController != null &&
 	            _combatController._animSpeedExecutor != null
 	                ? Mathf.Lerp(1f, _combatController._animSpeedExecutor.CurrentHitStopSpeedScale,
-	                    Obj.ResolveHitCameraShakeHitStopWeight()) : 1f);
+	                    profile.ResolveHitCameraShakeHitStopWeight()) : 1f);
 	        CameraShakeRuntime.Update(hitShakePreviewHandle, settings, sampleTime,
-			normalizedTime, noiseIntensity, previewForceDirection, 1f, resetPhase);
+            normalizedTime, noiseIntensity, previewForceDirection, 1f, resetPhase);
 	    }
 
 	    private void ReleaseHitShakePreview()

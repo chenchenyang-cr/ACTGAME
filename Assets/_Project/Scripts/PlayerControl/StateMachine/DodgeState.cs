@@ -4,16 +4,15 @@ public sealed class DodgeState : PlayerState
 {
     private bool animationStarted;
     private bool continuationSelected;
-    private bool movementUnlocked;
 
     public DodgeState(PlayerStateMachine machine) : base(machine) { }
 
     public override void Enter()
     {
         continuationSelected = false;
-        movementUnlocked = false;
         PlayerMovementDirectionSnapshot snapshot =
             Machine.Movement.CaptureDirectionSnapshot(Machine.HasLatestMoveInput ? Machine.LatestMoveInput : Vector2.zero);
+        bool directionalDodge = !string.IsNullOrEmpty(Machine.AnimationProfile.DirectionalDodgeStateName);
         if (snapshot.HasDirection)
         {
             Machine.Movement.FaceWorldDirectionImmediately(snapshot.WorldDirection);
@@ -21,9 +20,14 @@ public sealed class DodgeState : PlayerState
 
         Machine.Movement.SetRotationMode(PlayerRotationMode.Preserve);
         Machine.Movement.SetRootMotionTranslationScale(Machine.DodgeRootMotionMultiplier);
-        Machine.Combat?.BeginDodgeAbility();
+        if (Machine.Combat != null && Machine.Combat.DodgeAbility != null)
+            Machine.Combat.BeginDodgeAbility();
         animationStarted = Machine.ActionAnimator != null &&
-                           Machine.ActionAnimator.PlayDodge(Vector2.up, Machine.HasLatestMoveInput);
+                           Machine.ActionAnimator.PlayDodge(
+                               directionalDodge
+                                   ? (snapshot.HasDirection ? Vector2.up : Vector2.down)
+                                   : Vector2.up,
+                               Machine.HasLatestMoveInput);
     }
 
     public override void Tick(Vector2 moveInput, bool hasMoveInput)
@@ -39,17 +43,18 @@ public sealed class DodgeState : PlayerState
             return;
         }
 
-        // Input recovery is controlled by the authored movement window, not
-        // by the end of the longer dodge/recovery animation.
-        movementUnlocked |= Machine.Combat != null && Machine.Combat.CanInterruptWithMovement();
-        Machine.Movement.SetRotationMode(movementUnlocked
-            ? PlayerRotationMode.MovementDirection
-            : PlayerRotationMode.Preserve);
-        if (movementUnlocked) Machine.Movement.SetRootMotionTranslationScale(1f);
-        Machine.Movement.Tick(movementUnlocked ? moveInput : Vector2.zero,
-            movementUnlocked && hasMoveInput, allowTurn180: false);
+        if (hasMoveInput && Machine.Combat != null && Machine.Combat.CanInterruptWithMovement() &&
+            Machine.EnterFastLocomotionLoop(moveInput))
+        {
+            Machine.Movement.Tick(moveInput, true);
+            return;
+        }
 
-        if (!continuationSelected && Machine.ActionAnimator != null &&
+        Machine.Movement.Tick(Vector2.zero, false, allowTurn180: false);
+
+        if (!continuationSelected &&
+            string.IsNullOrEmpty(Machine.AnimationProfile.DirectionalDodgeStateName) &&
+            Machine.ActionAnimator != null &&
             Machine.ActionAnimator.TryGetDodgeElapsedTime(out float elapsed) &&
             elapsed >= Machine.AnimationProfile.DodgeContinuationDecisionTime)
         {
@@ -62,6 +67,29 @@ public sealed class DodgeState : PlayerState
             Machine.ActionAnimator.IsDodgeComplete())
         {
             Complete(moveInput, hasMoveInput);
+        }
+    }
+
+    public override bool TryHandleCommand(PlayerActionCommand command)
+    {
+        if (Machine.Combat == null || !Machine.Combat.CanInterrupt(command))
+            return false;
+
+        switch (command)
+        {
+            case PlayerActionCommand.Dodge:
+                // ChangeState ignores transitions to the current state. Restart the
+                // dodge here so the authored Dodge window can cancel its recovery.
+                Exit();
+                Enter();
+                return true;
+            case PlayerActionCommand.LightAttack:
+                Machine.ChangeState(Machine.AttackState);
+                return true;
+            case PlayerActionCommand.Parry:
+                return Machine.TryEnterParry();
+            default:
+                return false;
         }
     }
 

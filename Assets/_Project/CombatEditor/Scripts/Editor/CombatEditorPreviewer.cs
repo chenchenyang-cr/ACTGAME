@@ -191,6 +191,17 @@ using UnityEngine.SceneManagement;
                 if (preview._EventObj == config && preview is AbilityEventPreview_MaterialPropertyCurve materialPreview)
                     materialPreview.RefreshProperties(PercentageTime);
         }
+
+        public void RefreshCharacterVisualPreview()
+        {
+            if (EditorApplication.isPlaying || previews == null || AbilityObj == null) return;
+            foreach (AbilityEventPreview preview in previews)
+                if (preview is AbilityEventPreview_CharacterEcho ||
+                    preview is AbilityEventPreview_CharacterAfterimage ||
+                    preview is AbilityEventPreview_CharacterFade)
+                    preview.DestroyPreview();
+            ShowPreviewAtPercentage(PercentageTime);
+        }
 	
 	    public int DebugAnimFrame;
 	
@@ -487,6 +498,8 @@ using UnityEngine.SceneManagement;
 	            {
 	                preview.StartTimeScaledPercentage = GetScaledPercentage(preview.StartTimePercentage);
 	                preview.EndTimeScaledPercentage = GetScaledPercentage(preview.EndTimePercentage);
+                if (preview is AbilityEventPreview_CharacterAfterimage afterimagePreview)
+                    afterimagePreview.SamplePose = UpdateAnimationInEditMode;
 	
 	                preview.PreviewRunning(PercentageTime);
 	

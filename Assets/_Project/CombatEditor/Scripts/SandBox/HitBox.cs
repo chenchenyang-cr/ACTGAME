@@ -14,7 +14,8 @@ namespace CombatEditor
 
         public CombatController Owner;
         public AbilityScriptableObject SourceAbility { get; private set; }
-        public AbilityEventObj_CreateHitBox SourceEvent { get; private set; }
+        public AbilityEventObj_HitSource SourceEvent { get; private set; }
+        public CombatHitProfile Settings => SourceEvent != null ? SourceEvent.HitProfile : null;
 
         // Fallback for legacy hit-boxes created without an ability event.
         [HideInInspector] public LayerMask hitTargetLayers = ~0;
@@ -27,6 +28,7 @@ namespace CombatEditor
         private Vector3 lastMotionDirection = Vector3.forward;
         private bool hasLastSampledPosition;
         private bool hitsCancelled;
+        internal bool TrackActionSingleHits = true;
         private Collider hitCollider;
         private NodeFollower nodeFollower;
         private Collider[] overlaps = new Collider[32];
@@ -45,7 +47,7 @@ namespace CombatEditor
         public void CancelHits() => hitsCancelled = true;
 
         public void Init(CombatController controller, AbilityScriptableObject sourceAbility = null,
-            AbilityEventObj_CreateHitBox sourceEvent = null)
+            AbilityEventObj_HitSource sourceEvent = null)
         {
             Owner = controller;
             hitsCancelled = false;
@@ -118,7 +120,7 @@ namespace CombatEditor
         private void TryProcessHit(Component other, Vector3 hitPoint)
         {
             RefreshMotionDirection();
-            if (hitsCancelled || Owner == null || other == null || !IsInHitTargetLayer(other.gameObject.layer))
+            if (hitsCancelled || Owner == null || other == null || (SourceEvent != null && Settings == null) || !IsInHitTargetLayer(other.gameObject.layer))
                 return;
 
             if (!TryResolveDamageReceiver(other, out ICombatDamageReceiver receiver,
@@ -126,7 +128,7 @@ namespace CombatEditor
                 return;
             if (receiverBehaviour.transform.root == Owner.transform.root)
                 return;
-            if (SourceEvent != null && !SourceEvent.AllowFriendlyFire &&
+            if (Settings != null && !Settings.AllowFriendlyFire &&
                 sourceTeam != CombatTeam.Neutral && receiver.Team == sourceTeam)
                 return;
 
@@ -137,16 +139,16 @@ namespace CombatEditor
                 targetStates.Add(targetId, state);
             }
 
-            CombatHitMode hitMode = SourceEvent != null
-                ? SourceEvent.HitMode
+            CombatHitMode hitMode = Settings != null
+                ? Settings.HitMode
                 : CombatHitMode.Single;
             if (state.HitCount > 0 && hitMode == CombatHitMode.Single)
                 return;
-            if (hitMode == CombatHitMode.Single &&
+            if (hitMode == CombatHitMode.Single && TrackActionSingleHits &&
                 Owner.HasConfirmedSingleHit(SourceEvent, receiverBehaviour.transform))
                 return;
-            if (SourceEvent != null && SourceEvent.MaximumHitsPerTarget > 0 &&
-                state.HitCount >= SourceEvent.MaximumHitsPerTarget)
+            if (Settings != null && Settings.MaximumHitsPerTarget > 0 &&
+                state.HitCount >= Settings.MaximumHitsPerTarget)
                 return;
             if (hitMode == CombatHitMode.Repeated && state.HitCount > 0 &&
                 currentAnimationFrame < state.NextEligibleFrame)
@@ -166,36 +168,17 @@ namespace CombatEditor
                 return;
 
             state.HitCount = hitSequenceIndex;
-            if (hitMode == CombatHitMode.Single)
+            if (hitMode == CombatHitMode.Single && TrackActionSingleHits)
                 Owner.RecordConfirmedSingleHit(SourceEvent, receiverBehaviour.transform);
             if (hitMode == CombatHitMode.Repeated)
             {
-                int interval = SourceEvent != null
-                    ? Mathf.Max(1, SourceEvent.RepeatIntervalFrames)
+                int interval = Settings != null
+                    ? Mathf.Max(1, Settings.RepeatIntervalFrames)
                     : 1;
                 state.NextEligibleFrame = currentAnimationFrame + interval;
             }
 
-            if (resolution.ResultType != CombatHitResultType.Parried && SourceEvent != null && SourceEvent.EnableHitCameraShake)
-            {
-                CombatCamera.CameraShakeSettings shakeSettings =
-                    SourceEvent.ResolveHitCameraShakeSettings();
-                CombatController shakeOwner = Owner;
-                float hitStopWeight = SourceEvent.ResolveHitCameraShakeHitStopWeight();
-                CombatCamera.CameraShakeRuntime.Pulse(
-                    shakeSettings,
-                    SourceEvent.ResolveHitCameraShakeDuration(),
-                    Mathf.Max(0f, resolution.CameraShakeScale),
-                    SourceEvent.ResolveHitCameraShakeUseUnscaledTime(),
-                    attackDirection,
-                    SourceEvent.ResolveHitCameraShakeAffectedByHitStop() &&
-                    hitStopWeight > 0f
-                        ? () => shakeOwner != null && shakeOwner._animSpeedExecutor != null
-                            ? Mathf.Lerp(1f, shakeOwner._animSpeedExecutor.CurrentHitStopSpeedScale,
-                                hitStopWeight) : 1f
-                        : (System.Func<float>)null);
-            }
-            if (resolution.ResultType != CombatHitResultType.Parried && SourceEvent != null && SourceEvent.EnableHitAnimationSpeed)
+            if (resolution.ResultType != CombatHitResultType.Parried && Settings != null && Settings.EnableHitAnimationSpeed)
             {
                 PlayHitStop(Owner);
                 CombatController targetController =
@@ -205,6 +188,27 @@ namespace CombatEditor
                         .GetComponentInChildren<CombatController>(true);
                 if (targetController != Owner)
                     PlayHitStop(targetController, delayOneFrame: true);
+            }
+            if (resolution.ResultType != CombatHitResultType.Parried && Settings != null && Settings.EnableHitCameraShake)
+            {
+                CombatCamera.CameraShakeSettings shakeSettings =
+                    Settings.ResolveHitCameraShakeSettings();
+                CombatController shakeOwner = Owner;
+                float hitStopWeight = Settings.ResolveHitCameraShakeHitStopWeight();
+                CombatFeedbackManager.TriggerHitShake(
+                    shakeSettings,
+                    Settings.ResolveHitCameraShakeDuration(),
+                    Mathf.Max(0f, resolution.CameraShakeScale),
+                    Settings.ResolveHitCameraShakeUseUnscaledTime(),
+                    attackDirection, Owner, receiverBehaviour.gameObject,
+                    Settings.ResolveHitCameraShakeStartAfterHitStop() &&
+                    Settings.EnableHitAnimationSpeed && Settings.HitStopFrames > 0,
+                    Settings.ResolveHitCameraShakeAffectedByHitStop() &&
+                    hitStopWeight > 0f
+                        ? () => shakeOwner != null && shakeOwner._animSpeedExecutor != null
+                            ? Mathf.Lerp(1f, shakeOwner._animSpeedExecutor.CurrentHitStopSpeedScale,
+                                hitStopWeight) : 1f
+                        : (System.Func<float>)null);
             }
             CombatHitEventBus.Publish(new CombatHitConfirmedEvent(Owner, SourceAbility,
                 SourceEvent, this, other, receiverBehaviour.gameObject, hitPoint,
@@ -216,18 +220,27 @@ namespace CombatEditor
             if (controller == null || controller._animSpeedExecutor == null)
                 return;
 
-            controller._animSpeedExecutor.PlayHitStop(SourceEvent.HitStopFrames, delayOneFrame,
-                SourceEvent.HitStopAnimationSpeed);
+            var fades = new HitStopFadeSettings
+            {
+                FadeIn = Settings.EnableHitStopFadeIn,
+                FadeInFrames = Settings.HitStopFadeInFrames,
+                FadeInCurve = Settings.HitStopFadeInCurve,
+                FadeOut = Settings.EnableHitStopFadeOut,
+                FadeOutFrames = Settings.HitStopFadeOutFrames,
+                FadeOutCurve = Settings.HitStopFadeOutCurve
+            };
+            controller._animSpeedExecutor.PlayHitStop(Settings.HitStopFrames, delayOneFrame,
+                Settings.HitStopAnimationSpeed, fades);
         }
 
         private CombatHitRequest BuildRequest(Component other, Vector3 hitPoint,
             Vector3 attackDirection, int hitSequenceIndex)
         {
-            float damage = SourceEvent != null ? SourceEvent.Damage : 0f;
-            float poiseDamage = SourceEvent != null ? SourceEvent.PoiseDamage : 0f;
-            float staggerDuration = SourceEvent != null ? SourceEvent.StaggerDuration : 0f;
-            CombatHitReactionPolicy reaction = SourceEvent != null
-                ? SourceEvent.HitReaction
+            float damage = Settings != null ? Settings.Damage : 0f;
+            float poiseDamage = Settings != null ? Settings.PoiseDamage : 0f;
+            float staggerDuration = Settings != null ? Settings.StaggerDuration : 0f;
+            CombatHitReactionPolicy reaction = Settings != null
+                ? Settings.HitReaction
                 : CombatHitReactionPolicy.None;
 
             return new CombatHitRequest(Owner, SourceAbility, SourceEvent, this, other,
@@ -237,7 +250,7 @@ namespace CombatEditor
 
         private bool IsInHitTargetLayer(int layer)
         {
-            LayerMask mask = SourceEvent != null ? SourceEvent.TargetLayers : hitTargetLayers;
+            LayerMask mask = Settings != null ? Settings.TargetLayers : hitTargetLayers;
             return (mask.value & (1 << layer)) != 0;
         }
 
@@ -338,7 +351,7 @@ namespace CombatEditor
                           nodeFollower.PosOffset.magnitude;
             // At most half the narrowest half-extent per sample; no inflated hit volume.
             int steps = Mathf.Clamp(Mathf.CeilToInt(travel / Mathf.Max(0.0025f, thickness * 0.5f)), 1, 512);
-            int layerMask = SourceEvent != null ? SourceEvent.TargetLayers.value : hitTargetLayers.value;
+            int layerMask = Settings != null ? Settings.TargetLayers.value : hitTargetLayers.value;
             for (int layer = 0; layer < 32; layer++)
                 if (Physics.GetIgnoreLayerCollision(gameObject.layer, layer)) layerMask &= ~(1 << layer);
 

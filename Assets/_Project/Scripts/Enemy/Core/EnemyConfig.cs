@@ -54,7 +54,10 @@ namespace UnityLearning.EnemySystem
 
         [Header("Hit Feedback")]
         [SerializeField] private bool enableHitVisualShake = true;
-        [Tooltip("Shake duration in real seconds, independent of animation hit-stop so the return stroke remains visible.")]
+        [InspectorName("受击抖动受顿帧影响")]
+        [Tooltip("开启后，受击抖动按受击敌人的顿帧动画速度暂停或减速。默认关闭，保持原有时长。")]
+        [SerializeField] private bool hitShakeAffectedByHitStop;
+        [Tooltip("Shake duration in seconds. When affected by hit stop, the shake clock slows with the victim's animation.")]
         [SerializeField, Min(0f)] private float hitShakeDuration = 0.15f;
         [Tooltip("Directional oscillations per real second (Hz). High frequencies may appear slower when undersampled by the rendering frame rate.")]
         [SerializeField, Min(0f)] private float hitShakeFrequency = 15f;
@@ -62,6 +65,9 @@ namespace UnityLearning.EnemySystem
         [SerializeField] private AnimationCurve hitShakeDecayCurve =
             AnimationCurve.EaseInOut(0f, 1f, 1f, 0f);
         [SerializeField] private bool enableHitRecoil = true;
+        [InspectorName("击退受顿帧影响")]
+        [Tooltip("开启后，击退位移和衰减按受击敌人的顿帧动画速度暂停或减速。默认关闭。")]
+        [SerializeField] private bool hitRecoilAffectedByHitStop;
         [SerializeField, Min(0f)] private float hitRecoilDuration = 0.12f;
         [SerializeField, Min(0f)] private float hitRecoilSpeed = 1.2f;
         [SerializeField] private AnimationCurve hitRecoilDecayCurve =
@@ -78,7 +84,6 @@ namespace UnityLearning.EnemySystem
         [SerializeField] private string alertState = "Alert";
         [SerializeField] private string locomotionState = "Locomotion";
         [SerializeField] private string locomotionStartState = "LocomotionStart";
-        [SerializeField] private string locomotionStopState = "LocomotionStop";
         [SerializeField] private string staggerState = "Hit";
         [SerializeField] private string hitXParameter = "HitX";
         [SerializeField] private string hitYParameter = "HitY";
@@ -89,9 +94,8 @@ namespace UnityLearning.EnemySystem
         [SerializeField] private string isMovingParameter = "IsMoving";
         [SerializeField] private string startXParameter = "StartX";
         [SerializeField] private string startYParameter = "StartY";
-        [SerializeField] private string stopXParameter = "StopX";
-        [SerializeField] private string stopYParameter = "StopY";
         [SerializeField, Min(0f)] private float animationBlendDuration = 0.12f;
+        [SerializeField, Min(0f)] private float hitRecoveryBlendDuration = 0.3f;
 
         public float DetectionDistance => detectionDistance;
         public float LoseTargetDistance => Mathf.Max(detectionDistance, loseTargetDistance);
@@ -106,11 +110,13 @@ namespace UnityLearning.EnemySystem
         public float DefaultStaggerDuration => defaultStaggerDuration;
         public EnemyAttackConfig[] Attacks => attacks;
         public bool EnableHitVisualShake => enableHitVisualShake;
+        public bool HitShakeAffectedByHitStop => hitShakeAffectedByHitStop;
         public float HitShakeDuration => Mathf.Max(0f, hitShakeDuration);
         public float HitShakeFrequency => Mathf.Max(0f, hitShakeFrequency);
         public float HitShakeAmplitude => Mathf.Max(0f, hitShakeAmplitude);
         public AnimationCurve HitShakeDecayCurve => hitShakeDecayCurve;
         public bool EnableHitRecoil => enableHitRecoil;
+        public bool HitRecoilAffectedByHitStop => hitRecoilAffectedByHitStop;
         public float HitRecoilDuration => Mathf.Max(0f, hitRecoilDuration);
         public float HitRecoilSpeed => Mathf.Max(0f, hitRecoilSpeed);
         public AnimationCurve HitRecoilDecayCurve => hitRecoilDecayCurve;
@@ -122,7 +128,6 @@ namespace UnityLearning.EnemySystem
         public string AlertState => alertState;
         public string LocomotionState => locomotionState;
         public string LocomotionStartState => locomotionStartState;
-        public string LocomotionStopState => locomotionStopState;
         public string StaggerState => staggerState;
         public string HitXParameter => hitXParameter;
         public string HitYParameter => hitYParameter;
@@ -133,8 +138,7 @@ namespace UnityLearning.EnemySystem
         public string IsMovingParameter => isMovingParameter;
         public string StartXParameter => startXParameter;
         public string StartYParameter => startYParameter;
-        public string StopXParameter => stopXParameter;
-        public string StopYParameter => stopYParameter;
         public float AnimationBlendDuration => animationBlendDuration;
+        public float HitRecoveryBlendDuration => hitRecoveryBlendDuration;
     }
 }

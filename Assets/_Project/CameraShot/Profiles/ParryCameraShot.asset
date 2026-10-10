@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: ParryCameraShot
   m_EditorClassIdentifier: 
   Composition: 2
-  TargetPosition: {x: 1.5280023, y: 1.1490691, z: -2.3261013}
+  TargetPosition: {x: 9.432749, y: 0.885593, z: -14.359622}
   TargetRotation: {x: -4.0594482, y: 20.067457, z: 3.5161943}
   CameraPositionOffset: {x: 0, y: 0, z: 0}
   CameraRotationOffset: {x: 0, y: 0, z: 0}
@@ -46,6 +46,8 @@ MonoBehaviour:
     m_RotationOrder: 4
   OverrideFieldOfView: 1
   FieldOfView: 50
+  UseKeyframes: 0
+  Keys: []
   WeightCurve:
     serializedVersion: 2
     m_Curve:

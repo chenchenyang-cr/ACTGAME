@@ -78,7 +78,8 @@ public sealed class ParryState : PlayerState
     {
         staggerDuration = 0f;
         if (consumed || CurrentPhase != Phase.Start || !animationStarted ||
-            request.SourceEvent == null || !request.SourceEvent.CanBeParried ||
+            request.SourceEvent == null || request.SourceEvent.HitProfile == null ||
+            !request.SourceEvent.HitProfile.CanBeParried ||
             !Machine.ActionAnimator.TryGetTrackedActionTime(out float time) ||
             time >= Machine.AnimationProfile.ParryStartEndTransitionTime) return false;
 
@@ -104,19 +105,19 @@ public sealed class ParryState : PlayerState
     {
         if (command == PlayerActionCommand.Parry)
         {
-            if (CurrentPhase == Phase.Success && !CanCancel(command.ToString(), false))
+            if (CurrentPhase == Phase.Success && !CanCancel(command, false))
                 return false;
             BeginAttempt();
             return true;
         }
-        if (!CanCancel(command.ToString(), false)) return false;
+        if (!CanCancel(command, false)) return false;
         if (command == PlayerActionCommand.Dodge) Machine.ChangeState(Machine.DodgeState);
         else if (command == PlayerActionCommand.LightAttack) Machine.ChangeState(Machine.AttackState);
         else return false;
         return true;
     }
 
-    private bool CanCancel(string command, bool movement)
+    private bool CanCancel(PlayerActionCommand? command, bool movement)
     {
         AbilityScriptableObject ability = CurrentPhase == Phase.Success
             ? successAbility
@@ -127,7 +128,7 @@ public sealed class ParryState : PlayerState
         {
             if (entry?.Obj is AbilityEventObj_InterruptWindow window && window.IsActive &&
                 time >= entry.EventRange.x && time < entry.EventRange.y &&
-                (movement ? window.AllowMovement : window.Allows(command))) return true;
+                (movement ? window.AllowMovement : command.HasValue && window.Allows(command.Value))) return true;
         }
         return false;
     }

@@ -62,7 +62,7 @@ public static class SwordmanAttackSetup
                 }
                 var cancel = Add<AbilityEventObj_InterruptWindow>(attacks[i], 0.75f, 1f);
                 cancel.AllowMovement = true;
-                cancel.AllowedCommandIds = "";
+                cancel.AllowedCommands.Clear();
                 EditorUtility.SetDirty(cancel);
             }
             if (ends[i].events.Count == 0)
@@ -70,7 +70,8 @@ public static class SwordmanAttackSetup
                 Add<AbilityEventObj_RotationWindow>(ends[i], 0f, 1f);
                 var cancel = Add<AbilityEventObj_InterruptWindow>(ends[i], 0.5f, 1f);
                 cancel.AllowMovement = true;
-                cancel.AllowedCommandIds = "LightAttack";
+                cancel.AllowedCommands.Clear();
+                cancel.AllowedCommands.Add(PlayerActionCommand.LightAttack);
                 EditorUtility.SetDirty(cancel);
             }
             EditorUtility.SetDirty(attacks[i]);

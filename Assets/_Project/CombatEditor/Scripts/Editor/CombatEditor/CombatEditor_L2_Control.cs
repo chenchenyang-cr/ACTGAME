@@ -140,7 +140,7 @@ namespace CombatEditor
 
         public void CreatAddTrackMenu()
         {
-            System.Type[] typesToDisplay = TypeCache.GetTypesWithAttribute<AbilityEventAttribute>().OrderBy(m => m.Name).ToArray();
+            System.Type[] typesToDisplay = TypeCache.GetTypesWithAttribute<AbilityEventAttribute>().Where(type => !type.IsAbstract).OrderBy(m => m.Name).ToArray();
             AnimEventSearchProvider provider = ScriptableObject.CreateInstance("AnimEventSearchProvider") as AnimEventSearchProvider;
             provider.types = typesToDisplay;
             provider.OnSetIndexCallBack = (type) =>
@@ -157,6 +157,9 @@ namespace CombatEditor
                 e.Obj = obj;
                 if (obj is AbilityEventObj_CreateHitBox ||
                     obj is AbilityEventObj_MaterialPropertyCurve ||
+                    obj is AbilityEventObj_CharacterEcho ||
+                    obj is AbilityEventObj_CharacterAfterimage ||
+                    obj is AbilityEventObj_CharacterFade ||
                     obj is AbilityEventObj_TargetAssistWindow)
                 {
                     e.Previewable = true;

@@ -46,7 +46,7 @@ namespace CombatEditor
         {
             // Defender feedback owns the parry effect; do not also spawn the attack's hit effect.
             if (hitEvent.ResultType == CombatHitResultType.Parried) return;
-            AbilityEventObj_CreateHitBox config = hitEvent.SourceHitBoxEvent;
+            CombatHitProfile config = hitEvent.SourceHitBoxEvent != null ? hitEvent.SourceHitBoxEvent.HitProfile : null;
             if (config == null || !config.EnableHitVfx || config.HitVfxPrefab == null ||
                 (config.HitVfxResultMask & hitEvent.ResultMask) == 0)
                 return;
@@ -72,7 +72,7 @@ namespace CombatEditor
             Object.Destroy(instance, lifetime);
         }
 
-        private static Vector3 ResolvePosition(AbilityEventObj_CreateHitBox config,
+        private static Vector3 ResolvePosition(CombatHitProfile config,
             CombatHitConfirmedEvent hitEvent, Quaternion rotation)
         {
             if (config.HitVfxPositionMode != CombatHitVfxPositionMode.TargetPosition)

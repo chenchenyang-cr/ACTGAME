@@ -1,4 +1,4 @@
-using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace CombatEditor
@@ -7,30 +7,21 @@ namespace CombatEditor
     [CreateAssetMenu(menuName = "AbilityEvents/Gameplay/Interrupt Window")]
     public sealed class AbilityEventObj_InterruptWindow : AbilityEventObj_GameplayWindow
     {
-        [Tooltip("Comma separated game-defined command IDs, for example Dodge,HeavyAttack.")]
-        public string AllowedCommandIds = "Dodge";
+        [Tooltip("Commands accepted during this window. Drag to arrange them in the editor.")]
+        public List<PlayerActionCommand> AllowedCommands = new List<PlayerActionCommand> { PlayerActionCommand.Dodge };
         [Tooltip("Allow movement input to cancel the current ability while this window is active.")]
         public bool AllowMovement;
         [Min(0)] public int MinimumPriority;
         public bool AllowHitReaction = true;
         public override CombatGameplayWindowType WindowType => CombatGameplayWindowType.Interrupt;
 
-        public bool Allows(string commandId)
+        public bool Allows(PlayerActionCommand command)
         {
-            if (string.IsNullOrWhiteSpace(commandId) || string.IsNullOrWhiteSpace(AllowedCommandIds))
+            if (AllowedCommands == null) return false;
+            for (int i = 0; i < AllowedCommands.Count; i++)
             {
-                return false;
+                if (AllowedCommands[i] == command) return true;
             }
-
-            string[] ids = AllowedCommandIds.Split(',');
-            for (int i = 0; i < ids.Length; i++)
-            {
-                if (string.Equals(ids[i].Trim(), commandId, StringComparison.OrdinalIgnoreCase))
-                {
-                    return true;
-                }
-            }
-
             return false;
         }
     }

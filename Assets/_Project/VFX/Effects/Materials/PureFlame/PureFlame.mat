@@ -1,0 +1,84 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: PureFlame
+  m_Shader: {fileID: -6465566751694194690, guid: dfe0cac41bdc84dc59e26d9ca587c6e5, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses:
+  - MOTIONVECTORS
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _GrowthCurve:
+        m_Texture: {fileID: 2800000, guid: a367130666eab4bcfb600e96c31104a2, type: 2}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_Lightmaps:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_LightmapsInd:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_ShadowMasks:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _BurnoutFlowBoost: 1.2
+    - _BurnoutLift: 0.12
+    - _BurnoutStagger: 0.32
+    - _ControllerBrightness: 2
+    - _CurlAmount: 1.6
+    - _DetailDensity: 25
+    - _DissolveEnd: 1
+    - _DissolveStart: 0.55263156
+    - _EndHeightFalloff: 3.29
+    - _EndOpacityFalloff: 1.6
+    - _FlameAmount: 0.55
+    - _FlameCohesion: 0.85
+    - _FlowSpeed: 3.4
+    - _GrowthFraction: 0.28947368
+    - _Height: 1.05
+    - _Opacity: 0.85
+    - _QueueControl: 0
+    - _QueueOffset: 0
+    - _RootIrregularity: 0.28
+    - _SwayAngle: 90
+    - _SwayScale: 3.5
+    - _SwaySpeed: 5
+    m_Colors:
+    - _RootTint: {r: 0.009656467, g: 0.10288916, b: 0.2924528, a: 1}
+    - _Tint: {r: 0, g: 0.48694158, b: 0.7075472, a: 1}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1
+--- !u!114 &3393400814198398080
+MonoBehaviour:
+  m_ObjectHideFlags: 11
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  version: 10

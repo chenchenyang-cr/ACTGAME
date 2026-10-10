@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -50,7 +50,7 @@ using UnityEngine;
 	
 	[AbilityEvent]
 	[CreateAssetMenu(menuName = "AbilityEvents / Particles")]
-	public class AbilityEventObj_Particles : AbilityEventObj_CreateObjWithHandle
+	public class AbilityEventObj_Particles : AbilityEventObj_HitSource
 	{
 	    //public InsedObject ParticleData = new InsedObject();
 	    public EventTimeType TimeType = EventTimeType.EventTime;
@@ -60,6 +60,21 @@ using UnityEngine;
 	    public bool AffectedByHitStop;
 	    [Min(0f)] public float SizeMultiplier = 1f;
 	    public Vector3 CenterOffset = Vector3.zero;
+
+	    [Header("粒子碰撞体")]
+	    [InspectorName("启用碰撞体")]
+	    [Tooltip("为整个特效创建一个命中碰撞体，特效实例启用期间生效。每条粒子事件独立计算命中次数。")]
+	    public bool EnableCollision;
+	    public ParticleHitBoxSettings Collision = new ParticleHitBoxSettings();
+	    public override bool HasHitBox => EnableCollision;
+        public int CollisionDelayFrames => HitProfile != null
+            ? Mathf.Max(0, HitProfile.ParticleCollisionDelayFrames) : 0;
+
+        public bool IsCollisionDelayElapsed(float currentTime, float eventStartTime, AnimationClip clip)
+        {
+            return CombatTimeline.ToFrame(currentTime, clip) -
+                CombatTimeline.ToFrame(eventStartTime, clip) >= CollisionDelayFrames;
+        }
 	    public override EventTimeType GetEventTimeType()
 	    {
 	        return TimeType == EventTimeType.EventRange
@@ -95,68 +110,98 @@ using UnityEngine;
 	}
 	
 	
-	public class AbilityEventEffect_Particles : AbilityEventEffect
-	{
-	    AbilityEventObj_Particles Obj => (AbilityEventObj_Particles)_EventObj;
-	    //Vector3 TargetPos => _combatController.transform.position + _combatController._animator.transform.rotation * Obj.Offset;
-	
-	    GameObject InsedParticle;
-	    ParticleSystem[] particleSystems;
-	    float[] normalSimulationSpeeds;
-	    public AbilityEventEffect_Particles(AbilityEventObj Obj) : base(Obj)
-	    {
-	        _EventObj = Obj;
-	    }
-	
-	    public override void EndEffect()
-	    {
-	        base.EndEffect();
-	        if (InsedParticle != null)
-	        {
-	            Object.Destroy(InsedParticle);
-	            InsedParticle = null;
-	        }
-	        particleSystems = null;
-	        normalSimulationSpeeds = null;
-	    }
-	    public override void StartEffect()
-	    {
-	        base.StartEffect();
-	        InsedParticle = Obj.ObjData.CreateObject(_combatController);
-	        ParticleSizeUtility.ApplySize(InsedParticle, Obj.SizeMultiplier);
-	        ParticleCenterOffsetUtility.ApplyOffset(InsedParticle, Obj.CenterOffset);
-	        ParticlePlaybackSpeedUtility.ApplySpeed(InsedParticle, Obj.PlaySpeed);
-	        if (Obj.AffectedByHitStop && InsedParticle != null)
-	        {
-	            particleSystems = InsedParticle.GetComponentsInChildren<ParticleSystem>(true);
-	            normalSimulationSpeeds = new float[particleSystems.Length];
-	            for (int i = 0; i < particleSystems.Length; i++)
-	                normalSimulationSpeeds[i] = particleSystems[i].main.simulationSpeed;
-	            ApplyHitStopSpeed();
-	        }
-	    }
+    public class AbilityEventEffect_Particles : AbilityEventEffect
+    {
+        private AbilityEventObj_Particles Obj => (AbilityEventObj_Particles)_EventObj;
+        private ParticleEffectLifetime lifetime;
+        public HitBox CurrentHitBox => lifetime != null ? lifetime.CurrentHitBox : null;
 
-	    public override void EffectRunning()
-	    {
-	        ApplyHitStopSpeed();
-	    }
+        public AbilityEventEffect_Particles(AbilityEventObj obj) : base(obj) { }
 
-	    void ApplyHitStopSpeed()
-	    {
-	        if (particleSystems == null || _combatController._animSpeedExecutor == null)
-	            return;
+        public override void StartEffect()
+        {
+            base.StartEffect();
+            GameObject instance = Obj.ObjData.CreateObject(_combatController);
+            ParticleSizeUtility.ApplySize(instance, Obj.SizeMultiplier);
+            ParticleCenterOffsetUtility.ApplyOffset(instance, Obj.CenterOffset);
+            ParticlePlaybackSpeedUtility.ApplySpeed(instance, Obj.PlaySpeed);
+            if (instance == null) return;
+            lifetime = instance.AddComponent<ParticleEffectLifetime>();
+            lifetime.Initialize(_combatController, AnimObj, Obj, eve.GetEventStartTime());
+        }
 
-	        float hitStopSpeed = _combatController._animSpeedExecutor.CurrentHitStopSpeedScale;
-	        for (int i = 0; i < particleSystems.Length; i++)
-	        {
-	            if (particleSystems[i] == null) continue;
-	            var main = particleSystems[i].main;
-	            main.simulationSpeed = normalSimulationSpeeds[i] * hitStopSpeed;
-	        }
-	    }
-	
-	}
+        public override void EffectRunning() => lifetime?.ApplyHitStopSpeed();
+        public override void EffectRunning(float time) => lifetime?.UpdateAnimationTime(time);
+        public override void EffectRunningFixedUpdate(float time) => lifetime?.UpdateAnimationTime(time);
 
+        // Animation ownership ends; the spawned instance keeps its own lifetime.
+        public void ReleaseOnAnimationChange()
+        {
+            if (lifetime != null) lifetime.ReleaseFromAnimation();
+            lifetime = null;
+            base.EndEffect();
+        }
+
+        public override void EndEffect()
+        {
+            if (lifetime != null) lifetime.Finish();
+            lifetime = null;
+            base.EndEffect();
+        }
+    }
+
+
+    public enum ParticleColliderShape
+    {
+        [InspectorName("盒体")] Box,
+        [InspectorName("球体")] Sphere,
+        [InspectorName("胶囊")] Capsule
+    }
+
+    [System.Serializable]
+    public sealed class ParticleHitBoxSettings
+    {
+        public ParticleColliderShape Shape;
+        public Vector3 Offset;
+        public Vector3 Rotation;
+        public Vector3 BoxSize = Vector3.one;
+        [Min(0.001f)] public float Radius = 0.5f;
+        [Min(0.002f)] public float Height = 2f;
+        [Range(0, 2)] public int CapsuleDirection = 1;
+
+        // A dedicated child avoids changing the particle prefab's own colliders.
+        public Collider CreateCollider(GameObject particleRoot)
+        {
+            var child = new GameObject("Particle HitBox") { layer = particleRoot.layer };
+            child.transform.SetParent(particleRoot.transform, false);
+            child.transform.localPosition = Offset;
+            child.transform.localRotation = Quaternion.Euler(Rotation);
+            Collider collider;
+            switch (Shape)
+            {
+                case ParticleColliderShape.Sphere:
+                    var sphere = child.AddComponent<SphereCollider>();
+                    sphere.radius = Mathf.Max(0.001f, Radius);
+                    collider = sphere;
+                    break;
+                case ParticleColliderShape.Capsule:
+                    var capsule = child.AddComponent<CapsuleCollider>();
+                    capsule.radius = Mathf.Max(0.001f, Radius);
+                    capsule.height = Mathf.Max(capsule.radius * 2f, Height);
+                    capsule.direction = Mathf.Clamp(CapsuleDirection, 0, 2);
+                    collider = capsule;
+                    break;
+                default:
+                    var box = child.AddComponent<BoxCollider>();
+                    box.size = new Vector3(Mathf.Max(0.001f, BoxSize.x),
+                        Mathf.Max(0.001f, BoxSize.y), Mathf.Max(0.001f, BoxSize.z));
+                    collider = box;
+                    break;
+            }
+            collider.isTrigger = true;
+            return collider;
+        }
+    }
 	public static class ParticleCenterOffsetUtility
 	{
 	    public static void ApplyOffset(GameObject target, Vector3 centerOffset)

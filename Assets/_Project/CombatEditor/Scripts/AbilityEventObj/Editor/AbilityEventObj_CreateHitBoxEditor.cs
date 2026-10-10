@@ -5,81 +5,36 @@ using UnityEngine;
 namespace CombatEditor
 {
     [CustomEditor(typeof(AbilityEventObj_CreateHitBox))]
-    public sealed class AbilityEventObj_CreateHitBoxEditor :
-        AbilityEventObj_CreateObjWithHandleEditor
+    public sealed class AbilityEventObj_CreateHitBoxEditor : AbilityEventObj_CreateObjWithHandleEditor
     {
         public override void OnInspectorGUI()
         {
+            serializedObject.Update();
             EditorGUI.BeginChangeCheck();
-            base.OnInspectorGUI();
-            bool previewDataChanged = EditorGUI.EndChangeCheck();
+            EditorGUI.BeginDisabledGroup(true);
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("m_Script"));
+            EditorGUI.EndDisabledGroup();
+            DrawPropertiesExcluding(serializedObject, "m_Script", "HitProfile");
+            CombatHitProfileEditorUtility.DrawReference(serializedObject);
+            bool changed = EditorGUI.EndChangeCheck();
+            serializedObject.ApplyModifiedProperties();
+            DrawTransformEditButtons();
 
-            var config = (AbilityEventObj_CreateHitBox)target;
-            if (config.EnableHitCameraShake && config.PreviewHitCameraShake)
-            {
-                var ability = AssetDatabase.LoadAssetAtPath<AbilityScriptableObject>(
-                    AssetDatabase.GetAssetPath(config));
-                var previewEvent = ability?.events.Find(entry => entry != null && entry.Obj == config);
-                if (previewEvent != null && !previewEvent.Previewable)
-                    EditorGUILayout.HelpBox(
-                        "命中震动预览已勾选，但碰撞盒轨道的预览开关仍关闭。请打开该轨道的预览图标，再在游戏视图查看震动。",
-                        MessageType.Info);
-            }
-            if (config.HitMode == CombatHitMode.Repeated)
-            {
-                EditorGUILayout.HelpBox(
-                    $"首次接触立即命中，之后每 {Mathf.Max(1, config.RepeatIntervalFrames)} 个动作帧可再次命中同一目标。动作时间线固定按 60 FPS 计算。",
-                    MessageType.Info);
-            }
+            var source = (AbilityEventObj_CreateHitBox)target;
+            if (source.ObjData == null || source.ObjData.TargetObj == null)
+                EditorGUILayout.HelpBox("请选择包含 HitBox 组件的碰撞盒 Prefab。", MessageType.Warning);
+            else if (source.ObjData.TargetObj.GetComponent<HitBox>() == null)
+                EditorGUILayout.HelpBox("当前 Prefab 缺少 HitBox 组件，运行时不会结算伤害。", MessageType.Error);
 
-            if (config.ObjData == null || config.ObjData.TargetObj == null)
+            var profile = source.HitProfile;
+            if (profile != null && profile.EnableHitCameraShake && profile.PreviewHitCameraShake)
             {
-                EditorGUILayout.HelpBox("请选择包含 HitBox 组件的碰撞盒 Prefab。",
-                    MessageType.Warning);
+                var ability = AssetDatabase.LoadAssetAtPath<AbilityScriptableObject>(AssetDatabase.GetAssetPath(source));
+                var entry = ability?.events.Find(e => e != null && e.Obj == source);
+                if (entry != null && !entry.Previewable)
+                    EditorGUILayout.HelpBox("请打开碰撞盒轨道的预览开关，以查看配置中的命中震动预览。", MessageType.Info);
             }
-            else if (config.ObjData.TargetObj.GetComponent<HitBox>() == null)
-            {
-                EditorGUILayout.HelpBox("当前 Prefab 缺少 HitBox 组件，运行时不会结算伤害。",
-                    MessageType.Error);
-            }
-
-            if (!config.EnableHitCameraShake)
-            {
-                EditorGUILayout.HelpBox(
-                    "命中震动未启用。碰撞仍会正常结算伤害。",
-                    MessageType.Info);
-            }
-
-            if (config.EnableHitCameraShake && config.HitCameraShakeProfile == null)
-            {
-                EditorGUILayout.HelpBox(
-                    "请选择摄像机震动预设。当前暂时使用旧版内嵌参数作为兼容回退。",
-                    MessageType.Warning);
-            }
-
-            if (config.EnableHitAnimationSpeed)
-            {
-                EditorGUILayout.HelpBox(
-                    $"命中确认后，攻击者立即顿帧，受击者延迟 1 个游戏帧开始顿帧。各自以当前动作速度的 {Mathf.Clamp01(config.HitStopAnimationSpeed):0.##} 倍播放，持续 {Mathf.Max(0, config.HitStopFrames)} 帧（按 60 FPS 计时）后恢复。0 倍完全暂停，1 倍保持原速；延迟不占持续时间。0 帧表示不顿帧；连续命中会刷新时长和速度。",
-                    MessageType.Info);
-            }
-
-            if (config.EnableHitVfx && config.HitVfxPrefab == null)
-            {
-                EditorGUILayout.HelpBox(
-                    "命中特效已启用，但尚未指定 Hit VFX Prefab。",
-                    MessageType.Warning);
-            }
-            else if (config.EnableHitVfx)
-            {
-                EditorGUILayout.HelpBox(
-                    config.HitVfxPositionMode == CombatHitVfxPositionMode.TargetPosition
-                        ? "生成位置 = 对手受击组件所在对象的位置 + 固定偏移 + 随机偏移。偏移使用世界坐标；随机幅度为各轴的正负上限，每次命中独立取值。角色原点在脚底时，可将固定偏移 Y 设为胸口高度。"
-                        : "特效会在确认命中后生成于 HitPoint，固定位置偏移按特效最终朝向计算；随机位置偏移在此模式下不生效。",
-                    MessageType.Info);
-            }
-
-            if (previewDataChanged)
+            if (changed)
             {
                 SceneView.RepaintAll();
                 if (CombatEditorUtility.EditorExist())

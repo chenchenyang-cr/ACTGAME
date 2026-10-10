@@ -32,12 +32,6 @@ namespace CombatCamera
         [InspectorName("世界坐标")] World
     }
 
-    public enum DirectionalRotationMode
-    {
-        [InspectorName("手动旋转轴")] Manual,
-        [InspectorName("自动跟随攻击方向")] FollowAttack
-    }
-
     [Serializable]
     public sealed class CameraShakeSettings
     {
@@ -50,11 +44,19 @@ namespace CombatCamera
         [InspectorName("震动分组")]
         public CameraShakeChannel Channel = CameraShakeChannel.Impact;
         [InspectorName("单次命中强度")]
-        [Tooltip("每次确认命中增加的普通震动强度。")]
+        [Tooltip("每次命中的独立普通震动倍率；1 为完整强度。多次命中独立叠加，不会刷新旧震动。仅命中触发有效，不影响定向震动。")]
         [Range(0f, 1f)] public float TraumaPerPulse = 0.65f;
         [InspectorName("轻微震动抑制")]
         [Tooltip("数值越大，较弱的命中震动越不明显；强命中仍可达到完整强度。")]
         [Min(1f)] public float TraumaExponent = 2f;
+
+        public float EvaluateHitIntensity(float normalizedTime, float intensityScale = 1f)
+        {
+            float remaining = 1f - Mathf.Clamp01(normalizedTime);
+            float strength = Mathf.Clamp01(TraumaPerPulse) * remaining;
+            return Mathf.Pow(strength, Mathf.Max(1f, TraumaExponent)) *
+                   Mathf.Max(0f, intensityScale);
+        }
 
         [Header("镜头位移抖动")]
         [InspectorName("启用位移抖动")]
@@ -138,30 +140,16 @@ namespace CombatCamera
         [InspectorName("位移幅度衰减"), Range(0f, 1f)]
         [Tooltip("每轮往返后位移范围缩小的比例。0 表示不衰减；数值越大，回中越快。")]
         public float DirectionalPositionRangeDecay = 0.35f;
-        [InspectorName("旋转方向模式")]
-        public DirectionalRotationMode DirectionalRotationMode;
-        [InspectorName("旋转往返范围 (度)"), Min(0f)]
-        [Tooltip("自动模式中从中心到折返点的角度。0 表示不产生定向旋转。")]
-        [FormerlySerializedAs("DirectionalInitialAutoRotation")]
-        [FormerlySerializedAs("DirectionalAutoRotationAmplitude")]
-        public float DirectionalAutoRotationRange = 1f;
-        [InspectorName("旋转每秒往返次数"), Min(0f)]
-        [Tooltip("旋转每秒完成多少轮往返；0 时不产生定向旋转。")]
-        public float DirectionalRotationFrequency = 18f;
-        [InspectorName("旋转幅度衰减"), Range(0f, 1f)]
-        [Tooltip("每轮往返后旋转范围缩小的比例。0 表示不衰减；数值越大，回中越快。")]
-        public float DirectionalRotationRangeDecay = 0.35f;
-        [InspectorName("各轴旋转范围 (度)")]
-        [Tooltip("手动模式的转动方向和各轴范围：X 俯仰、Y 左右转动、Z 画面倾斜。全为 0 时不旋转。")]
-        [FormerlySerializedAs("DirectionalInitialRotation")]
-        [FormerlySerializedAs("DirectionalRotationAmplitude")]
-        public Vector3 DirectionalRotationRange = Vector3.zero;
-        [InspectorName("靠中心加速"), Range(1f, 4f)]
-        [Tooltip("同时控制位移和旋转在单轮往返中的速度分布。1 为正弦运动；越大则从中心出发越快，靠近折返点越慢。往返次数和最大范围不变。")]
-        public float DirectionalCenterSpeed = 1f;
+        [InspectorName("位移衰减强度曲线")]
+        [Tooltip("横轴是整段震动进度，纵轴是位移幅度衰减的倍率。1 保持原有衰减，后段高于 1 会让衰减逐渐增强。")]
+        public AnimationCurve DirectionalPositionDecayCurve = AnimationCurve.Linear(0f, 1f, 1f, 1f);
+        [InspectorName("轨迹直线度"), Range(1f, 4f)]
+        [Tooltip("控制单轮定向位移轨迹的形状。1 为圆滑的正弦曲线；越大越接近直线运动，并在折返点直接折返。往返次数和最大范围不变。")]
+        [FormerlySerializedAs("DirectionalCenterSpeed")]
+        public float DirectionalTrajectoryStraightness = 1f;
 
         private static float Oscillate(float time, float range, float frequency,
-            float centerSpeed, float rangeDecay)
+            float trajectoryStraightness, float rangeDecay)
         {
             if (Mathf.Abs(range) <= 0.000001f || frequency <= 0f)
                 return 0f;
@@ -169,45 +157,43 @@ namespace CombatCamera
             double retention = 1d - Mathf.Clamp01(rangeDecay);
             double envelope = retention <= 0d ? Math.Max(0d, 1d - cycles) : Math.Pow(retention, cycles);
             double sine = Math.Sin(2d * Math.PI * cycles);
-            if (centerSpeed <= 1f)
+            double straightness = Mathf.Clamp01((trajectoryStraightness - 1f) / 3f);
+            if (straightness <= 0d)
                 return range * (float)(envelope * sine);
-            double speedShape = Math.Min(4d, centerSpeed);
-            double wave = Math.Sign(sine) * (1d - Math.Pow(1d - Math.Abs(sine), speedShape));
+            double phase = cycles - Math.Floor(cycles);
+            double triangle = phase < 0.25d ? phase * 4d
+                : phase < 0.75d ? 2d - phase * 4d
+                : phase * 4d - 4d;
+            double wave = sine + (triangle - sine) * straightness;
             return range * (float)(envelope * wave);
         }
 
-        public CameraShakeSample EvaluateDirectional(float sampleTime,
-            Vector3 worldForceDirection, float intensityScale, Quaternion? cameraOrientation = null)
+        private float EvaluateDirectionalPositionDecay(float normalizedTime)
+        {
+            float multiplier = DirectionalPositionDecayCurve != null &&
+                               DirectionalPositionDecayCurve.length > 0
+                ? Mathf.Max(0f, DirectionalPositionDecayCurve.Evaluate(Mathf.Clamp01(normalizedTime)))
+                : 1f;
+            if (multiplier <= 0f)
+                return 0f;
+            return 1f - Mathf.Pow(1f - Mathf.Clamp01(DirectionalPositionRangeDecay), multiplier);
+        }
+
+        public CameraShakeSample EvaluateDirectional(float sampleTime, float normalizedTime,
+            Vector3 worldForceDirection, float intensityScale)
         {
             if (!EnableDirectionalImpulse || intensityScale <= 0f)
                 return default;
             bool manual = DirectionalDirectionMode == DirectionalShakeDirectionMode.Manual;
             Vector3 direction = manual ? DirectionalManualPositionRange : worldForceDirection;
             float position = Oscillate(sampleTime, 1f, DirectionalPositionFrequency,
-                DirectionalCenterSpeed, DirectionalPositionRangeDecay) * intensityScale;
+                DirectionalTrajectoryStraightness, EvaluateDirectionalPositionDecay(normalizedTime)) * intensityScale;
             Vector3 offset = direction.sqrMagnitude > 0.000001f
                 ? (manual ? direction : direction.normalized * DirectionalPositionRange) * position
                 : Vector3.zero;
-            Vector3 rotation = DirectionalRotationRange *
-                Oscillate(sampleTime, 1f, DirectionalRotationFrequency,
-                    DirectionalCenterSpeed, DirectionalRotationRangeDecay) * intensityScale;
-            if (DirectionalRotationMode == DirectionalRotationMode.FollowAttack)
-                rotation = AttackRotationAxis(worldForceDirection, cameraOrientation ?? Quaternion.identity) *
-                    (Oscillate(sampleTime, DirectionalAutoRotationRange,
-                        DirectionalRotationFrequency, DirectionalCenterSpeed,
-                        DirectionalRotationRangeDecay) * intensityScale);
             return manual && DirectionalManualSpace == DirectionalShakeSpace.CameraLocal
-                ? new CameraShakeSample(offset, rotation, 0f)
-                : new CameraShakeSample(Vector3.zero, rotation, 0f, offset);
-        }
-
-        public static Vector3 AttackRotationAxis(Vector3 worldAttackDirection, Quaternion cameraOrientation)
-        {
-            if (worldAttackDirection.sqrMagnitude <= 0.000001f) return Vector3.zero;
-            Vector3 localDirection = Quaternion.Inverse(cameraOrientation) * worldAttackDirection.normalized;
-            Vector3 axis = Vector3.Cross(Vector3.forward, localDirection);
-            // Near the viewing axis, the projected attack has no stable turn direction.
-            return axis.sqrMagnitude > 0.0001f ? axis.normalized : Vector3.right;
+                ? new CameraShakeSample(offset, Vector3.zero, 0f)
+                : new CameraShakeSample(Vector3.zero, Vector3.zero, 0f, offset);
         }
 
         public bool HasVisibleOutput()
@@ -217,16 +203,11 @@ namespace CombatCamera
             bool hasRotation = EnableRotation && RotationFrequency > 0f &&
                                RotationAmplitude.sqrMagnitude > 0.0000001f;
             bool hasFov = EnableFov && Mathf.Abs(FovAmplitude) > 0.0001f;
-            bool hasDirectionalRotation = DirectionalRotationFrequency > 0f &&
-                                          (DirectionalRotationMode == DirectionalRotationMode.FollowAttack
-                                              ? Mathf.Abs(DirectionalAutoRotationRange) > 0.0001f
-                                              : DirectionalRotationRange.sqrMagnitude > 0.0000001f);
             bool hasDirectionalPosition = DirectionalPositionFrequency > 0f &&
                                           (DirectionalDirectionMode == DirectionalShakeDirectionMode.Manual
                                               ? DirectionalManualPositionRange.sqrMagnitude > 0.0000001f
                                               : Mathf.Abs(DirectionalPositionRange) > 0.0001f);
-            bool hasDirectionalImpulse = EnableDirectionalImpulse &&
-                                         (hasDirectionalPosition || hasDirectionalRotation);
+            bool hasDirectionalImpulse = EnableDirectionalImpulse && hasDirectionalPosition;
             return hasPosition || hasRotation || hasFov || hasDirectionalImpulse;
         }
 

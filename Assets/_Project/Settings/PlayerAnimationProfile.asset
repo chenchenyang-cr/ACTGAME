@@ -21,6 +21,7 @@ MonoBehaviour:
   combatLocomotionLoopStateName: CombatLocomotion.Loop
   dodgeNormalStateName: DodgeNormal
   dodgeCombatStateName: DodgeCombat
+  directionalDodgeStateName: Unagi_Evade
   dodgeXParameter: DodgeX
   dodgeYParameter: DodgeY
   combatWeightParameter: CombatWeight
