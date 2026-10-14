@@ -33,7 +33,9 @@ using UnityEngine;
 	        for (int i = 0; i < normalTypes.Length; i++)
 	        {
 	            SearchTreeEntry entry = new SearchTreeEntry(
-	                new GUIContent(ObjectNames.NicifyVariableName(normalTypes[i].Name.Replace("AbilityEventObj_", ""))));
+                new GUIContent(normalTypes[i] == typeof(AbilityEventObj_GlobalHitStop)
+                    ? "全局顿帧"
+                    : ObjectNames.NicifyVariableName(normalTypes[i].Name.Replace("AbilityEventObj_", ""))));
 	            entry.level = 1;
 	            entry.userData = normalTypes[i];
 	            searchList.Add(entry);

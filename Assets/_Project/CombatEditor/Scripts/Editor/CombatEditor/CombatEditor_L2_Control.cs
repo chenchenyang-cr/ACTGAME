@@ -152,7 +152,9 @@ namespace CombatEditor
                     return;
                 }
 
-                obj.name = type.Name.Replace("AbilityEventObj_", "");
+                obj.name = obj is AbilityEventObj_GlobalHitStop
+                    ? "全局顿帧"
+                    : type.Name.Replace("AbilityEventObj_", "");
                 AbilityEvent e = new AbilityEvent();
                 e.Obj = obj;
                 if (obj is AbilityEventObj_CreateHitBox ||

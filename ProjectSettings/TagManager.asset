@@ -13,7 +13,7 @@ TagManager:
   - UI
   - 
   - 
-  - 
+  - CrossFlareForeground
   - 
   - 
   - 
@@ -40,4 +40,7 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: CrossFlareForeground
+    uniqueID: 1743265191
     locked: 0

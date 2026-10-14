@@ -35,6 +35,7 @@ public static class PlayerParryValidation
             count++;
         }
         GameObject bufferObject = null;
+        GameObject registrationProbe = null;
         AbilityEventObj_ParryWindow window = null;
         try
         {
@@ -82,12 +83,46 @@ public static class PlayerParryValidation
                   end.events.Any(e => e.Obj is AbilityEventObj_InterruptWindow), "End recovery window imported");
             var controller = AssetDatabase.LoadAssetAtPath<AnimatorController>(
                 "Assets/_Project/Animations/Controllers/Player_Nodachi.controller");
-            foreach (string name in new[] { "Player_Block_Start", "Player_Block_End", "Player_Parry_L", "Player_Parry_R", "Player_Hit_F" })
+            foreach (string name in new[] { "Player_Block_Start", "Player_Block_End", "Player_Parry_L", "Player_Parry_R" })
             {
                 var state = controller.layers[0].stateMachine.states.FirstOrDefault(s => s.state.name == name).state;
                 Check(state != null && state.motion is AnimationClip clip &&
                       !clip.isLooping, "Animator state " + name);
             }
+            foreach (string controllerPath in new[] {
+                "Assets/_Project/Animations/Controllers/Player_Swordman.controller",
+                "Assets/_Project/Animations/Controllers/Player_Nodachi.controller" })
+            {
+                var hitController = AssetDatabase.LoadAssetAtPath<AnimatorController>(controllerPath);
+                Check(hitController != null, "Hit controller " + controllerPath);
+                foreach (string name in new[] { "Unagi_Hit_H_Front", "Unagi_Hit_H_Back",
+                         "Unagi_Hit_L_Front", "Unagi_Hit_L_Back" })
+                {
+                    var expectedClip = AssetDatabase.LoadAssetAtPath<AnimationClip>(
+                        "Assets/ThirdParty/UnagiAnimationPack/FBX/Main/Unagi/06_Hit/" + name + ".anim");
+                    var state = hitController.layers[0].stateMachine.states
+                        .FirstOrDefault(s => s.state.name == name).state;
+                    Check(expectedClip != null && !expectedClip.isLooping &&
+                          state != null && state.motion == expectedClip,
+                        controllerPath + " hit state " + name);
+                }
+            }
+            var hitAbility = AssetDatabase.LoadAssetAtPath<AbilityScriptableObject>(
+                "Assets/_Project/CombatEditor/ScriptableObjects/Abilities/Sandbox/Unagi_Hit_H_Front.asset");
+            Check(hitAbility != null && hitAbility.Clip != null &&
+                  hitAbility.events.Any(e => e?.Obj is AbilityEventObj_InterruptWindow),
+                "Player hit interrupt window is configured");
+            registrationProbe = new GameObject("First-use ability registration")
+                { hideFlags = HideFlags.HideAndDontSave };
+            var probeController = registrationProbe.AddComponent<CombatController>();
+            probeController.ClipID_To_EventEffects = new System.Collections.Generic.Dictionary<int,
+                System.Collections.Generic.List<AbilityEventWithEffects>>();
+            probeController.SetActiveAbility(hitAbility);
+            Check(probeController.ClipID_To_EventEffects.TryGetValue(
+                      hitAbility.Clip.GetInstanceID(), out var hitEffects) &&
+                  hitEffects.Any(e => e.effect.AnimObj == hitAbility &&
+                                      e.effect is AbilityEventEffect_GameplayWindow),
+                "Unlisted ability registers its interrupt window on first use");
             Directory.CreateDirectory("Temp");
             File.WriteAllText(Report, $"PASS: {count} parry checks. {DateTime.Now:O}\n");
             Debug.Log($"Parry validation passed: {count} checks.");
@@ -101,6 +136,7 @@ public static class PlayerParryValidation
         finally
         {
             if (bufferObject != null) UnityEngine.Object.DestroyImmediate(bufferObject);
+            if (registrationProbe != null) UnityEngine.Object.DestroyImmediate(registrationProbe);
             if (window != null) UnityEngine.Object.DestroyImmediate(window);
         }
     }

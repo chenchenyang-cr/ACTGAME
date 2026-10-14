@@ -151,12 +151,7 @@ namespace UnityLearning.EnemySystem
 
         public void CancelActiveHitBoxes()
         {
-            if (combatController?.ClipID_To_EventEffects == null || activeAbility == null) return;
-            foreach (var entries in combatController.ClipID_To_EventEffects.Values)
-                foreach (var entry in entries)
-                    if (entry.effect.AnimObj == activeAbility &&
-                        entry.effect is AbilityEventEffect_CreateHitBox effect)
-                        effect.CurrentHitBox?.CancelHits();
+            combatController?.SuppressHitBoxesForAbility(activeAbility);
         }
 
         public void OnCombatWindowEntered(in CombatGameplayWindowContext context)

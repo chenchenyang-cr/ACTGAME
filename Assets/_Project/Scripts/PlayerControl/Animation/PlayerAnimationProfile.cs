@@ -34,7 +34,7 @@ public sealed class PlayerAnimationProfile : ScriptableObject
     [Tooltip("Normalized startup time at which blending into the end animation begins.")]
     [Range(0f, 1f)] public float ParryStartEndTransitionTime = 0.75f;
     [Header("Hit Reaction")]
-    public string HitStateName = "Player_Hit_F";
+    public string HitStateName = "Unagi_Hit_H_Front";
 
     [Header("Dodge To Fast Run")]
     [Tooltip("Source-animation time in seconds at which movement input selects the dodge ending. Shared dodge prefixes must still match at this time.")]

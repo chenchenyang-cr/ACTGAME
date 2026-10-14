@@ -10,6 +10,8 @@ namespace CombatEditor
     {
         public List<AudioClip> clips;
         public float Volume = 1;
+        [Range(0.1f, 3f)]
+        public float PlaybackSpeed = 1f;
         public override EventTimeType GetEventTimeType()
         {
             return EventTimeType.EventTime;
@@ -32,20 +34,22 @@ namespace CombatEditor
         public override void StartEffect()
         {
             base.StartEffect();
-            var clip = ((AbilityEventObj_SFX)_EventObj).clips[Random.Range(0, ((AbilityEventObj_SFX)_EventObj).clips.Count)];
-            clip.PlayClip(((AbilityEventObj_SFX)_EventObj).Volume);
+            var sfx = (AbilityEventObj_SFX)_EventObj;
+            var clip = sfx.clips[Random.Range(0, sfx.clips.Count)];
+            clip.PlayClip(sfx.Volume, sfx.PlaybackSpeed);
         }
     }
 
     public static class AudioHelper
     {
-        public static void PlayClip(this AudioClip clip, float Volume = 1)
+        public static void PlayClip(this AudioClip clip, float Volume = 1, float playbackSpeed = 1f)
         {
             AudioSource source = new GameObject("AudioSource").AddComponent<AudioSource>();
             source.volume = Volume;
+            source.pitch = Mathf.Clamp(playbackSpeed, 0.1f, 3f);
             source.clip = clip;
             source.Play();
-            GameObject.Destroy(source.gameObject, clip.length);
+            GameObject.Destroy(source.gameObject, clip.length / source.pitch);
         }
     }
 

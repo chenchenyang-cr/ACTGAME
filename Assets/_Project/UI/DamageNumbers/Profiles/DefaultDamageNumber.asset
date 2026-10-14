@@ -83,7 +83,7 @@ MonoBehaviour:
       outWeight: 0
     - serializedVersion: 3
       time: 0.21869385
-      value: 2.6901817
+      value: 3
       inSlope: 0.1131391
       outSlope: 0.1131391
       tangentMode: 0
@@ -150,7 +150,7 @@ MonoBehaviour:
   EnableShake: 1
   ShakeDelay: 0
   ShakeDuration: 0.3
-  ShakeAmplitude: 20.55
+  ShakeAmplitude: 15
   ShakeFrequency: 30
   ShakeDirection: 0
   ShakeAngle: 0

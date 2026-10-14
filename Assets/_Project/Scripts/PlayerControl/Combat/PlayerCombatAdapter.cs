@@ -31,6 +31,8 @@ public sealed class PlayerCombatAdapter : MonoBehaviour, ICombatGameplayWindowLi
         return null;
     }
     [SerializeField] private AbilityScriptableObject dodgeAbility;
+    [SerializeField] private AbilityScriptableObject hitAbility;
+    public AbilityScriptableObject HitAbility => hitAbility;
 
     [SerializeField] private AbilityScriptableObject parryStartAbility;
     public AbilityScriptableObject ParryStartAbility => parryStartAbility;
@@ -439,8 +441,7 @@ public sealed class PlayerCombatAdapter : MonoBehaviour, ICombatGameplayWindowLi
                 }
                 else if (!isInsideWindow && entry.Effect.IsRunning)
                 {
-                    if (currentTime >= endTime && entry.Effect is AbilityEventEffect_CameraShot shot) shot.CompleteEffect();
-                    else entry.Effect.EndEffect();
+                    entry.Effect.EndEffect();
                 }
             }
         }

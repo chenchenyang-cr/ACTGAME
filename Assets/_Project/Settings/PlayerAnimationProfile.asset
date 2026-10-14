@@ -24,6 +24,7 @@ MonoBehaviour:
   directionalDodgeStateName: Unagi_Evade
   dodgeXParameter: DodgeX
   dodgeYParameter: DodgeY
+  HitStateName: Unagi_Hit_H_Front
   combatWeightParameter: CombatWeight
   combatStanceTimeout: 4
   combatExitLayerName: Combat Upper Body

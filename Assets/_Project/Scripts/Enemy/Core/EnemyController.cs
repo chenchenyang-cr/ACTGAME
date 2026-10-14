@@ -36,11 +36,18 @@ namespace UnityLearning.EnemySystem
         public float PendingStaggerDuration { get; private set; }
         public Vector2 PendingHitDirection { get; private set; } = Vector2.up;
         public EnemyLifeState LifeState { get; private set; } = EnemyLifeState.Alive;
+        private bool pendingImmediateStagger;
 
         private void OnEnable()
         {
+            GlobalHitStopRuntime.Started += OnGlobalHitStopStarted;
             if (Application.isPlaying)
                 ResolveCombatDirector();
+        }
+
+        private void OnGlobalHitStopStarted()
+        {
+            stateMachine?.StaggerState?.OnGlobalHitStopStarted();
         }
 
         private void Awake()
@@ -118,6 +125,7 @@ namespace UnityLearning.EnemySystem
 
         private void OnDisable()
         {
+            GlobalHitStopRuntime.Started -= OnGlobalHitStopStarted;
             combatDirector?.Unregister(this);
             motor?.Stop();
             combatAdapter?.InterruptAttack();
@@ -177,12 +185,31 @@ namespace UnityLearning.EnemySystem
             if (LifeState == EnemyLifeState.Dead || stateMachine == null)
                 return;
 
+            pendingImmediateStagger = false;
             PendingStaggerDuration = duration >= 0f
                 ? duration
                 : config.DefaultStaggerDuration;
             Transform hitSource = attacker != null ? attacker : target;
             PendingHitDirection = CalculateHitDirection(transform.rotation,
                 hitSource != null ? hitSource.position - transform.position : Vector3.zero);
+            stateMachine.StaggerState.ClearParryWait();
+            stateMachine.ChangeState(stateMachine.StaggerState, true);
+        }
+
+        public void NotifyParried(float duration = -1f, bool waitForHitStop = false)
+        {
+            if (LifeState == EnemyLifeState.Dead || stateMachine == null)
+                return;
+
+            PendingStaggerDuration = duration >= 0f
+                ? duration
+                : config.DefaultStaggerDuration;
+            PendingHitDirection = Vector2.up;
+            pendingImmediateStagger = true;
+            if (waitForHitStop)
+                stateMachine.StaggerState.WaitForParryHitStop();
+            else
+                stateMachine.StaggerState.ClearParryWait();
             stateMachine.ChangeState(stateMachine.StaggerState, true);
         }
 
@@ -299,10 +326,12 @@ namespace UnityLearning.EnemySystem
 
             animator.SetFloat(config.HitXParameter, PendingHitDirection.x);
             animator.SetFloat(config.HitYParameter, PendingHitDirection.y);
-            if (IsAnimatorInState(config.StaggerState))
+            if (pendingImmediateStagger || IsAnimatorInState(config.StaggerState))
             {
-                // A new confirmed hit must restart the current hit pose at frame zero.
+                // A parry must show the front hit pose immediately; repeated hits also restart it.
                 animator.Play(config.StaggerState, 0, 0f);
+                if (pendingImmediateStagger)
+                    animator.Update(0f);
                 return;
             }
             animator.CrossFadeInFixedTime(

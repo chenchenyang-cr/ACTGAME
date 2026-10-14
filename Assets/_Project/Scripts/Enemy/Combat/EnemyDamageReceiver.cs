@@ -63,6 +63,7 @@ namespace UnityLearning.EnemySystem
             }
 
             bool killed = currentHealth <= 0f;
+            PlayHitSound(request.HitPoint);
             controller.PlayHitVisualShake(in request);
             controller.PlayHitRecoil(
                 request.Attacker != null ? request.Attacker.transform : null,
@@ -83,6 +84,21 @@ namespace UnityLearning.EnemySystem
             resolution = new CombatHitResolution(true, CombatHitResultType.Normal,
                 appliedDamage, request.PoiseDamage, killed);
             return true;
+        }
+
+        private void PlayHitSound(Vector3 position)
+        {
+            AudioClip[] clips = controller.Config.HitSounds;
+            if (clips == null || clips.Length == 0) return;
+
+            int start = Random.Range(0, clips.Length);
+            for (int i = 0; i < clips.Length; i++)
+            {
+                AudioClip clip = clips[(start + i) % clips.Length];
+                if (clip == null) continue;
+                AudioSource.PlayClipAtPoint(clip, position, controller.Config.HitSoundVolume);
+                return;
+            }
         }
 
         private static bool ShouldReact(in CombatHitRequest request, bool poiseBroken)

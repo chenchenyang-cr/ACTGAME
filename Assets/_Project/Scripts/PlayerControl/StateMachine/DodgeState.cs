@@ -13,12 +13,7 @@ public sealed class DodgeState : PlayerState
         PlayerMovementDirectionSnapshot snapshot =
             Machine.Movement.CaptureDirectionSnapshot(Machine.HasLatestMoveInput ? Machine.LatestMoveInput : Vector2.zero);
         bool directionalDodge = !string.IsNullOrEmpty(Machine.AnimationProfile.DirectionalDodgeStateName);
-        if (snapshot.HasDirection)
-        {
-            Machine.Movement.FaceWorldDirectionImmediately(snapshot.WorldDirection);
-        }
-
-        Machine.Movement.SetRotationMode(PlayerRotationMode.Preserve);
+        Machine.Movement.FaceFixedWorldDirection(snapshot.WorldDirection);
         Machine.Movement.SetRootMotionTranslationScale(Machine.DodgeRootMotionMultiplier);
         if (Machine.Combat != null && Machine.Combat.DodgeAbility != null)
             Machine.Combat.BeginDodgeAbility();

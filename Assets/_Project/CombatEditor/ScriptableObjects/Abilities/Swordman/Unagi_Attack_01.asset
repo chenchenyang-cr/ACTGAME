@@ -43,6 +43,7 @@ MonoBehaviour:
   TimeType: 1
   PlaySpeed: 2.7
   AffectedByHitStop: 1
+  IgnoreGlobalHitStop: 0
   SizeMultiplier: 0.66
   CenterOffset: {x: 0, y: 0, z: 0}
   EnableCollision: 0
@@ -150,6 +151,15 @@ MonoBehaviour:
     - 0.8
     Previewable: 0
     Obj: {fileID: 430215053304264031}
+  - EventTime: 0.125
+    EventRange: {x: 0, y: 1}
+    EventMultiRange:
+    - 0.2
+    - 0.4
+    - 0.6
+    - 0.8
+    Previewable: 0
+    Obj: {fileID: 2858674308485532148}
 --- !u!114 &430215053304264031
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -189,6 +199,24 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &2858674308485532148
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 073a54f545724964c8ee238ce71cd583, type: 3}
+  m_Name: SFX
+  m_EditorClassIdentifier: 
+  IsActive: 1
+  clips:
+  - {fileID: 8300000, guid: 2bf4121e0789477bbc23e4bec4d0de74, type: 3}
+  - {fileID: 8300000, guid: 33b25bbd63af4a81b0f1c95941c1c270, type: 3}
+  Volume: 0.1
+  PlaybackSpeed: 1.2
 --- !u!114 &3436409207149109909
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -203,7 +231,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   IsActive: 1
   Priority: 0
-  AllowedCommands: 
+  AllowedCommands: 0100000004000000
   AllowMovement: 1
   MinimumPriority: 0
   AllowHitReaction: 1

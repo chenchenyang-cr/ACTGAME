@@ -58,6 +58,9 @@ using UnityEngine;
 	    [InspectorName("受顿帧影响")]
 	    [Tooltip("开启后，粒子在所属角色顿帧时按顿帧动画速度暂停或减速；顿帧结束后恢复粒子播放速度。")]
 	    public bool AffectedByHitStop;
+	    [InspectorName("不受全局顿帧影响")]
+	    [Tooltip("开启后，此轨道生成的粒子特效在全局顿帧期间仍按自身速度播放；所属角色的命中顿帧仍由“受顿帧影响”控制。")]
+	    public bool IgnoreGlobalHitStop;
 	    [Min(0f)] public float SizeMultiplier = 1f;
 	    public Vector3 CenterOffset = Vector3.zero;
 

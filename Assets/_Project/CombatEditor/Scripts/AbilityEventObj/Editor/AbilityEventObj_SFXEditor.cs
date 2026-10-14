@@ -18,6 +18,8 @@ using UnityEngine;
 	
 	        EditorGUILayout.PropertyField(serializedObject.FindProperty("clips"));
 	        EditorGUILayout.PropertyField(serializedObject.FindProperty("Volume"));
+	        EditorGUILayout.PropertyField(serializedObject.FindProperty("PlaybackSpeed"),
+	            new GUIContent("播放速度", "1 为原速；提高速度会同时提高音调。"));
 	
 	        if (EditorGUI.EndChangeCheck())
 	        {

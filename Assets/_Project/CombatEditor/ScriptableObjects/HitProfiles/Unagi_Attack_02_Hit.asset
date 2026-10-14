@@ -236,7 +236,7 @@ MonoBehaviour:
     DirectionalTrajectoryStraightness: 1
   PreviewHitCameraShake: 0
   EnableHitAnimationSpeed: 1
-  HitStopFrames: 6
+  HitStopFrames: 7
   HitStopAnimationSpeed: 0
   EnableHitStopFadeIn: 1
   HitStopFadeInFrames: 2

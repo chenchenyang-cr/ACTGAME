@@ -265,7 +265,15 @@ public sealed class PlayerStateMachine : MonoBehaviour
             {
                 enemy.CancelActiveHitBoxes();
                 GetComponent<PlayerParryFeedback>()?.PlayContextParry(enemy);
-                controller?.NotifyStagger(combatAdapter.ParryStaggerDuration, transform);
+                bool hasHitStop = false;
+                foreach (AbilityEvent entry in ability.events)
+                    if (entry?.Obj is AbilityEventObj_GlobalHitStop stop &&
+                        stop.IsActive && stop.DurationFrames > 0)
+                    {
+                        hasHitStop = true;
+                        break;
+                    }
+                controller?.NotifyParried(combatAdapter.ParryStaggerDuration, hasHitStop);
             }
             return true;
         }

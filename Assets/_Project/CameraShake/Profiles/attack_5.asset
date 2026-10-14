@@ -218,9 +218,9 @@ MonoBehaviour:
     EnableDirectionalImpulse: 1
     DirectionalDirectionMode: 0
     DirectionalManualSpace: 0
-    DirectionalPositionRange: 0.3
+    DirectionalPositionRange: 0.2
     DirectionalManualPositionRange: {x: 0, y: 0, z: 0}
-    DirectionalPositionFrequency: 50
+    DirectionalPositionFrequency: 40
     DirectionalPositionRangeDecay: 0.7
     DirectionalPositionDecayCurve:
       serializedVersion: 2

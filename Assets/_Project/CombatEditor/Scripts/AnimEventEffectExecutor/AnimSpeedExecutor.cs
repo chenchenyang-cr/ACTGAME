@@ -105,7 +105,8 @@ using UnityEngine;
 	            StartHitStop(_pendingHitStopFrames, _pendingHitStopSpeed, _pendingHitStopFades);
 	            _pendingHitStopFrames = 0;
 	        }
-	        _combatController._animator.speed = GetCurrentSpeedModifier();
+	        _combatController._animator.speed = GetCurrentSpeedModifier() *
+	            GlobalHitStopRuntime.CurrentVisualSpeed;
 	    }
 	
 	    public List<CharacterAnimSpeedModifier> _animSpeedModifiers = new List<CharacterAnimSpeedModifier>();

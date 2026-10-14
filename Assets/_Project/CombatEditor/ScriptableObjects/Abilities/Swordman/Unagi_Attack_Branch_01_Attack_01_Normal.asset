@@ -1,0 +1,103 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 757d9b080c65e9847b379b2a8a5ae8ab, type: 3}
+  m_Name: Unagi_Attack_Branch_01_Attack_01_Normal
+  m_EditorClassIdentifier: 
+  AbilityType: 0
+  Clip: {fileID: 7400000, guid: a8e2e86ba0c966346887ae29166804c5, type: 2}
+  AdditionalClips: []
+  PreviewPercentageRange: {x: 0, y: 1}
+  loopCount: 0
+  events:
+  - EventTime: 0
+    EventRange: {x: 0.44230768, y: 0.6730769}
+    EventMultiRange:
+    - 0.2
+    - 0.4
+    - 0.6
+    - 0.8
+    Previewable: 1
+    Obj: {fileID: 900000000000000101}
+  - EventTime: 0
+    EventRange: {x: 0, y: 0.44230768}
+    EventMultiRange:
+    - 0.2
+    - 0.4
+    - 0.6
+    - 0.8
+    Previewable: 1
+    Obj: {fileID: 2906846801878829220}
+  - EventTime: 0
+    EventRange: {x: 0.6730769, y: 1}
+    EventMultiRange:
+    - 0.2
+    - 0.4
+    - 0.6
+    - 0.8
+    Previewable: 0
+    Obj: {fileID: 2389489971312575254}
+--- !u!114 &900000000000000101
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 75df4da46dd09c44bb149336749072c8, type: 3}
+  m_Name: CreateHitBox
+  m_EditorClassIdentifier: 
+  IsActive: 1
+  ObjData:
+    TargetObj: {fileID: 2557966978344939087, guid: cf086f7d0aab02340bc2140423f5fd3a, type: 3}
+    controlType: 0
+    Offset: {x: 0.1841779, y: 0.31508088, z: -0.036582015}
+    Rot: {x: -0.090543896, y: 0.024522254, z: -0.26026255, w: 0.96097034}
+    Scale: {x: 0.12, y: 0.88, z: 0.11}
+    TargetNode: 12
+    FollowNode: 1
+    RotateByNode: 1
+  HitProfile: {fileID: 11400000, guid: a91707482a5dc4c49aacda14ff103971, type: 2}
+--- !u!114 &2389489971312575254
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f589d20422384f75962aaf6a2b81617a, type: 3}
+  m_Name: InterruptWindow
+  m_EditorClassIdentifier: 
+  IsActive: 1
+  Priority: 0
+  AllowedCommands: 010000000400000002000000
+  AllowMovement: 1
+  MinimumPriority: 0
+  AllowHitReaction: 1
+--- !u!114 &2906846801878829220
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ab454d9ce3e04684a5f19c71f6c201ad, type: 3}
+  m_Name: TargetAssistWindow
+  m_EditorClassIdentifier: 
+  IsActive: 1
+  Priority: 0
+  AcquireRadius: 4

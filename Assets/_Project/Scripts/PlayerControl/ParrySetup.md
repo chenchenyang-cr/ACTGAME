@@ -4,14 +4,14 @@
 
 按键当下，检查正在攻击的敌人当前动画进度是否位于其 `ParryOpportunityWindow`，并检查玩家与敌人根节点的水平距离。距离不大于玩家 `PlayerCombatAdapter → Parry Attack Range`（当前 2.25 米）时，选择成功弹反分支；有多个敌人符合条件时选择最近的。无需等待碰撞或受到攻击。
 
-两条分支都播放 `Unagi_Attack_Rush_02.anim`，但使用不同的动作编辑器技能资源与事件轨道：
+两条分支都播放 `Unagi_Attack_Branch_01_Attack_01.anim`，但使用不同的动作编辑器技能资源与事件轨道：
 
-- `Unagi_Rush_02_Normal.asset`：没有符合条件的敌人时播放。当前有一个可调整的 `CreateHitBox` 轨道，窗口 `[0.45, 0.68)`；不会连发。
-- `Unagi_Rush_02_Parry.asset`：条件满足时播放。其轨道独立，初始为空，可在动作编辑器单独加入弹反特效；普通攻击的命中盒不会在该分支运行。
+- `Unagi_Attack_Branch_01_Attack_01_Normal.asset`：没有符合条件的敌人时播放，保留原普通分支的事件轨道配置。
+- `Unagi_Attack_Branch_01_Attack_01_Parry.asset`：条件满足时播放，保留原成功弹反分支的独立事件轨道；普通攻击的命中盒不会在该分支运行。
 
-两条分支的 `Unagi_Attack_Rush_02.anim` 播放结束后，都会转入 `Unagi_Attack_Rush_02_End.anim`。End 使用独立的 `Unagi_Rush_02_End.asset` 轨道；通常在 End 完成后恢复操作，设置的 `InterruptWindow` 可允许提前打断。End 原片段时长约 3.5 秒。
+两条分支的 `Unagi_Attack_Branch_01_Attack_01.anim` 播放结束后，都会转入 `Unagi_Attack_Branch_01_Attack_01_End.anim`。End 使用独立的 `Unagi_Attack_Branch_01_Attack_01_End.asset` 轨道；通常在 End 完成后恢复操作，设置的 `InterruptWindow` 可允许提前打断。
 
-Rush 普通、成功、End 三个技能分别读取当前轨道上的 `InterruptWindow`：`AllowedCommands` 决定 Dodge、LightAttack、Parry 等命令是否可取消，`AllowMovement` 决定方向输入能否取消。窗口外输入不会立即打断；仍处于输入缓存有效期内的命令可在之后的有效窗口执行。当前普通/成功轨道的末段允许 Dodge；End 全段允许 Dodge、LightAttack 和移动。
+普通、成功、End 三个技能分别读取当前轨道上的 `InterruptWindow`：`AllowedCommands` 决定 Dodge、LightAttack、Parry 等命令是否可取消，`AllowMovement` 决定方向输入能否取消。窗口外输入不会立即打断；仍处于输入缓存有效期内的命令可在之后的有效窗口执行。当前普通/成功轨道的末段允许 Dodge；End 全段允许 Dodge、LightAttack 和移动。
 
 成功分支在按键时取消目标敌人当前攻击的命中盒，使其进入硬直（当前 0.8 秒），并触发玩家的弹反音效与顿帧。目标敌人的残余攻击命中在成功动作期间不会对玩家造成伤害。其他敌人的攻击仍正常结算。硬直和距离分别在玩家的 `PlayerCombatAdapter` 上调整。
 

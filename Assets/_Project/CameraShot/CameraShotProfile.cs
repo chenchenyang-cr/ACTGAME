@@ -1,120 +1,64 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace CombatCamera
 {
-    [System.Serializable]
+    [Serializable]
     public struct CameraShotTiming
     {
-        public bool Enabled;
-        [Range(0f, 1f)] public float Enter;
-        [Range(0f, 1f)] public float Exit;
-        public float Evaluate(float time)
+        [Min(0f)] public float EnterSeconds;
+        public AnimationCurve EnterCurve;
+        [Min(0f)] public float ExitSeconds;
+        public AnimationCurve ExitCurve;
+
+        public static CameraShotTiming Default => new CameraShotTiming {
+            EnterSeconds = .2f, ExitSeconds = .25f,
+            EnterCurve = AnimationCurve.EaseInOut(0, 0, 1, 1),
+            ExitCurve = AnimationCurve.EaseInOut(0, 0, 1, 1)
+        };
+
+        public void GetDurations(out float enter, out float exit)
         {
-            time = Mathf.Clamp01(time);
-            float enter = Mathf.Clamp01(Enter);
-            float exit = Mathf.Min(Mathf.Clamp01(Exit), 1f - enter);
-            if (enter > 0f && time < enter) return Mathf.SmoothStep(0, 1, time / enter);
-            if (exit > 0f && time > 1f - exit) return Mathf.SmoothStep(1, 0, (time - 1f + exit) / exit);
-            return 1f;
+            enter = Mathf.Max(0, EnterSeconds); exit = Mathf.Max(0, ExitSeconds);
+        }
+
+        public static float EvaluateCurve(AnimationCurve curve, float progress)
+        {
+            // Exact endpoints prevent a jump when handing back an edited curve.
+            if (progress <= 0) return 0;
+            if (progress >= 1) return 1;
+            return curve != null && curve.length > 0 ? Mathf.Clamp01(curve.Evaluate(progress)) : progress;
         }
     }
 
-    [System.Serializable]
-    public struct CameraShotKey
+    [Serializable]
+    public sealed class CameraShotCandidate
     {
-        [Range(0f, 1f)] public float Time;
-        public Vector3 Position;
-        public Vector3 Rotation;
-        [Range(1f, 179f)] public float FieldOfView;
-    }
-    // Keep serialized values stable after removing the former mode at value 0.
-    public enum CameraShotComposition
-    {
-        [InspectorName("游戏相机相对")] GameCameraRelative = 1,
-        [InspectorName("角色起始朝向")] ActorStartPose = 2
+        public string Name = "机位";
+        [Tooltip("机位相对玩家的水平方向，编辑器以 0-360 度角度显示。距离由现有 FreeLook 轨道决定。")]
+        public Vector2 RelativePosition = new Vector2(1, -3);
+        [Tooltip("镜头相对玩家根节点的高度（米），自动限制到现有轨道允许的范围。")]
+        public float Height = 1.55f;
+
+        public static float AngleFromDirection(Vector2 direction) =>
+            Mathf.Repeat(Mathf.Atan2(direction.x, -direction.y) * Mathf.Rad2Deg, 360f);
+
+        public static Vector2 DirectionFromAngle(float degrees)
+        {
+            float radians = degrees * Mathf.Deg2Rad;
+            return new Vector2(Mathf.Sin(radians), -Mathf.Cos(radians));
+        }
     }
 
     [CreateAssetMenu(menuName = "Combat Camera/Camera Shot Profile", fileName = "CameraShotProfile")]
     public sealed class CameraShotProfile : ScriptableObject
     {
-        [Header("Target Camera")]
-        public CameraShotComposition Composition = CameraShotComposition.ActorStartPose;
-        public Vector3 TargetPosition = new Vector3(.4f, 1.55f, -3f);
-        public Vector3 TargetRotation = new Vector3(6f, 0f, 0f);
-        [Tooltip("Offset from the normal game camera, in its local axes. Zero keeps its position.")]
-        public Vector3 CameraPositionOffset;
-        [Tooltip("Local pitch, yaw and roll relative to the normal game camera. Zero keeps its angle.")]
-        public Vector3 CameraRotationOffset;
-        [Tooltip("只将目标位置和角度调整到当前 FreeLook 可实现的机位；保留 FOV 和过渡路径。")]
-        public bool LimitToGameCameraOrbit;
-        [Tooltip("持续朝向玩家上身（根节点上方 1.2 米）。与轨道限制同时开启时，位置仍受限制，朝向优先看向玩家。")]
-        public bool LookAtPlayer;
-
-        [Header("Motion During Shot")]
-        public Vector3 PositionTravel;
-        public AnimationCurve MotionCurve = AnimationCurve.Linear(0f, 0f, 1f, 1f);
-        public bool OverrideFieldOfView = true;
-        [Range(1f, 179f)] public float FieldOfView = 50f;
-        // Opt-in: existing assets keep their original motion and curves.
-        public bool UseKeyframes;
-        public System.Collections.Generic.List<CameraShotKey> Keys = new();
-
-        public CameraShotPose SampleMotion(float progress)
-        {
-            var result = new CameraShotPose {
-                Position = (Composition == CameraShotComposition.ActorStartPose ? TargetPosition : CameraPositionOffset)
-                    + PositionTravel * (MotionCurve != null ? MotionCurve.Evaluate(progress) : progress),
-                Rotation = Quaternion.Euler(Composition == CameraShotComposition.ActorStartPose ? TargetRotation : CameraRotationOffset),
-                FieldOfView = FieldOfView
-            };
-            if (!UseKeyframes || Keys == null || Keys.Count == 0) return result;
-            CameraShotKey? before = null, after = null;
-            foreach (var key in Keys)
-            {
-                if (key.Time <= progress && (!before.HasValue || key.Time > before.Value.Time)) before = key;
-                if (key.Time >= progress && (!after.HasValue || key.Time < after.Value.Time)) after = key;
-            }
-            if (!before.HasValue) before = after;
-            if (!after.HasValue) after = before;
-            var a = before.Value; var b = after.Value;
-            float t = Mathf.SmoothStep(0, 1, Mathf.InverseLerp(a.Time, b.Time, progress));
-            return new CameraShotPose { Position = Vector3.Lerp(a.Position, b.Position, t),
-                Rotation = Quaternion.Slerp(Quaternion.Euler(a.Rotation), Quaternion.Euler(b.Rotation), t),
-                FieldOfView = Mathf.Clamp(Mathf.Lerp(a.FieldOfView, b.FieldOfView, t), 1, 179) };
-        }
-
-        [Header("Blending and Priority")]
-        [Tooltip("X: progress through the Camera Shot track (0–1). Y: shot weight (0 = game camera, 1 = target composition).")]
-        public AnimationCurve WeightCurve = new AnimationCurve(
-            new Keyframe(0f, 0f), new Keyframe(.2f, 1f),
-            new Keyframe(.75f, 1f), new Keyframe(1f, 0f));
-        public float EvaluateWeight(float progress) => WeightCurve != null && WeightCurve.length > 0
-            ? Mathf.Clamp01(WeightCurve.Evaluate(Mathf.Clamp01(progress))) : 0f;
-        // Explicit timing avoids interpreting a nearly flat hold as an early return.
-        public bool TryGetReturnBlend(float progress, out float start, out float blend)
-        {
-            start = Mathf.Clamp(ReturnStart, 0f, .99f);
-            blend = 0f;
-            float weight = EvaluateWeight(start);
-            if (progress < start || weight <= .0001f || EvaluateWeight(1f) >= weight - .0001f) return false;
-            blend = Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(start, 1f, progress));
-            return true;
-        }
+        public List<CameraShotCandidate> Candidates = new List<CameraShotCandidate> {
+            new CameraShotCandidate { Name = "后方右侧", RelativePosition = new Vector2(1, -3) },
+            new CameraShotCandidate { Name = "后方左侧", RelativePosition = new Vector2(-1, -3) }
+        };
         public int Priority = 10;
-        [Min(0f)] public float BlendIn = 0.12f;
-        [Min(0f)] public float BlendOut = 0.2f;
-        public bool UseUnscaledTime = true;
-        [Tooltip("Freeze FreeLook orbit input until the shot has blended out.")]
         public bool LockCameraInput = true;
-        [Range(0f, .99f)] public float ReturnStart = .75f;
-        [Min(0f)] public float FollowDamping = .08f;
-        [Min(0f)] public float ObstacleRecovery = .15f;
-        public bool OrbitBlend;
-
-        [Header("Obstacle Avoidance")]
-        public bool AvoidObstacles = true;
-        [Tooltip("Only scenery layers; exclude character colliders.")]
-        public LayerMask ObstacleLayers = 1 << 3;
-        [Min(0.01f)] public float CollisionRadius = 0.15f;
     }
 }

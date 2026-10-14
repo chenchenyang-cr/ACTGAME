@@ -53,6 +53,11 @@ namespace UnityLearning.EnemySystem
         [SerializeField] private EnemyAttackConfig[] attacks = Array.Empty<EnemyAttackConfig>();
 
         [Header("Hit Feedback")]
+        [InspectorName("受击音效")]
+        [Tooltip("敌人确认受击时随机播放其中一段；留空则不播放。")]
+        [SerializeField] private AudioClip[] hitSounds = Array.Empty<AudioClip>();
+        [InspectorName("受击音量")]
+        [SerializeField, Range(0f, 1f)] private float hitSoundVolume = 1f;
         [SerializeField] private bool enableHitVisualShake = true;
         [InspectorName("受击抖动受顿帧影响")]
         [Tooltip("开启后，受击抖动按受击敌人的顿帧动画速度暂停或减速。默认关闭，保持原有时长。")]
@@ -109,6 +114,8 @@ namespace UnityLearning.EnemySystem
         public float PostAttackRecovery => postAttackRecovery;
         public float DefaultStaggerDuration => defaultStaggerDuration;
         public EnemyAttackConfig[] Attacks => attacks;
+        public AudioClip[] HitSounds => hitSounds;
+        public float HitSoundVolume => Mathf.Clamp01(hitSoundVolume);
         public bool EnableHitVisualShake => enableHitVisualShake;
         public bool HitShakeAffectedByHitStop => hitShakeAffectedByHitStop;
         public float HitShakeDuration => Mathf.Max(0f, hitShakeDuration);

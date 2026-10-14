@@ -1,5 +1,22 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-6510081755821701156
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 073a54f545724964c8ee238ce71cd583, type: 3}
+  m_Name: SFX
+  m_EditorClassIdentifier: 
+  IsActive: 1
+  clips:
+  - {fileID: 8300000, guid: 26146528eace49b88727bfe248f1eb20, type: 3}
+  Volume: 0.1
+  PlaybackSpeed: 1.2
 --- !u!114 &-5572979726396820924
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -26,6 +43,7 @@ MonoBehaviour:
   TimeType: 1
   PlaySpeed: 1.6
   AffectedByHitStop: 1
+  IgnoreGlobalHitStop: 0
   SizeMultiplier: 1
   CenterOffset: {x: 0, y: 0, z: 0}
   EnableCollision: 1
@@ -63,6 +81,7 @@ MonoBehaviour:
   TimeType: 1
   PlaySpeed: 1.6
   AffectedByHitStop: 1
+  IgnoreGlobalHitStop: 0
   SizeMultiplier: 1
   CenterOffset: {x: 0, y: 0, z: 0}
   EnableCollision: 1
@@ -74,6 +93,245 @@ MonoBehaviour:
     Radius: 0.5
     Height: 2
     CapsuleDirection: 1
+--- !u!114 &-4400465591032513459
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2c77cc69ff374f62b9c82cf1d60c7465, type: 3}
+  m_Name: CameraShake
+  m_EditorClassIdentifier: 
+  IsActive: 1
+  TriggerMode: 0
+  Settings:
+    AmplitudeDecayCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: -0.0033340454
+        value: 0.5051727
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.72296095
+        value: 0.942612
+        inSlope: -0.99999994
+        outSlope: -0.99999994
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: -1
+        outSlope: -1
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    Channel: 0
+    TraumaPerPulse: 0.65
+    TraumaExponent: 2
+    EnablePosition: 0
+    PositionWaveform: 0
+    PositionPhase: {x: 0, y: 0, z: 0}
+    PositionAmplitude: {x: 0.3, y: 0, z: 0.3}
+    PositionFrequency: 40
+    PositionFrequencyCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    PositionCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    PositionSeed: 137
+    EnableRotation: 0
+    RotationWaveform: 0
+    RotationPhase: {x: 0, y: 0, z: 0}
+    RotationAmplitude: {x: 1.2, y: 0.8, z: 0}
+    RotationFrequency: 40
+    RotationFrequencyCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    RotationCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    RotationSeed: 251
+    EnableFov: 0
+    FovAmplitude: 2
+    FovCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.2
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    EnableDirectionalImpulse: 0
+    DirectionalDirectionMode: 0
+    DirectionalManualSpace: 0
+    DirectionalPositionRange: 0.35
+    DirectionalManualPositionRange: {x: 0.35, y: 0, z: 0}
+    DirectionalPositionFrequency: 18
+    DirectionalPositionRangeDecay: 0.35
+    DirectionalPositionDecayCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    DirectionalTrajectoryStraightness: 1
+  AffectedByHitStop: 1
+  HitStopWeight: 1
+  HitShakeDuration: 0.16
+  UseUnscaledTime: 1
+  StartAfterHitStop: 0
+  HitBoxFilter: 0
+  SpecificHitBox: {fileID: 0}
+  TriggerPolicy: 0
+  AcceptedResults: 3
+  MaximumTriggerCount: 1
+  TriggerCooldown: 0
+  PreviewHitTime: 0.5
+  PreviewHitIntensityScale: 1
 --- !u!114 &-4179004308577535664
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -279,6 +537,24 @@ MonoBehaviour:
   IsActive: 1
   Priority: 0
   AcquireRadius: 4
+--- !u!114 &-1592622593584612462
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f589d20422384f75962aaf6a2b81617a, type: 3}
+  m_Name: InterruptWindow
+  m_EditorClassIdentifier: 
+  IsActive: 1
+  Priority: 0
+  AllowedCommands: 0100000004000000
+  AllowMovement: 1
+  MinimumPriority: 0
+  AllowHitReaction: 1
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -342,7 +618,7 @@ MonoBehaviour:
     - 0.8
     Previewable: 0
     Obj: {fileID: -4956890810355005918}
-  - EventTime: 0.24074075
+  - EventTime: 0.22222222
     EventRange: {x: 0, y: 1}
     EventMultiRange:
     - 0.2
@@ -361,7 +637,7 @@ MonoBehaviour:
     Previewable: 0
     Obj: {fileID: 5237956636883949451}
   - EventTime: 0
-    EventRange: {x: 0.037037037, y: 0.42592594}
+    EventRange: {x: 0.037037037, y: 0.33333334}
     EventMultiRange:
     - 0.2
     - 0.4
@@ -369,6 +645,33 @@ MonoBehaviour:
     - 0.8
     Previewable: 0
     Obj: {fileID: 6323555987275630408}
+  - EventTime: 0
+    EventRange: {x: 0.037037037, y: 0.6666667}
+    EventMultiRange:
+    - 0.2
+    - 0.4
+    - 0.6
+    - 0.8
+    Previewable: 0
+    Obj: {fileID: -4400465591032513459}
+  - EventTime: 0
+    EventRange: {x: 0.5555556, y: 1}
+    EventMultiRange:
+    - 0.2
+    - 0.4
+    - 0.6
+    - 0.8
+    Previewable: 0
+    Obj: {fileID: -1592622593584612462}
+  - EventTime: 0.055555556
+    EventRange: {x: 0, y: 1}
+    EventMultiRange:
+    - 0.2
+    - 0.4
+    - 0.6
+    - 0.8
+    Previewable: 0
+    Obj: {fileID: -6510081755821701156}
 --- !u!114 &5237956636883949451
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -395,6 +698,7 @@ MonoBehaviour:
   TimeType: 1
   PlaySpeed: 1.6
   AffectedByHitStop: 1
+  IgnoreGlobalHitStop: 0
   SizeMultiplier: 1
   CenterOffset: {x: 0, y: 0, z: 0}
   EnableCollision: 1
@@ -433,8 +737,8 @@ MonoBehaviour:
       inWeight: 0
       outWeight: 0
     - serializedVersion: 3
-      time: 0.42006487
-      value: 0.9998335
+      time: 0.22339433
+      value: 0.9170508
       inSlope: -0.022883983
       outSlope: -0.022883983
       tangentMode: 0
@@ -442,8 +746,17 @@ MonoBehaviour:
       inWeight: 0.33333334
       outWeight: 0.33333334
     - serializedVersion: 3
-      time: 0.7568639
-      value: 0.8550483
+      time: 0.6858623
+      value: 0.9050983
+      inSlope: -0.5226751
+      outSlope: -0.5226751
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.81019336
+      value: 0.79484475
       inSlope: -2.0164506
       outSlope: -2.0164506
       tangentMode: 0
@@ -462,7 +775,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  SampleDistance: 1
+  SampleDistance: 0.4
   FocusPoint: {x: 0.5, y: 0.5}
 --- !u!114 &8419900415919706252
 MonoBehaviour:
@@ -490,6 +803,7 @@ MonoBehaviour:
   TimeType: 1
   PlaySpeed: 1.6
   AffectedByHitStop: 1
+  IgnoreGlobalHitStop: 0
   SizeMultiplier: 1
   CenterOffset: {x: 0, y: 0, z: 0}
   EnableCollision: 1

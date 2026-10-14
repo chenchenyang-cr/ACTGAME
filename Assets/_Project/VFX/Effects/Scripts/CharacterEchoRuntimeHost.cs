@@ -16,7 +16,7 @@ public sealed class CharacterEchoRuntimeHost : MonoBehaviour
         for (int i = sessions.Count - 1; i >= 0; i--)
         {
             CharacterEchoVisualSession session = sessions[i];
-            session.Advance(Time.deltaTime);
+            session.Advance(Time.deltaTime * CombatEditor.GlobalHitStopRuntime.CurrentVisualSpeed);
             if (!session.IsStopped || session.HasGhosts) continue;
             session.Dispose();
             sessions.RemoveAt(i);

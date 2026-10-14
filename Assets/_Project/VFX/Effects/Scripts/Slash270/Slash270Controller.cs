@@ -73,7 +73,7 @@ public sealed class Slash270Controller : MonoBehaviour
     }
     void Update() {
         if(!Application.isPlaying||!running)return;
-        Advance(Time.deltaTime);
+        Advance(Time.deltaTime * CombatEditor.GlobalHitStopRuntime.GetVisualSpeed(this));
     }
     void Advance(float delta) {
         elapsed+=delta;

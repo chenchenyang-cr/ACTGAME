@@ -12,77 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7bd95711bc5b4a64b760acafecc10e11, type: 3}
   m_Name: ParryCameraShot
   m_EditorClassIdentifier: 
-  Composition: 2
-  TargetPosition: {x: 9.432749, y: 0.885593, z: -14.359622}
-  TargetRotation: {x: -4.0594482, y: 20.067457, z: 3.5161943}
-  CameraPositionOffset: {x: 0, y: 0, z: 0}
-  CameraRotationOffset: {x: 0, y: 0, z: 0}
-  LimitToGameCameraOrbit: 0
-  LookAtPlayer: 1
-  PositionTravel: {x: 0, y: 0, z: 0}
-  MotionCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 1
-      value: 1
-      inSlope: 2
-      outSlope: 2
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  OverrideFieldOfView: 1
-  FieldOfView: 50
-  UseKeyframes: 0
-  Keys: []
-  WeightCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 2
-      outSlope: 2
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 1
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
+  Candidates:
+  - Name: "\u540E\u65B9\u53F3\u4FA7"
+    RelativePosition: {x: 0.6427876, y: -0.76604444}
+    Height: 0.4
+  - Name: "\u540E\u65B9\u5DE6\u4FA7"
+    RelativePosition: {x: -0.25881928, y: -0.96592575}
+    Height: 0.4
   Priority: 10
-  BlendIn: 0.2
-  BlendOut: 0.4
-  UseUnscaledTime: 1
   LockCameraInput: 1
-  ReturnStart: 0.75
-  FollowDamping: 0.1
-  ObstacleRecovery: 0.15
-  OrbitBlend: 1
-  AvoidObstacles: 1
-  ObstacleLayers:
-    serializedVersion: 2
-    m_Bits: 8
-  CollisionRadius: 0.15

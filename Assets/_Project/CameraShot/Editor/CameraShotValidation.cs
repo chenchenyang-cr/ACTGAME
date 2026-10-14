@@ -1,7 +1,5 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
 using Cinemachine;
 using UnityEditor;
 using UnityEngine;
@@ -15,11 +13,9 @@ namespace CombatCamera.Editor
         {
             AssemblyReloadEvents.beforeAssemblyReload += CameraShotRuntime.Reset;
             EditorApplication.playModeStateChanged += _ => CameraShotRuntime.Reset();
-            EditorApplication.delayCall += () =>
-            {
+            EditorApplication.delayCall += () => {
                 if (!File.Exists("Temp/CameraShotValidation.request") || EditorApplication.isPlayingOrWillChangePlaymode) return;
-                File.Delete("Temp/CameraShotValidation.request");
-                Validate();
+                File.Delete("Temp/CameraShotValidation.request"); Validate();
             };
         }
 
@@ -27,330 +23,225 @@ namespace CombatCamera.Editor
         public static void Validate()
         {
             if (EditorApplication.isPlayingOrWillChangePlaymode) return;
-            var actor = new GameObject("Shot validation actor") { hideFlags = HideFlags.HideAndDontSave };
-            var camera = new GameObject("Shot validation camera") { hideFlags = HideFlags.HideAndDontSave };
-            var low = ScriptableObject.CreateInstance<CameraShotProfile>();
-            var high = ScriptableObject.CreateInstance<CameraShotProfile>();
-            var handles = new List<int>();
-            const int channel = 991107;
+            var root = new GameObject("CameraShot validation") { hideFlags = HideFlags.HideAndDontSave };
+            root.SetActive(false);
+            var actor = new GameObject("Actor"); actor.transform.SetParent(root.transform);
+            var focus = new GameObject("LookAt"); focus.transform.SetParent(actor.transform); focus.transform.localPosition = Vector3.up * 1.2f;
+            var camera = new GameObject("FreeLook"); camera.transform.SetParent(root.transform);
+            var profile = ScriptableObject.CreateInstance<CameraShotProfile>();
             int checks = 0;
-            void Check(bool value, string name) { if (!value) throw new Exception(name); checks++; }
-            int Begin(CameraShotProfile p, float duration = -1f)
-            {
-                int h = CameraShotRuntime.Begin(p, actor.transform, duration, channel);
-                handles.Add(h); return h;
-            }
-            CameraShotPose Pose()
-            {
-                CameraShotRuntime.Evaluate(channel, Vector3.zero, Quaternion.identity, 60f, out var p, out _);
-                return p;
-            }
-            try
-            {
-                low.AvoidObstacles = high.AvoidObstacles = false;
-                low.BlendIn = low.BlendOut = high.BlendIn = high.BlendOut = 0f;
-                low.TargetPosition = new Vector3(0, 1, -4); high.TargetPosition = new Vector3(2, 2, -2);
-                low.Priority = 1; high.Priority = 2;
-                high.Composition = CameraShotComposition.GameCameraRelative;
-                high.OverrideFieldOfView = false;
-                Vector3 basePosition = new Vector3(7, 3, -9);
-                Quaternion baseRotation = Quaternion.Euler(23, 125, 8);
-                int relativeHandle = Begin(high);
-                CameraShotRuntime.Evaluate(channel, basePosition, baseRotation, 67, out var relativePose, out _);
-                Check(Vector3.Distance(relativePose.Position, basePosition) < .001f, "Zero relative position matches game camera");
-                Check(Quaternion.Angle(relativePose.Rotation, baseRotation) < .01f, "Zero relative angle preserves pitch yaw and roll");
-                Check(Mathf.Approximately(relativePose.FieldOfView, 67), "Relative camera inherits FOV");
-                high.CameraPositionOffset = new Vector3(.3f, .2f, 1);
-                high.CameraRotationOffset = new Vector3(-5, 15, 2);
-                CameraShotRuntime.Evaluate(channel, basePosition, baseRotation, 67, out relativePose, out _);
-                Check(Vector3.Distance(relativePose.Position, basePosition + baseRotation * high.CameraPositionOffset) < .001f, "Displacement uses full camera-local axes");
-                var relativePreview = new CameraShotRuntime.PreviewSession().Evaluate(high, actor.transform, baseRotation, 67, 0, basePosition);
-                Check(Vector3.Distance(relativePreview.Position, relativePose.Position) < .001f &&
-                    Quaternion.Angle(relativePreview.Rotation, relativePose.Rotation) < .01f, "Relative preview and runtime agree");
-                CameraShotRuntime.Evaluate(channel, basePosition, baseRotation, 67, out var repeatedPose, out _);
-                Check(Vector3.Distance(repeatedPose.Position, relativePose.Position) < .001f, "Offsets do not accumulate across evaluations");
-                CameraShotRuntime.SetPreview(relativeHandle, 0, .5f);
-                CameraShotRuntime.Evaluate(channel, basePosition, baseRotation, 67, out var blendedPose, out _);
-                Check(Vector3.Distance(blendedPose.Position, Vector3.Lerp(basePosition, relativePose.Position, .5f)) < .001f &&
-                    Quaternion.Angle(blendedPose.Rotation, Quaternion.Slerp(baseRotation, relativePose.Rotation, .5f)) < .01f, "Blend interpolates target position and angle");
-                CameraShotRuntime.Release(relativeHandle);
-                high.Composition = CameraShotComposition.ActorStartPose;
-                high.TargetPosition = new Vector3(2, 1.5f, -3);
-                high.TargetRotation = new Vector3(10, -20, 0);
-                high.FieldOfView = 48;
-                int fixedHandle = Begin(high);
-                // Rotate after Begin, before the first camera update: direction
-                // must still be the direction at trigger time.
-                actor.transform.rotation = Quaternion.Euler(0, 90, 0);
-                CameraShotRuntime.Evaluate(channel, basePosition, baseRotation, 30, out var fixedA, out _);
-                CameraShotRuntime.Evaluate(channel, new Vector3(-20, 10, 5), Quaternion.Euler(80, -40, 30), 90, out var fixedB, out _);
-                Check(Vector3.Distance(fixedA.Position, fixedB.Position) < .001f && Quaternion.Angle(fixedA.Rotation, fixedB.Rotation) < .01f && Mathf.Approximately(fixedA.FieldOfView, fixedB.FieldOfView), "Different input views converge to identical target pose and FOV");
-                Check(Vector3.Distance(fixedA.Position, high.TargetPosition) < .001f && Quaternion.Angle(fixedA.Rotation, Quaternion.Euler(high.TargetRotation)) < .01f, "Fixed target captures actor direction at Begin");
-                actor.transform.position = new Vector3(5, 0, 2);
-                CameraShotRuntime.Evaluate(channel, basePosition, baseRotation, 30, out fixedB, out _);
-                Check(Vector3.Distance(fixedB.Position - fixedA.Position, actor.transform.position) < .001f && Quaternion.Angle(fixedB.Rotation, fixedA.Rotation) < .01f, "Fixed target follows translation without following actor turn");
-                var fixedPreview = new CameraShotRuntime.PreviewSession();
-                fixedPreview.CaptureStart(high, actor.transform, Vector3.zero, Vector3.forward);
-                var fixedPreviewPose = fixedPreview.Evaluate(high, actor.transform, Quaternion.Euler(55, 120, 0), 75, 0);
-                Check(Vector3.Distance(fixedPreviewPose.Position, fixedB.Position) < .001f && Quaternion.Angle(fixedPreviewPose.Rotation, fixedB.Rotation) < .01f, "Fixed target timeline preview matches runtime");
-                high.LookAtPlayer = true;
-                CameraShotRuntime.Evaluate(channel, basePosition, baseRotation, 30, out var aimed, out _);
-                Check(Vector3.Angle(aimed.Rotation * Vector3.forward, actor.transform.position + Vector3.up * 1.2f - aimed.Position) < .01f,
-                    "Look-at aims at the player's current upper body");
-                Check(aimed.Position == fixedB.Position && Mathf.Approximately(aimed.FieldOfView, fixedB.FieldOfView),
-                    "Look-at changes only the target angle");
-                var aimedPreview = fixedPreview.Evaluate(high, actor.transform, baseRotation, 30, 0);
-                Check(Quaternion.Angle(aimedPreview.Rotation, aimed.Rotation) < .01f, "Look-at preview matches runtime");
-                Vector3 savedPosition = high.TargetPosition;
-                high.TargetPosition = Vector3.up * 1.2f;
-                CameraShotRuntime.Evaluate(channel, basePosition, baseRotation, 30, out var coincident, out _);
-                Check(!float.IsNaN(coincident.Rotation.x) && Quaternion.Angle(coincident.Rotation, Quaternion.Euler(high.TargetRotation)) < .01f,
-                    "Coincident camera and aim point retain a valid rotation");
-                high.TargetPosition = savedPosition;
-                high.LookAtPlayer = false;
-                CameraShotRuntime.Evaluate(channel, basePosition, baseRotation, 30, out var restoredAngle, out _);
-                Check(Quaternion.Angle(restoredAngle.Rotation, fixedB.Rotation) < .01f, "Disabling look-at restores authored angle");
-                CameraShotRuntime.Release(fixedHandle);
-                actor.transform.SetPositionAndRotation(Vector3.zero, Quaternion.identity);
-                high.Composition = CameraShotComposition.ActorStartPose;
-                high.OverrideFieldOfView = true;
-                actor.transform.SetPositionAndRotation(new Vector3(10, 0, 7), Quaternion.Euler(0, 90, 0));
-                var preview = new CameraShotRuntime.PreviewSession();
-                var previewPose = preview.Evaluate(low, actor.transform, Quaternion.identity, 60, 0);
-                int comparison = Begin(low);
-                var runtimePose = Pose();
-                Check(Vector3.Distance(runtimePose.Position, previewPose.Position) < .001f, "Preview and gameplay positions agree");
-                Check(Quaternion.Angle(runtimePose.Rotation, previewPose.Rotation) < .001f, "Preview and gameplay rotations agree");
-                Check(Vector3.Distance(preview.ToPositionOffset(previewPose.Position), low.TargetPosition) < .001f, "Capture converts world position to relative offset");
-                CameraShotRuntime.Release(comparison);
-                actor.transform.SetPositionAndRotation(new Vector3(-5, 0, 4), Quaternion.Euler(0, 180, 0));
-                preview.Reset();
-                previewPose = preview.Evaluate(low, actor.transform, Quaternion.identity, 60, 0);
-                Check(Vector3.Distance(previewPose.Position, actor.transform.position + actor.transform.rotation * low.TargetPosition) < .001f, "Same profile preserves composition after relocation and rotation");
-                actor.transform.SetPositionAndRotation(Vector3.zero, Quaternion.identity);
-                int a = Begin(low);
-                Check(Vector3.Distance(Pose().Position, low.TargetPosition) < .001f, "Base composition");
-                int b = Begin(high);
-                Check(Vector3.Distance(Pose().Position, high.TargetPosition) < .001f, "Higher priority wins");
-                CameraShotRuntime.SetPreview(b, 0, .5f);
-                Check(Vector3.Distance(Pose().Position, (low.TargetPosition + high.TargetPosition) * .5f) < .001f, "Weighted blend");
-                CameraShotRuntime.Release(b);
-                Check(Vector3.Distance(Pose().Position, low.TargetPosition) < .001f, "Release reveals lower shot");
-                Check(!CameraShotRuntime.Evaluate(channel + 1, Vector3.zero, Quaternion.identity, 60, out _, out _), "Channel isolation");
-                low.PositionTravel = Vector3.right * 2;
-                CameraShotRuntime.SetProgress(a, .5f);
-                Check(Vector3.Distance(Pose().Position, low.TargetPosition + Vector3.right) < .001f, "Motion curve progress");
-                low.PositionTravel = Vector3.zero;
-                CameraShotRuntime.Release(a, true);
-                a = Begin(low); // Exercise live timeline weights, not a lingering preview handle.
-                // Timeline weight must be deterministic in either scrub direction,
-                // independent of the legacy seconds-based blend settings.
-                low.BlendIn = low.BlendOut = 10f;
-                low.WeightCurve = AnimationCurve.Linear(0, 0, 1, 1);
-                CameraShotRuntime.SetProgress(a, .25f);
-                Check(Vector3.Distance(Pose().Position, low.TargetPosition * .25f) < .001f, "Timeline quarter weight");
-                CameraShotRuntime.SetProgress(a, .75f);
-                Check(Vector3.Distance(Pose().Position, low.TargetPosition * .75f) < .001f, "Timeline three-quarter weight");
-                CameraShotRuntime.SetProgress(a, .25f);
-                Check(Vector3.Distance(Pose().Position, low.TargetPosition * .25f) < .001f, "Reverse scrubbing is deterministic");
-                CameraShotRuntime.Release(a);
-                Check(CameraShotRuntime.Evaluate(channel, Vector3.zero, Quaternion.identity, 60, out _, out _), "Interrupted timeline retains a release tail");
-                CameraShotRuntime.FinishReleases(channel);
-                Check(!CameraShotRuntime.Evaluate(channel, Vector3.zero, Quaternion.identity, 60, out _, out _), "Completed return removes the release tail");
-                low.WeightCurve = new AnimationCurve(new Keyframe(0, 0), new Keyframe(.22f, 1), new Keyframe(.74f, .9981f), new Keyframe(1, 0));
-                Check(!low.TryGetReturnBlend(.5f, out _, out _), "Nearly flat hold does not trigger an early return");
-                Check(low.TryGetReturnBlend(.75f, out float explicitStart, out float initialBlend) &&
-                    Mathf.Approximately(explicitStart, .75f) && initialBlend == 0f, "Return starts at the authored boundary");
-                Check(low.TryGetReturnBlend(1f, out _, out float finalBlend) && finalBlend == 1f, "Return reaches the game camera");
-                var arcFrom = new CameraShotPose { Position = new Vector3(-4, 0, 0), Rotation = Quaternion.LookRotation(Vector3.right), FieldOfView = 50 };
-                var arcTo = new CameraShotPose { Position = new Vector3(0, 0, -4), Rotation = Quaternion.identity, FieldOfView = 60 };
-                var arcMiddle = CameraShotRuntime.Blend(arcFrom, arcTo, .5f, Vector3.zero, true);
-                Check(Mathf.Abs(arcMiddle.Position.magnitude - 4f) < .001f, "Orbit transition preserves subject distance");
-                Check(Vector3.Angle(arcMiddle.Rotation * Vector3.forward, -arcMiddle.Position) < .01f, "Orbit transition preserves subject framing");
-                Check(CameraShotRuntime.Blend(arcFrom, arcTo, 0, Vector3.zero, true).Position == arcFrom.Position &&
-                    CameraShotRuntime.Blend(arcFrom, arcTo, 1, Vector3.zero, true).Position == arcTo.Position, "Orbit transition preserves endpoints");
-                low.WeightCurve = new AnimationCurve(new Keyframe(0, 0), new Keyframe(.2f, 1), new Keyframe(.75f, 1), new Keyframe(1, 0));
-                a = Begin(low);
-                CameraShotRuntime.SetProgress(a, 0);
-                Check(Pose().Position.sqrMagnitude < .001f, "Timeline starts at game camera");
-                CameraShotRuntime.SetProgress(a, .5f);
-                Check(Vector3.Distance(Pose().Position, low.TargetPosition) < .001f, "Timeline holds target composition");
-                var returnBasis = new CameraShotPose { Rotation = Quaternion.identity, FieldOfView = 60f };
-                Check(!CameraShotRuntime.TryGetTimelineReturn(channel, returnBasis, out _, out _, out _), "Hold does not start return search");
-                CameraShotRuntime.SetProgress(a, .9f);
-                Check(CameraShotRuntime.TryGetTimelineReturn(channel, returnBasis, out int returnHandle, out var returnFrom, out float returnBlend) &&
-                    returnHandle == a && Vector3.Distance(returnFrom.Position, low.TargetPosition) < .001f && returnBlend > 0f && returnBlend < 1f,
-                    "Curve tail requests nearest return with curve blend");
-                b = Begin(high);
-                Check(!CameraShotRuntime.TryGetTimelineReturn(channel, returnBasis, out _, out _, out _), "Layered shots keep their underlying owner");
-                CameraShotRuntime.Release(b, true);
-                CameraShotRuntime.SetProgress(a, 1);
-                Check(Pose().Position.sqrMagnitude < .001f, "Timeline returns inside its range");
-                low.BlendIn = low.BlendOut = 0f;
-                CameraShotRuntime.Release(a);
-                a = Begin(low);
-                var vcam = camera.AddComponent<CinemachineFreeLook>();
-                var extension = camera.AddComponent<CinemachineCameraShotExtension>();
-                extension.Channel = channel;
-                float originalSpeed = vcam.m_XAxis.m_MaxSpeed;
-                var state = CameraState.Default;
-                extension.Apply(ref state);
-                Check(Mathf.Approximately(vcam.m_XAxis.m_MaxSpeed, originalSpeed), "Editor preview preserves serialized axes");
-                var lockMethod = typeof(CinemachineCameraShotExtension).GetMethod("SetInputLocked", BindingFlags.Instance | BindingFlags.NonPublic);
-                lockMethod.Invoke(extension, new object[] { true });
-                Check(vcam.m_XAxis.m_MaxSpeed == 0f, "FreeLook input locked");
-                Check(Vector3.Distance(state.CorrectedPosition, Pose().Position) < .001f, "Extension applies pose");
-                CameraShotRuntime.Release(a);
-                state = CameraState.Default;
-                extension.Apply(ref state);
-                Check(Mathf.Approximately(vcam.m_XAxis.m_MaxSpeed, originalSpeed), "FreeLook input restored");
-                // Reproduce an axis snapshot from several seconds ago while input
-                // is held. Unlock must behave like a fresh normal one-frame update.
-                AxisState WithPrivate(AxisState axis, string field, object value)
-                {
-                    object boxed = axis;
-                    typeof(AxisState).GetField(field, BindingFlags.Instance | BindingFlags.NonPublic).SetValue(boxed, value);
-                    return (AxisState)boxed;
-                }
-                foreach (AxisState.SpeedMode mode in new[] { AxisState.SpeedMode.MaxSpeed, AxisState.SpeedMode.InputValueGain })
-                {
-                    var axis = new AxisState(-180, 180, false, false, mode == AxisState.SpeedMode.MaxSpeed ? 90 : 2,
-                        .2f, .2f, "", false) { Value = 10, m_SpeedMode = mode };
-                    axis = WithPrivate(axis, "m_LastUpdateTime", Time.realtimeSinceStartup - 3f);
-                    axis = WithPrivate(axis, "m_CurrentSpeed", 30f);
-                    axis.m_InputAxisValue = 1;
-                    vcam.m_XAxis = axis; vcam.m_YAxis = axis;
-                    lockMethod.Invoke(extension, new object[] { true });
-                    Check(vcam.m_XAxis.m_InputAxisValue == 0 && vcam.m_YAxis.m_InputAxisValue == 0, mode + " discards locked input");
-                    lockMethod.Invoke(extension, new object[] { false });
-                    Check(Mathf.Approximately(vcam.m_XAxis.Value, 10) && Mathf.Approximately(vcam.m_YAxis.Value, 10), mode + " unlock preserves held angles");
-                    var expected = axis; expected.Reset();
-                    expected = WithPrivate(expected, "m_LastUpdateFrame", -1);
-                    expected.m_InputAxisValue = 1;
-                    expected.Update(1f / 60);
-                    var resumed = WithPrivate(vcam.m_XAxis, "m_LastUpdateFrame", -1);
-                    resumed.m_InputAxisValue = 1;
-                    resumed.Update(1f / 60);
-                    Check(Mathf.Abs(resumed.Value - expected.Value) < .001f, mode + " continuous input resumes with one frame of acceleration");
-                    var released = WithPrivate(vcam.m_YAxis, "m_LastUpdateFrame", -1);
-                    released.Update(1f / 60);
-                    Check(Mathf.Abs(released.Value - 10) < .001f, mode + " no stale movement when input stops");
-                }
-                Begin(low, duration: 0f);
-                Check(!CameraShotRuntime.Evaluate(channel, Vector3.zero, Quaternion.identity, 60, out _, out _), "Timed shot expires");
-                // A reachable orbit should be recovered from a very different old
-                // orbit, and unlock must keep the recovered axes.
-                vcam.Follow = actor.transform; vcam.LookAt = actor.transform;
-                vcam.m_BindingMode = CinemachineTransposer.BindingMode.WorldSpace;
-                vcam.m_XAxis = new AxisState(-180, 180, true, false, 90, .2f, .2f, "", false);
-                vcam.m_YAxis = new AxisState(0, 1, false, false, 1, .2f, .2f, "", false);
-                // First update creates/synchronizes the three rigs after assigning Follow.
-                // Capture the destination only after their configured orbits are active.
-                vcam.InternalUpdateCameraState(Vector3.up, -1);
-                vcam.m_XAxis.Value = 120; vcam.m_YAxis.Value = .75f;
-                vcam.InternalUpdateCameraState(Vector3.up, -1);
-                vcam.InternalUpdateCameraState(Vector3.up, -1);
-                var desired = new CameraShotPose { Position = vcam.State.CorrectedPosition,
-                    Rotation = vcam.State.CorrectedOrientation, FieldOfView = vcam.State.Lens.FieldOfView };
-                vcam.m_XAxis.Value = -30; vcam.m_YAxis.Value = .1f;
-                vcam.InternalUpdateCameraState(Vector3.up, -1);
-                vcam.InternalUpdateCameraState(Vector3.up, -1);
-                var oldReturnPose = new CameraShotPose { Position = vcam.State.CorrectedPosition,
-                    Rotation = vcam.State.CorrectedOrientation, FieldOfView = vcam.State.Lens.FieldOfView };
-                using (var previewReturn = new CameraShotOrbitSolver())
-                {
-                    float beforeX = vcam.m_XAxis.Value, beforeY = vcam.m_YAxis.Value;
-                    Check(previewReturn.Evaluate(vcam, desired, out var previewDestination), "Return preview solves on an inactive copy");
-                    Check(Mathf.Approximately(vcam.m_XAxis.Value, beforeX) && Mathf.Approximately(vcam.m_YAxis.Value, beforeY), "Return preview preserves scene axes");
-                    Check(CinemachineCameraShotExtension.ReturnCost(desired, previewDestination, actor.transform.position) <=
-                        CinemachineCameraShotExtension.ReturnCost(desired, oldReturnPose, actor.transform.position) + .001f, "Preview return changes no more than old orbit");
-                }
-                lockMethod.Invoke(extension, new object[] { true });
-                var recovered = extension.FindReturnState(desired);
-                var recoveredPose = new CameraShotPose { Position = recovered.CorrectedPosition,
-                    Rotation = recovered.CorrectedOrientation, FieldOfView = recovered.Lens.FieldOfView };
-                Check(CinemachineCameraShotExtension.ReturnCost(desired, recoveredPose, actor.transform.position) <=
-                    CinemachineCameraShotExtension.ReturnCost(desired, oldReturnPose, actor.transform.position) + .001f, "Runtime return changes no more than old orbit");
-                float recoveredX = vcam.m_XAxis.Value, recoveredY = vcam.m_YAxis.Value;
-                Check(recoveredY >= 0 && recoveredY <= 1 && recoveredX >= -180 && recoveredX <= 180, "Return stays inside configured axis ranges");
-                Check(Vector3.Angle(desired.Rotation * Vector3.forward, recovered.CorrectedOrientation * Vector3.forward) < 10, "Return preserves a reachable viewing direction");
-                lockMethod.Invoke(extension, new object[] { false });
-                Check(Mathf.Abs(Mathf.DeltaAngle(recoveredX, vcam.m_XAxis.Value)) < .001f && Mathf.Abs(recoveredY - vcam.m_YAxis.Value) < .001f, "Unlock preserves recovered orbit instead of old orbit");
-                Check((int)CameraShotComposition.GameCameraRelative == 1 && (int)CameraShotComposition.ActorStartPose == 2 &&
-                    Enum.GetValues(typeof(CameraShotComposition)).Length == 2, "Remaining modes preserve serialized values");
-                low.LimitToGameCameraOrbit = true;
-                low.TargetPosition = new Vector3(-40, 20, -40);
-                low.TargetRotation = new Vector3(80, 170, 35);
-                low.FieldOfView = 42;
-                vcam.m_XAxis.m_MinValue = -30; vcam.m_XAxis.m_MaxValue = 30; vcam.m_XAxis.m_Wrap = false;
-                vcam.m_XAxis.Value = 5; vcam.m_YAxis.Value = .4f;
-                using (var targetSolver = new CameraShotOrbitSolver())
-                {
-                    bool Project(CameraShotPose input, out CameraShotPose output) => targetSolver.Evaluate(vcam, input, out output, true);
-                    int constrainedHandle = Begin(low);
-                    Check(!CameraShotRuntime.Evaluate(channel, basePosition, baseRotation, 60, out var missingRig, out _) &&
-                        missingRig.Position == basePosition, "Limited target without a solver keeps the game camera");
-                    CameraShotRuntime.Evaluate(channel, basePosition, baseRotation, 60, out var constrained, out _, Project);
-                    Check(Mathf.Abs(vcam.m_XAxis.Value - 5) < .001f && Mathf.Abs(vcam.m_YAxis.Value - .4f) < .001f,
-                        "Target projection does not change live FreeLook axes");
-                    float yaw = Mathf.Atan2(-constrained.Position.x, -constrained.Position.z) * Mathf.Rad2Deg;
-                    Check(yaw >= -30.01f && yaw <= 30.01f, "Limited target respects horizontal axis bounds");
-                    float nearest = float.PositiveInfinity;
-                    var radial = new Vector2(new Vector2(constrained.Position.x, constrained.Position.z).magnitude, constrained.Position.y);
-                    for (int i = 0; i <= 1000; i++)
-                    {
-                        var point = vcam.GetLocalPositionForCameraFromInput(i / 1000f);
-                        nearest = Mathf.Min(nearest, Vector2.Distance(radial, new Vector2(-point.z, point.y)));
+            void Check(bool ok, string label) { if (!ok) throw new Exception("CameraShot: " + label); checks++; }
+            try {
+                var rig = camera.AddComponent<CinemachineFreeLook>();
+                rig.Follow = actor.transform; rig.LookAt = focus.transform;
+                rig.m_BindingMode = CinemachineTransposer.BindingMode.WorldSpace;
+                rig.m_Orbits = new[] { new CinemachineFreeLook.Orbit(3, 3.5f), new CinemachineFreeLook.Orbit(1, 4.5f), new CinemachineFreeLook.Orbit(0, 3.5f) };
+                rig.m_XAxis.Value = 25; rig.m_YAxis.Value = .5f;
+                rig.m_XAxis.m_InputAxisName = rig.m_YAxis.m_InputAxisName = "";
+                rig.m_XAxis.m_MaxSpeed = rig.m_YAxis.m_MaxSpeed = 0;
+                rig.m_Lens.FieldOfView = 60;
+                rig.InternalUpdateCameraState(Vector3.up, -1);
+                rig.InternalUpdateCameraState(Vector3.up, -1);
+                using (var solver = new CameraShotOrbitSolver()) {
+                    Vector2 original = new Vector2(rig.m_XAxis.Value, rig.m_YAxis.Value);
+                    profile.Candidates[0].RelativePosition = new Vector2(3, -1);
+                    profile.Candidates[1].RelativePosition = new Vector2(-3, -1);
+                    Check(Mathf.Abs(CameraShotCandidate.AngleFromDirection(Vector2.down)) < .001f &&
+                          Vector2.Distance(CameraShotCandidate.DirectionFromAngle(90), Vector2.right) < .001f &&
+                          Vector2.Distance(CameraShotCandidate.DirectionFromAngle(180), Vector2.up) < .001f &&
+                          Vector2.Distance(CameraShotCandidate.DirectionFromAngle(270), Vector2.left) < .001f,
+                        "horizontal angle covers the full orbit");
+                    float oldAngle = CameraShotCandidate.AngleFromDirection(profile.Candidates[0].RelativePosition);
+                    Check(Vector2.Dot(CameraShotCandidate.DirectionFromAngle(oldAngle),
+                          profile.Candidates[0].RelativePosition.normalized) > .999f,
+                        "existing relative position keeps its direction as an angle");
+                    profile.Candidates[0].Height = profile.Candidates[1].Height = 1.8f;
+                    Check(solver.TryCandidate(rig, actor.transform, profile.Candidates[0], out var rightAxes, out var right), "right candidate resolves");
+                    Check(solver.TryCandidate(rig, actor.transform, profile.Candidates[1], out var leftAxes, out var left), "left candidate resolves");
+                    Check(Mathf.Abs(right.Position.y - 1.8f) < .002f, "requested camera height");
+                    Check(right.Position.x > 0 && left.Position.x < 0, "positions relative to player");
+                    Check(Mathf.Abs(right.FieldOfView - 60) < .001f, "inherits source lens");
+                    var session = new CameraShotSession();
+                    Check(session.Capture(profile, actor.transform, rig, original, left.Position, solver), "session captures");
+                    Check(session.SelectedCandidate == 1, "nearest position chooses left");
+                    var timing = CameraShotTiming.Default;
+                    timing.EnterSeconds = .2f; timing.ExitSeconds = .3f;
+                    timing.EnterCurve = new AnimationCurve(new Keyframe(0, 0), new Keyframe(.5f, .25f), new Keyframe(1, 1));
+                    var atStart = session.Evaluate(rig, solver, original, 0, 1, timing);
+                    Check(Vector2.Distance(atStart, original) < .001f, "entry starts at current axes");
+                    var half = session.Evaluate(rig, solver, original, .1f, 1, timing);
+                    var expectedHalf = CameraShotOrbitSolver.BlendAxes(rig, original, leftAxes, .25f);
+                    Check(Vector2.Distance(half, expectedHalf) < .001f, "entry uses custom time and curve");
+                    for (int i = 0; i <= 100; i++) {
+                        var axes = session.Evaluate(rig, solver, original, i / 100f, 1, timing);
+                        var pose = solver.Sample(rig, axes);
+                        var local = rig.GetLocalPositionForCameraFromInput(axes.y);
+                        float radius = Vector3.ProjectOnPlane(pose.Position - actor.transform.position, Vector3.up).magnitude;
+                        Check(Mathf.Abs(radius - Mathf.Abs(local.z)) < .005f && Mathf.Abs(pose.Position.y - local.y) < .005f,
+                            "entire transition stays on existing spline " + i);
                     }
-                    Check(nearest < .01f, "Limited target lies on the normal orbit surface");
-                    Check(Mathf.Approximately(constrained.FieldOfView, 42), "Target constraint preserves authored FOV");
-                    Check(Quaternion.Angle(constrained.Rotation, Quaternion.Euler(low.TargetRotation)) > 1,
-                        "Target constraint adopts the normal camera angle");
-                    var constrainedPreview = new CameraShotRuntime.PreviewSession().Evaluate(low, actor.transform,
-                        baseRotation, 60, 0, basePosition, Project);
-                    Check(Vector3.Distance(constrainedPreview.Position, constrained.Position) < .001f &&
-                        Quaternion.Angle(constrainedPreview.Rotation, constrained.Rotation) < .01f, "Limited preview and runtime agree");
-                    CameraShotRuntime.SetPreview(constrainedHandle, 0, .5f);
-                    CameraShotRuntime.Evaluate(channel, basePosition, baseRotation, 60, out var half, out _, Project);
-                    Check(Vector3.Distance(half.Position, Vector3.Lerp(basePosition, constrained.Position, .5f)) < .001f,
-                        "Only the target is constrained, not the transition");
-                    CameraShotRuntime.SetPreview(constrainedHandle, 0, 1);
-                    actor.transform.position = new Vector3(3, 0, 2);
-                    CameraShotRuntime.Evaluate(channel, basePosition, baseRotation, 60, out var movedTarget, out _, Project);
-                    Check(Vector3.Distance(movedTarget.Position, constrained.Position + actor.transform.position) < .001f,
-                        "Cached orbit follows the live follow target");
-                    low.LookAtPlayer = true;
-                    CameraShotRuntime.Evaluate(channel, basePosition, baseRotation, 60, out var aimedTarget, out _, Project);
-                    Check(Vector3.Distance(aimedTarget.Position, movedTarget.Position) < .001f && Mathf.Approximately(aimedTarget.FieldOfView, movedTarget.FieldOfView),
-                        "Look-at preserves constrained position and FOV");
-                    Check((aimedTarget.Rotation * Vector3.forward - (actor.transform.position + Vector3.up * 1.2f - aimedTarget.Position).normalized).sqrMagnitude < .00000001f,
-                        "Look-at overrides the constrained target angle");
-                    low.LookAtPlayer = false;
-                    low.LimitToGameCameraOrbit = false;
-                    CameraShotRuntime.Evaluate(channel, basePosition, baseRotation, 60, out var unrestricted, out _, Project);
-                    Check(Vector3.Distance(unrestricted.Position, actor.transform.position + low.TargetPosition) < .001f,
-                        "Disabling constraint restores the authored target");
-                    CameraShotRuntime.Release(constrainedHandle, true);
+                    Check(Vector2.Distance(session.CurrentAxes, original) < .001f, "normal exit returns game axes");
+                    actor.transform.rotation = Quaternion.Euler(0, 110, 0);
+                    actor.transform.position = new Vector3(2, .5f, 3);
+                    session.Evaluate(rig, solver, original, .5f, 1, timing);
+                    Check(session.SelectedCandidate == 1, "choice remains locked after player moves");
+                    actor.transform.SetPositionAndRotation(Vector3.zero, Quaternion.identity);
+                    profile.Candidates[0].Height = 100;
+                    solver.TryCandidate(rig, actor.transform, profile.Candidates[0], out var highAxes, out var high);
+                    Check(highAxes.y >= .999f && high.Position.y <= 3.001f, "height above orbit clamps");
+                    profile.Candidates[0].Height = -100;
+                    solver.TryCandidate(rig, actor.transform, profile.Candidates[0], out var lowAxes, out var low);
+                    Check(lowAxes.y <= .001f && low.Position.y >= -.001f, "height below orbit clamps");
+                    profile.Candidates[0].Height = 1.8f;
+                    Check(Mathf.Abs(Mathf.Abs(CameraShotOrbitSolver.BlendAxes(rig, new Vector2(170, .5f), new Vector2(-170, .5f), .5f).x) - 180) < .001f, "wrapped yaw takes shortest path");
+                    rig.m_XAxis.m_Wrap = false; rig.m_XAxis.m_MinValue = -60; rig.m_XAxis.m_MaxValue = 60;
+                    var bounded = CameraShotOrbitSolver.BlendAxes(rig, new Vector2(-50, -1), new Vector2(50, 2), .5f);
+                    Check(Mathf.Abs(bounded.x) < .001f && bounded.y >= 0 && bounded.y <= 1, "non-wrapped axes obey limits");
+                    rig.m_XAxis.m_Wrap = true; rig.m_XAxis.m_MinValue = -180; rig.m_XAxis.m_MaxValue = 180;
+                    timing.GetDurations(out float enter, out float exit);
+                    Check(Mathf.Abs(enter - .2f) < .0001f && Mathf.Abs(exit - .3f) < .0001f, "point node preserves configured seconds");
+                    Check(Vector2.Distance(new Vector2(rig.m_XAxis.Value, rig.m_YAxis.Value), original) < .001f, "sampling leaves source axes unchanged");
+
+                    using (var preview = new CameraShotPreviewRig()) {
+                        int sampleCount = 0;
+                        void Move(float t) { sampleCount++; actor.transform.position = new Vector3(t * 2, 0, t); }
+                        var first = preview.Evaluate(profile, timing, rig, actor.transform, .55f, .1f, 1, Move);
+                        Check(Mathf.Abs(first.FieldOfView - rig.m_Lens.FieldOfView) < .001f,
+                            "node preview inherits the gameplay field of view");
+                        int sampledAtFirstFrame = sampleCount;
+                        preview.Evaluate(profile, timing, rig, actor.transform, .55f, .1f, 1, Move);
+                        Check(sampleCount == sampledAtFirstFrame, "unchanged preview time does not resample animation");
+                        preview.Evaluate(profile, timing, rig, actor.transform, .6f, .1f, 1, Move);
+                        Check(sampleCount - sampledAtFirstFrame <= 5, "forward preview reuses previous simulation");
+                        int selected = preview.SelectedCandidate;
+                        preview.Evaluate(profile, timing, rig, actor.transform, .2f, .1f, 1, Move);
+                        var repeated = preview.Evaluate(profile, timing, rig, actor.transform, .55f, .1f, 1, Move);
+                        Check(Vector3.Distance(first.Position, repeated.Position) < .002f && Quaternion.Angle(first.Rotation, repeated.Rotation) < .05f,
+                            "backward seek and replay preserve output");
+                        Check(selected == preview.SelectedCandidate, "replay preserves nearest choice");
+                    }
                     actor.transform.position = Vector3.zero;
+                    root.SetActive(true);
+                    CameraShotRuntime.Reset();
+                    int handle = CameraShotRuntime.Begin(profile, actor.transform, 1, 717, timing: timing);
+                    CameraShotRuntime.SetProgress(handle, .5f);
+                    bool active = CameraShotRuntime.Evaluate(717, rig, original, original, right.Position, solver,
+                        out var runtimeAxes, out bool locked, out int candidate, out _);
+                    Check(active && locked && candidate == 0, "runtime selection and input lock");
+                    int other = CameraShotRuntime.Begin(profile, actor.transform, 1, 718, timing: timing);
+                    CameraShotRuntime.Complete(other);
+                    Check(CameraShotRuntime.ActiveCount == 1, "other channel completion preserves this shot");
+                    CameraShotRuntime.Release(handle);
+                    CameraShotRuntime.Evaluate(717, rig, original, runtimeAxes, right.Position, solver, out var released, out _, out _, out _);
+                    Check(Vector2.Distance(runtimeAxes, released) < .1f, "interruption starts from current orbit");
+                    CameraShotRuntime.Complete(handle);
+                    Check(!CameraShotRuntime.Evaluate(717, rig, original, original, right.Position, solver, out _, out _, out _, out _), "normal completion leaves no extra tail");
+                    int disabled = CameraShotRuntime.Begin(profile, actor.transform, 1, 717, timing: timing);
+                    actor.SetActive(false);
+                    CameraShotRuntime.Evaluate(717, rig, original, original, right.Position, solver, out _, out _, out _, out _);
+                    Check(CameraShotRuntime.ActiveCount == 0, "disabled actor cleanup");
+                    actor.SetActive(true);
+                    var kept = new CameraShotSession();
+                    kept.Capture(profile, actor.transform, rig, original, left.Position, solver);
+                    var keptAxes = kept.Evaluate(rig, solver, original, 1, 1, timing, false);
+                    Check(Vector2.Distance(keptAxes, leftAxes) < .001f, "no-return session retains the selected orbit");
+                    using (var preview = new CameraShotPreviewRig()) {
+                        preview.Evaluate(profile, timing, rig, actor.transform, 1.3f, .1f, .5f, returnToOriginalCamera: false);
+                        solver.TryCandidate(rig, actor.transform, profile.Candidates[preview.SelectedCandidate], out var finalAxes, out _);
+                        Check(Vector2.Distance(preview.Axes, finalAxes) < .001f, "preview retains final orbit after completion");
+                        Check(Vector2.Distance(new Vector2(rig.m_XAxis.Value, rig.m_YAxis.Value), original) < .001f,
+                            "no-return preview does not serialize scene axes");
+                    }
+                    int noReturn = CameraShotRuntime.Begin(profile, actor.transform, 1, 717, timing: timing, returnToOriginalCamera: false);
+                    CameraShotRuntime.SetProgress(noReturn, .5f);
+                    CameraShotRuntime.Evaluate(717, rig, original, original, right.Position, solver, out var keptRuntimeAxes, out _, out _, out _);
+                    CameraShotRuntime.Complete(noReturn);
+                    Check(CameraShotRuntime.TryTakeHandoff(717, out var adopted) && Vector2.Distance(adopted, keptRuntimeAxes) < .001f,
+                        "normal no-return completion hands off current axes");
+                    Check(!CameraShotRuntime.TryTakeHandoff(717, out _), "handoff is consumed once");
+                    noReturn = CameraShotRuntime.Begin(profile, actor.transform, 1, 717, timing: timing, returnToOriginalCamera: false);
+                    CameraShotRuntime.SetProgress(noReturn, .1f);
+                    CameraShotRuntime.Evaluate(717, rig, original, original, right.Position, solver, out var interruptedAxes, out _, out _, out _);
+                    CameraShotRuntime.Release(noReturn);
+                    Check(CameraShotRuntime.ActiveCount == 0 && CameraShotRuntime.TryTakeHandoff(717, out adopted) && Vector2.Distance(adopted, interruptedAxes) < .001f,
+                        "no-return interruption keeps current position without a return tail");
+                    noReturn = CameraShotRuntime.Begin(profile, actor.transform, 1, 717, timing: timing, returnToOriginalCamera: false);
+                    CameraShotRuntime.Evaluate(717, rig, original, original, right.Position, solver, out _, out _, out _, out _);
+                    int newer = CameraShotRuntime.Begin(profile, actor.transform, 1, 717, timing: timing);
+                    CameraShotRuntime.Complete(noReturn);
+                    Check(!CameraShotRuntime.TryTakeHandoff(717, out _), "old shot cannot override a newer camera owner");
+                    CameraShotRuntime.Complete(newer);
+                    // Backdate the private clock to exercise real-time progression without sleeps.
+                    void Age(int id, double seconds) {
+                        var entries = (System.Collections.IDictionary)typeof(CameraShotRuntime)
+                            .GetField("shots", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic).GetValue(null);
+                        var shot = entries[id];
+                        shot.GetType().GetField("Started").SetValue(shot, Time.realtimeSinceStartupAsDouble - seconds);
+                    }
+                    int timed = CameraShotRuntime.Begin(profile, actor.transform, 1, 717, timing: timing, ignoreHitStop: true);
+                    Age(timed, .4);
+                    CameraShotRuntime.SetProgress(timed, 0);
+                    CameraShotRuntime.Evaluate(717, rig, original, original, right.Position, solver, out var timedAxes, out _, out _, out _);
+                    Check(Vector2.Distance(timedAxes, rightAxes) < .001f, "real-time shot advances while action time is frozen");
+                    Age(timed, .85);
+                    CameraShotRuntime.Evaluate(717, rig, original, timedAxes, right.Position, solver, out var timedExit, out _, out _, out _);
+                    Check(Vector2.Distance(timedExit, rightAxes) > .01f && Vector2.Distance(timedExit, original) > .01f,
+                        "real-time exit continues while action time is frozen");
+                    Age(timed, 1.1);
+                    CameraShotRuntime.Evaluate(717, rig, original, timedExit, right.Position, solver, out var timedEnd, out _, out _, out _);
+                    Check(CameraShotRuntime.ActiveCount == 0 && Vector2.Distance(timedEnd, original) < .001f,
+                        "real-time shot renders return endpoint and completes independently");
+                    timed = CameraShotRuntime.Begin(profile, actor.transform, 1, 717, timing: timing,
+                        returnToOriginalCamera: false, ignoreHitStop: true);
+                    Age(timed, 1.1);
+                    CameraShotRuntime.Evaluate(717, rig, original, original, right.Position, solver, out timedEnd, out _, out _, out _);
+                    Check(CameraShotRuntime.ActiveCount == 0 && CameraShotRuntime.TryTakeHandoff(717, out adopted) &&
+                        Vector2.Distance(adopted, rightAxes) < .001f, "real-time no-return completion hands off final orbit");
+                    timed = CameraShotRuntime.Begin(profile, actor.transform, 1, 717, timing: timing);
+                    Age(timed, 1.1); CameraShotRuntime.SetProgress(timed, 0);
+                    CameraShotRuntime.Evaluate(717, rig, original, original, right.Position, solver, out timedAxes, out _, out _, out _);
+                    Check(CameraShotRuntime.ActiveCount == 1 && Vector2.Distance(timedAxes, original) < .001f,
+                        "default clock remains paused with action time");
+                    CameraShotRuntime.Complete(timed);
+                    timed = CameraShotRuntime.Begin(profile, actor.transform, 1, 717, timing: timing, ignoreHitStop: true);
+                    Age(timed, 1.1); CameraShotRuntime.SetPreview(timed, 0);
+                    CameraShotRuntime.Evaluate(717, rig, original, original, right.Position, solver, out timedAxes, out _, out _, out _);
+                    Check(CameraShotRuntime.ActiveCount == 1 && Vector2.Distance(timedAxes, original) < .001f,
+                        "editor scrubbing keeps its explicit preview time");
+                    CameraShotRuntime.Complete(timed);
+                    var obstacle = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                    obstacle.transform.SetParent(root.transform);
+                    obstacle.transform.position = Vector3.Lerp(focus.transform.position, right.Position, .5f);
+                    obstacle.transform.localScale = new Vector3(1.2f, 3, 1.2f);
+                    var collider = rig.gameObject.AddComponent<CinemachineCollider>();
+                    collider.m_CollideAgainst = 1; collider.m_CameraRadius = .15f;
+                    collider.m_Strategy = CinemachineCollider.ResolutionStrategy.PullCameraForward;
+                    collider.m_Damping = collider.m_DampingWhenOccluded = 0;
+                    EditorUtility.SetDirty(rig); Physics.SyncTransforms();
+                    solver.TryCandidate(rig, actor.transform, profile.Candidates[0], out _, out var blocked);
+                    Check(Vector3.Distance(blocked.Position, focus.transform.position) < Vector3.Distance(right.Position, focus.transform.position) - .2f,
+                        "source collider retracts the shot spring arm");
+                    var extension = rig.gameObject.AddComponent<CinemachineCameraShotExtension>();
+                    rig.m_XAxis.m_MaxSpeed = 75; rig.m_YAxis.m_MaxSpeed = 2;
+                    typeof(CinemachineCameraShotExtension).GetMethod("SetInputLocked", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
+                        .Invoke(extension, new object[] { true });
+                    extension.AdoptOrbit(rightAxes, blocked);
+                    extension.enabled = false;
+                    Check(Vector2.Distance(new Vector2(rig.m_XAxis.Value, rig.m_YAxis.Value), rightAxes) < .001f,
+                        "restoring input preserves the adopted gameplay orbit");
+                    Check(Mathf.Abs(rig.m_XAxis.m_MaxSpeed - 75) < .001f && Mathf.Abs(rig.m_YAxis.m_MaxSpeed - 2) < .001f,
+                        "handoff preserves original input speed settings");
                 }
-                a = Begin(low);
-                Pose(); actor.SetActive(false);
-                Check(!CameraShotRuntime.Evaluate(channel, Vector3.zero, Quaternion.identity, 60, out _, out _), "Disabled actor releases");
-                Check(AssetDatabase.LoadAssetAtPath<CameraShotProfile>("Assets/_Project/CameraShot/Profiles/ParryCameraShot.asset") != null, "Preset imports");
-                checks += CameraShotAuthoringValidation.Run();
-                string result = $"PASS: CameraShot {checks} checks";
-                File.WriteAllText("Temp/CameraShotValidation.txt", result); Debug.Log(result);
+                checks += CameraShotPointValidation.Run();
+                string result = $"PASS: CameraShot point nodes {checks} checks";
+                Directory.CreateDirectory("Temp"); File.WriteAllText("Temp/CameraShotValidation.txt", result); Debug.Log(result);
             }
-            catch (Exception e)
-            {
-                File.WriteAllText("Temp/CameraShotValidation.txt", "FAIL: " + e); Debug.LogException(e);
+            catch (Exception exception) {
+                Directory.CreateDirectory("Temp"); File.WriteAllText("Temp/CameraShotValidation.txt", "FAIL: " + exception);
+                Debug.LogException(exception); throw;
             }
-            finally
-            {
-                foreach (int h in handles) CameraShotRuntime.Release(h, true);
-                UnityEngine.Object.DestroyImmediate(camera); UnityEngine.Object.DestroyImmediate(actor);
-                UnityEngine.Object.DestroyImmediate(low); UnityEngine.Object.DestroyImmediate(high);
-            }
+            finally { CameraShotRuntime.Reset(); UnityEngine.Object.DestroyImmediate(root); UnityEngine.Object.DestroyImmediate(profile); }
         }
     }
 }
+// Validation requests are consumed after the next script reload.

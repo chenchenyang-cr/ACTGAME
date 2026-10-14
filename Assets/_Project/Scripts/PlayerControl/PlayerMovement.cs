@@ -7,7 +7,8 @@ public enum PlayerRotationMode
 {
     MovementDirection,
     Animation,
-    Preserve
+    Preserve,
+    FixedDirection
 }
 
 public readonly struct PlayerMovementDirectionSnapshot
@@ -96,6 +97,7 @@ public class PlayerMovement : MonoBehaviour
     private Vector2 smoothedAnimatorMoveInput;
     private float smoothedAnimatorMoveAmount;
     private Vector3 worldMoveDirection;
+    private Vector3 fixedWorldDirection;
     private Vector2 lastNonZeroLocalDirection = Vector2.up;
     private bool wasMoving;
     private CombatEditor.RootMotionParentApplier rootMotionApplier;
@@ -253,6 +255,19 @@ public class PlayerMovement : MonoBehaviour
         rotationMode = mode;
     }
 
+    public void FaceFixedWorldDirection(Vector3 worldDirection)
+    {
+        worldDirection.y = 0f;
+        if (worldDirection.sqrMagnitude <= MoveInputThreshold * MoveInputThreshold)
+        {
+            SetRotationMode(PlayerRotationMode.Preserve);
+            return;
+        }
+
+        fixedWorldDirection = worldDirection.normalized;
+        SetRotationMode(PlayerRotationMode.FixedDirection);
+    }
+
     public void SetRootMotionTranslationScale(float scale)
     {
         rootMotionApplier?.SetRootMotionTranslationScale(scale);
@@ -363,9 +378,14 @@ public class PlayerMovement : MonoBehaviour
             return Quaternion.identity;
         }
 
+        if (rotationMode == PlayerRotationMode.FixedDirection)
+        {
+            return CalculateMovementRotation(fixedWorldDirection);
+        }
+
         if (matchTurn180ToInput && matchedTurnActive)
             return CalculateMatchedTurnRotation();
-        return CalculateMovementRotation();
+        return CalculateMovementRotation(worldMoveDirection);
     }
 
     private Quaternion CalculateMatchedTurnRotation()
@@ -450,7 +470,7 @@ public class PlayerMovement : MonoBehaviour
 
         return Vector3.ClampMagnitude(cameraForward * input.y + cameraRight * input.x, 1f);
     }
-    private Quaternion CalculateMovementRotation()
+    private Quaternion CalculateMovementRotation(Vector3 targetDirection)
     {
         float recoveryWeight = 1f;
         if (turnRecoveryRemaining > 0f)
@@ -458,14 +478,14 @@ public class PlayerMovement : MonoBehaviour
             turnRecoveryRemaining = Mathf.Max(0f, turnRecoveryRemaining - Time.deltaTime);
             recoveryWeight = Mathf.SmoothStep(0f, 1f, 1f - turnRecoveryRemaining / turn180RecoveryTime);
         }
-        if (worldMoveDirection.sqrMagnitude < 0.001f)
+        if (targetDirection.sqrMagnitude < 0.001f)
         {
             angularVelocity = 0f;
             return Quaternion.identity;
         }
 
         Quaternion currentRotation = transform.rotation;
-        Quaternion targetRotation = Quaternion.LookRotation(worldMoveDirection);
+        Quaternion targetRotation = Quaternion.LookRotation(targetDirection);
         float angleToTarget = Quaternion.Angle(currentRotation, targetRotation);
         float normalizedAngle = Mathf.Clamp01(angleToTarget / 180f);
         float speedMultiplier = rotationSpeedByAngle != null
@@ -476,7 +496,7 @@ public class PlayerMovement : MonoBehaviour
             : rotationSpeed * speedMultiplier;
         if (rotationSmoothTime > 0f)
         {
-            float signedAngle = Vector3.SignedAngle(transform.forward, worldMoveDirection, Vector3.up);
+            float signedAngle = Vector3.SignedAngle(transform.forward, targetDirection, Vector3.up);
             float maximumSpeed = rotationSpeed * Mathf.Clamp01(speedMultiplier) * recoveryWeight;
             float step = Mathf.SmoothDampAngle(0f, signedAngle, ref angularVelocity,
                 rotationSmoothTime, maximumSpeed, Time.deltaTime);

@@ -500,6 +500,8 @@ using UnityEngine.SceneManagement;
 	                preview.EndTimeScaledPercentage = GetScaledPercentage(preview.EndTimePercentage);
                 if (preview is AbilityEventPreview_CharacterAfterimage afterimagePreview)
                     afterimagePreview.SamplePose = UpdateAnimationInEditMode;
+                if (preview is AbilityEventPreview_CameraShot cameraShotPreview)
+                    cameraShotPreview.SampleActor = UpdateAnimationInEditMode;
 	
 	                preview.PreviewRunning(PercentageTime);
 	

@@ -221,7 +221,7 @@ MonoBehaviour:
     DirectionalPositionRange: 0.1
     DirectionalManualPositionRange: {x: 0, y: 0, z: 0}
     DirectionalPositionFrequency: 50
-    DirectionalPositionRangeDecay: 0.573
+    DirectionalPositionRangeDecay: 0.6
     DirectionalPositionDecayCurve:
       serializedVersion: 2
       m_Curve:

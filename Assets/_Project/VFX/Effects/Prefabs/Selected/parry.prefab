@@ -4835,7 +4835,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 51e314d69267eb54c9db09c575f8c3ff, type: 2}
+  - {fileID: 2100000, guid: e95de0e460504677ad5a6f7f83989096, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -4853,8 +4853,8 @@ ParticleSystemRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 1743265191
+  m_SortingLayer: 1
   m_SortingOrder: 0
   m_RenderMode: 0
   m_MeshDistribution: 0
@@ -9723,7 +9723,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: e2b99d0b6a9bfd9458693d9f06819741, type: 2}
+  - {fileID: 2100000, guid: 47bb56273a1444c4add7da905f343d0c, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -9741,8 +9741,8 @@ ParticleSystemRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 1743265191
+  m_SortingLayer: 1
   m_SortingOrder: 0
   m_RenderMode: 1
   m_MeshDistribution: 0
@@ -9998,8 +9998,8 @@ ParticleSystem:
     startColor:
       serializedVersion: 2
       minMaxState: 2
-      minColor: {r: 1, g: 0, b: 0.08474541, a: 1}
-      maxColor: {r: 1, g: 0.37571105, b: 0.2588235, a: 1}
+      minColor: {r: 1, g: 0.73311186, b: 0, a: 1}
+      maxColor: {r: 0.93341947, g: 1, b: 0.2588235, a: 1}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -10756,7 +10756,7 @@ ParticleSystem:
       countCurve:
         serializedVersion: 2
         minMaxState: 0
-        scalar: 64
+        scalar: 40
         minScalar: 30
         maxCurve:
           serializedVersion: 2
@@ -10821,81 +10821,81 @@ ParticleSystem:
         m_Curve:
         - serializedVersion: 3
           time: 0
-          value: 1
-          inSlope: -8.667969
-          outSlope: -8.667969
+          value: 0.792593
+          inSlope: -6.4789414
+          outSlope: -6.4789414
           tangentMode: 34
           weightedMode: 0
           inWeight: 0
           outWeight: 0.33333334
         - serializedVersion: 3
-          time: 0.08925497
-          value: 0.22634071
-          inSlope: 0.24509192
-          outSlope: 0.24509192
+          time: 0.051466577
+          value: 0.45914406
+          inSlope: -2.7004025
+          outSlope: -2.7004025
           tangentMode: 34
           weightedMode: 0
           inWeight: 0.33333334
           outWeight: 0.33333334
         - serializedVersion: 3
-          time: 0.15662985
-          value: 0.84337014
-          inSlope: -1.5985126
-          outSlope: -1.5985126
+          time: 0.15265493
+          value: 0.5682389
+          inSlope: -1.2362322
+          outSlope: -1.2362322
           tangentMode: 34
           weightedMode: 0
           inWeight: 0.33333334
           outWeight: 0.33333334
         - serializedVersion: 3
-          time: 0.2248903
-          value: 0
-          inSlope: -0.57383585
-          outSlope: -0.57383585
+          time: 0.20898302
+          value: 0.36824036
+          inSlope: -1.6380326
+          outSlope: -1.6380326
           tangentMode: 34
           weightedMode: 0
           inWeight: 0.33333334
           outWeight: 0.33333334
         - serializedVersion: 3
-          time: 0.2923548
-          value: 0.75610864
-          inSlope: 1.2410212
-          outSlope: 1.2410212
+          time: 0.28042242
+          value: 0.38785303
+          inSlope: -1.0754629
+          outSlope: -1.0754629
           tangentMode: 34
           weightedMode: 0
           inWeight: 0.33333334
           outWeight: 0.33333334
         - serializedVersion: 3
-          time: 0.3790102
-          value: 0
-          inSlope: -0.9462297
-          outSlope: -0.9462297
+          time: 0.38099384
+          value: 0.1439209
+          inSlope: -0.94905925
+          outSlope: -0.94905925
           tangentMode: 34
           weightedMode: 0
           inWeight: 0.33333334
           outWeight: 0.33333334
         - serializedVersion: 3
-          time: 0.45788875
-          value: 0.5389775
-          inSlope: 1.3628588
-          outSlope: 1.3628588
+          time: 0.4559051
+          value: 0.18342483
+          inSlope: 0.03684792
+          outSlope: 0.03684792
           tangentMode: 34
           weightedMode: 0
           inWeight: 0.33333334
           outWeight: 0.33333334
         - serializedVersion: 3
-          time: 0.5778773
-          value: 0.046150208
-          inSlope: -0.22930944
-          outSlope: -0.22930944
+          time: 0.57189584
+          value: 0.13080597
+          inSlope: -0.6591118
+          outSlope: -0.6591118
           tangentMode: 34
           weightedMode: 0
           inWeight: 0.33333334
           outWeight: 0.33333334
         - serializedVersion: 3
-          time: 0.6318866
-          value: 0.24321228
-          inSlope: 0.9577703
-          outSlope: 0.9577703
+          time: 0.6279193
+          value: 0.08236939
+          inSlope: -0.71770096
+          outSlope: -0.71770096
           tangentMode: 34
           weightedMode: 0
           inWeight: 0.33333334
@@ -10903,26 +10903,26 @@ ParticleSystem:
         - serializedVersion: 3
           time: 0.77221805
           value: 0
-          inSlope: 0.1070115
-          outSlope: 0.1070115
+          inSlope: -0.28541273
+          outSlope: -0.28541273
           tangentMode: 34
           weightedMode: 0
           inWeight: 0.33333334
           outWeight: 0.33333334
         - serializedVersion: 3
-          time: 0.82752395
-          value: 0.107688904
-          inSlope: 0.6613902
-          outSlope: 0.6613902
-          tangentMode: 34
-          weightedMode: 0
-          inWeight: 0.33333334
-          outWeight: 0.33333334
-        - serializedVersion: 3
-          time: 1
+          time: 0.8474214
           value: 0
-          inSlope: -0.62437016
-          outSlope: -0.62437016
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 34
+          weightedMode: 0
+          inWeight: 0.33333334
+          outWeight: 0.33333334
+        - serializedVersion: 3
+          time: 0.9840733
+          value: 0
+          inSlope: 0
+          outSlope: 0
           tangentMode: 34
           weightedMode: 0
           inWeight: 0.33333334
@@ -11949,7 +11949,7 @@ ParticleSystem:
     speedModifier:
       serializedVersion: 2
       minMaxState: 1
-      scalar: 1
+      scalar: 2
       minScalar: 1
       maxCurve:
         serializedVersion: 2
@@ -14701,7 +14701,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: e2b99d0b6a9bfd9458693d9f06819741, type: 2}
+  - {fileID: 2100000, guid: 47bb56273a1444c4add7da905f343d0c, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -14719,8 +14719,8 @@ ParticleSystemRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 1743265191
+  m_SortingLayer: 1
   m_SortingOrder: 0
   m_RenderMode: 1
   m_MeshDistribution: 0
@@ -19598,7 +19598,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: c4023730e2c9f9d4ca7d8d87e9e1eb39, type: 2}
+  - {fileID: 2100000, guid: 4e4e5ee09e5c43c89b5c80d7b4426567, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -19616,8 +19616,8 @@ ParticleSystemRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 1743265191
+  m_SortingLayer: 1
   m_SortingOrder: 0
   m_RenderMode: 0
   m_MeshDistribution: 0
@@ -24495,7 +24495,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 3da427a9ddb78b143829978cc7867046, type: 2}
+  - {fileID: 2100000, guid: 4744a4270c8b4883aa83d9ae3046ca15, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -24513,8 +24513,8 @@ ParticleSystemRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 1743265191
+  m_SortingLayer: 1
   m_SortingOrder: 0
   m_RenderMode: 0
   m_MeshDistribution: 0
@@ -24771,7 +24771,7 @@ ParticleSystem:
       serializedVersion: 2
       minMaxState: 0
       minColor: {r: 0, g: 0, b: 0, a: 0.49803922}
-      maxColor: {r: 0.7132075, g: 0.16397102, b: 0, a: 1}
+      maxColor: {r: 0.9924528, g: 0.91724265, b: 0.11048052, a: 1}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -29383,7 +29383,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 4795d65a18fc952418649336bf36e3fb, type: 2}
+  - {fileID: 2100000, guid: a2cea0db057a4d468d4173b438d4912f, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -29401,8 +29401,8 @@ ParticleSystemRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 1743265191
+  m_SortingLayer: 1
   m_SortingOrder: 0
   m_RenderMode: 0
   m_MeshDistribution: 0
@@ -29671,7 +29671,7 @@ ParticleSystem:
       serializedVersion: 2
       minMaxState: 0
       minColor: {r: 1, g: 1, b: 1, a: 1}
-      maxColor: {r: 1, g: 0.57919914, b: 0.56078434, a: 1}
+      maxColor: {r: 1, g: 0.8460506, b: 0.56078434, a: 1}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -30815,7 +30815,7 @@ ParticleSystem:
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
-        key1: {r: 1, g: 1, b: 1, a: 0.050980393}
+        key1: {r: 1, g: 1, b: 1, a: 0.47843137}
         key2: {r: 0, g: 0, b: 0, a: 1}
         key3: {r: 0, g: 0, b: 0, a: 0}
         key4: {r: 0, g: 0, b: 0, a: 0}
@@ -34301,8 +34301,8 @@ ParticleSystemRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 1743265191
+  m_SortingLayer: 1
   m_SortingOrder: 0
   m_RenderMode: 0
   m_MeshDistribution: 0
@@ -34559,7 +34559,7 @@ ParticleSystem:
       serializedVersion: 2
       minMaxState: 0
       minColor: {r: 1, g: 1, b: 1, a: 1}
-      maxColor: {r: 1, g: 0.13396227, b: 0.19659163, a: 0.9137255}
+      maxColor: {r: 0.9550711, g: 1, b: 0.13333333, a: 0.9137255}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -35374,25 +35374,25 @@ ParticleSystem:
     curve:
       serializedVersion: 2
       minMaxState: 1
-      scalar: 1
+      scalar: 2
       minScalar: 1
       maxCurve:
         serializedVersion: 2
         m_Curve:
         - serializedVersion: 3
-          time: 0
-          value: 1
-          inSlope: -0.4085958
-          outSlope: -0.4085958
+          time: 0.010406494
+          value: 0.011636734
+          inSlope: 1.1063238
+          outSlope: 1.1063238
           tangentMode: 34
           weightedMode: 0
           inWeight: 0
           outWeight: 0.33333334
         - serializedVersion: 3
-          time: 0.46141413
-          value: 0.8114681
-          inSlope: -0.2759387
-          outSlope: -0.2759387
+          time: 0.87110347
+          value: 0.9638463
+          inSlope: -0.3372717
+          outSlope: -0.3372717
           tangentMode: 34
           weightedMode: 0
           inWeight: 0.33333334
@@ -35443,13 +35443,22 @@ ParticleSystem:
         m_Curve:
         - serializedVersion: 3
           time: 0
-          value: 1
-          inSlope: -2.2362957
-          outSlope: -2.2362957
+          value: 0.2148292
+          inSlope: 0.4604576
+          outSlope: 0.4604576
           tangentMode: 0
           weightedMode: 0
           inWeight: 0
-          outWeight: 0.084249064
+          outWeight: 0.58119583
+        - serializedVersion: 3
+          time: 0.5751043
+          value: 0.9171784
+          inSlope: -1.7572365
+          outSlope: -1.7572365
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0.33333334
+          outWeight: 0.33333334
         - serializedVersion: 3
           time: 1
           value: 0
@@ -39180,7 +39189,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 73b507138fc87ff40bfdc4209be0e1f9, type: 2}
+  - {fileID: 2100000, guid: 47cb0c5f68c14ad88875d9e043eb320e, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -39198,8 +39207,8 @@ ParticleSystemRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 1743265191
+  m_SortingLayer: 1
   m_SortingOrder: 0
   m_RenderMode: 0
   m_MeshDistribution: 0
@@ -44068,7 +44077,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 669ad0769e7ccb14a9beee3eca1abc8d, type: 2}
+  - {fileID: 2100000, guid: ea336564dd204664b03775e4b5b8bc5b, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -44086,8 +44095,8 @@ ParticleSystemRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 1743265191
+  m_SortingLayer: 1
   m_SortingOrder: 0
   m_RenderMode: 0
   m_MeshDistribution: 0
@@ -44344,7 +44353,7 @@ ParticleSystem:
       serializedVersion: 2
       minMaxState: 0
       minColor: {r: 1, g: 1, b: 1, a: 1}
-      maxColor: {r: 0.690566, g: 0.053316787, b: 0, a: 0.9137255}
+      maxColor: {r: 0.6901961, g: 0.6344127, b: 0, a: 0.9137255}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -48956,7 +48965,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a004f8d017355f2458fc011a39eb98ef, type: 2}
+  - {fileID: 2100000, guid: 5948672900ee4077ba0234d76967907a, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -48974,8 +48983,8 @@ ParticleSystemRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 1743265191
+  m_SortingLayer: 1
   m_SortingOrder: 0
   m_RenderMode: 0
   m_MeshDistribution: 0
@@ -49232,7 +49241,7 @@ ParticleSystem:
       serializedVersion: 2
       minMaxState: 0
       minColor: {r: 1, g: 1, b: 1, a: 1}
-      maxColor: {r: 1, g: 0.47668964, b: 0, a: 0.9137255}
+      maxColor: {r: 1, g: 0.76494074, b: 0, a: 0.9137255}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -53844,7 +53853,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a004f8d017355f2458fc011a39eb98ef, type: 2}
+  - {fileID: 2100000, guid: 5948672900ee4077ba0234d76967907a, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -53862,8 +53871,8 @@ ParticleSystemRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 1743265191
+  m_SortingLayer: 1
   m_SortingOrder: 0
   m_RenderMode: 0
   m_MeshDistribution: 0
@@ -54119,8 +54128,8 @@ ParticleSystem:
     startColor:
       serializedVersion: 2
       minMaxState: 2
-      minColor: {r: 0.62352943, g: 0.23691925, b: 0.08627452, a: 0.49803922}
-      maxColor: {r: 1, g: 0.48802793, b: 0.2117647, a: 0.4392157}
+      minColor: {r: 0.9361786, g: 0.98490566, b: 0.14680658, a: 0.49803922}
+      maxColor: {r: 1, g: 0.86009127, b: 0.2117647, a: 0.4392157}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -58732,7 +58741,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 51e314d69267eb54c9db09c575f8c3ff, type: 2}
+  - {fileID: 2100000, guid: e95de0e460504677ad5a6f7f83989096, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -58750,8 +58759,8 @@ ParticleSystemRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 1743265191
+  m_SortingLayer: 1
   m_SortingOrder: 0
   m_RenderMode: 0
   m_MeshDistribution: 0
@@ -63620,7 +63629,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 4c1e74bbdba7e9443be49b27b3ad9385, type: 2}
+  - {fileID: 2100000, guid: d4cf3920fadd4a409fd878aa6d723e02, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -63638,8 +63647,8 @@ ParticleSystemRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 1743265191
+  m_SortingLayer: 1
   m_SortingOrder: 0
   m_RenderMode: 0
   m_MeshDistribution: 0

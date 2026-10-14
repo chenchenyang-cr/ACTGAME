@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 2517248728953375717}
   - component: {fileID: 3186780672289218042}
   - component: {fileID: 5068636589234282451}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: Circle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4832,9 +4832,6 @@ ParticleSystemRenderer:
   m_ReflectionProbeUsage: 0
   m_RayTracingMode: 0
   m_RayTraceProcedural: 0
-  m_RayTracingAccelStructBuildFlagsOverride: 0
-  m_RayTracingAccelStructBuildFlags: 1
-  m_SmallMeshCulling: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -4902,7 +4899,7 @@ GameObject:
   - component: {fileID: 7103766608072796481}
   - component: {fileID: 3444788209094491405}
   - component: {fileID: 3957917727951454537}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: Particles (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9723,9 +9720,6 @@ ParticleSystemRenderer:
   m_ReflectionProbeUsage: 0
   m_RayTracingMode: 0
   m_RayTraceProcedural: 0
-  m_RayTracingAccelStructBuildFlagsOverride: 0
-  m_RayTracingAccelStructBuildFlags: 1
-  m_SmallMeshCulling: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -9793,7 +9787,7 @@ GameObject:
   - component: {fileID: 3990848422666408022}
   - component: {fileID: 5179022224096896380}
   - component: {fileID: 5357671952233830524}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: Particles
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -14614,9 +14608,6 @@ ParticleSystemRenderer:
   m_ReflectionProbeUsage: 0
   m_RayTracingMode: 0
   m_RayTraceProcedural: 0
-  m_RayTracingAccelStructBuildFlagsOverride: 0
-  m_RayTracingAccelStructBuildFlags: 1
-  m_SmallMeshCulling: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -14684,7 +14675,7 @@ GameObject:
   - component: {fileID: 874335987853537378}
   - component: {fileID: 2832792396712734587}
   - component: {fileID: 1071438164890740812}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: HorizontalFlare
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -19505,9 +19496,6 @@ ParticleSystemRenderer:
   m_ReflectionProbeUsage: 0
   m_RayTracingMode: 0
   m_RayTraceProcedural: 0
-  m_RayTracingAccelStructBuildFlagsOverride: 0
-  m_RayTracingAccelStructBuildFlags: 1
-  m_SmallMeshCulling: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -19576,7 +19564,7 @@ GameObject:
   - component: {fileID: 2555366686013765140}
   - component: {fileID: 3076915823945819566}
   - component: {fileID: 6152975092441380254}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: BossDamage
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -24402,9 +24390,6 @@ ParticleSystemRenderer:
   m_ReflectionProbeUsage: 0
   m_RayTracingMode: 0
   m_RayTraceProcedural: 0
-  m_RayTracingAccelStructBuildFlagsOverride: 0
-  m_RayTracingAccelStructBuildFlags: 1
-  m_SmallMeshCulling: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -24484,7 +24469,7 @@ GameObject:
   - component: {fileID: 7440528152575085446}
   - component: {fileID: 541734629233767048}
   - component: {fileID: 2104054339906889309}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: BG
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -29305,9 +29290,6 @@ ParticleSystemRenderer:
   m_ReflectionProbeUsage: 0
   m_RayTracingMode: 0
   m_RayTraceProcedural: 0
-  m_RayTracingAccelStructBuildFlagsOverride: 0
-  m_RayTracingAccelStructBuildFlags: 1
-  m_SmallMeshCulling: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:

@@ -26,14 +26,22 @@ MonoBehaviour:
   attacks:
   - displayName: "\u57FA\u7840\u65A9\u51FB"
     ability: {fileID: 11400000, guid: d6dffb344daa61244a34f0853a5062ae, type: 2}
-    followUpAbility: {fileID: 11400000, guid: aec78409291540988e5d4e717f499bc0, type: 2}
-    followUpChance: 0.5
+    followUpAbility: {fileID: 0}
+    followUpChance: 0
     minimumRange: 0.8
     maximumRange: 2.25
     cooldown: 1.15
     priority: 1
     facingTolerance: 18
     entryTolerance: 0.3
+  hitSounds:
+  - {fileID: 8300000, guid: 2e1cc37e471a422394c8946e23298f47, type: 3}
+  - {fileID: 8300000, guid: 7c2efa4610994d3290f28eac7f0101d2, type: 3}
+  - {fileID: 8300000, guid: 55b4ceeff5e24e34af7fbce42d33ec2b, type: 3}
+  - {fileID: 8300000, guid: 629711697ae14f779716912c2a2a5e24, type: 3}
+  - {fileID: 8300000, guid: 9a4202f5972e41da84fea42b9c6d8779, type: 3}
+  - {fileID: 8300000, guid: e55e6299c7d34566900141452092668e, type: 3}
+  hitSoundVolume: 1
   enableHitVisualShake: 1
   hitShakeAffectedByHitStop: 1
   hitShakeDuration: 0.1

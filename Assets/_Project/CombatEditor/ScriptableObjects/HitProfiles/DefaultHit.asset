@@ -237,7 +237,7 @@ MonoBehaviour:
   PreviewHitCameraShake: 0
   EnableHitAnimationSpeed: 1
   HitStopFrames: 3
-  HitStopAnimationSpeed: 0.1
+  HitStopAnimationSpeed: 0
   EnableHitStopFadeIn: 0
   HitStopFadeInFrames: 2
   HitStopFadeInCurve:
@@ -264,7 +264,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  EnableHitStopFadeOut: 0
+  EnableHitStopFadeOut: 1
   HitStopFadeOutFrames: 2
   HitStopFadeOutCurve:
     serializedVersion: 2

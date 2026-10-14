@@ -81,6 +81,6 @@ public sealed class PlayerDamageReceiver : MonoBehaviour, ICombatDamageReceiver
                     if (entry.effect is AbilityEventEffect_CreateHitBox effect && effect.AnimObj == hit.Ability)
                         effect.CurrentHitBox?.CancelHits();
         }
-        attacker?.NotifyStagger(pendingStaggerDuration);
+        attacker?.NotifyParried(pendingStaggerDuration);
     }
 }

@@ -18,6 +18,7 @@ namespace CombatEditor
         private bool finished;
         private bool initialized;
         public HitBox CurrentHitBox { get; private set; }
+        public bool IgnoreGlobalHitStop => source != null && source.IgnoreGlobalHitStop;
 
         public void Initialize(CombatController controller, AbilityScriptableObject anim,
             AbilityEventObj_Particles config, float startTime)
@@ -87,8 +88,9 @@ namespace CombatEditor
 
         public void ApplyHitStopSpeed()
         {
-            if (finished || source == null || !source.AffectedByHitStop) return;
-            float speed = HitStopSpeed;
+            if (finished || source == null) return;
+            float speed = HitStopSpeed * (IgnoreGlobalHitStop
+                ? 1f : GlobalHitStopRuntime.CurrentVisualSpeed);
             for (int i = 0; i < particles.Length; i++)
             {
                 if (particles[i] == null) continue;

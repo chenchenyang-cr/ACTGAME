@@ -26,6 +26,7 @@ MonoBehaviour:
   TimeType: 1
   PlaySpeed: 1
   AffectedByHitStop: 1
+  IgnoreGlobalHitStop: 0
   SizeMultiplier: 1
   CenterOffset: {x: 0, y: 0, z: 0}
   EnableCollision: 1
@@ -100,7 +101,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   IsActive: 1
   Priority: 0
-  AllowedCommands: 01000000
+  AllowedCommands: 0100000004000000
   AllowMovement: 1
   MinimumPriority: 0
   AllowHitReaction: 1
@@ -148,6 +149,7 @@ MonoBehaviour:
   TimeType: 1
   PlaySpeed: 1
   AffectedByHitStop: 1
+  IgnoreGlobalHitStop: 0
   SizeMultiplier: 1.5
   CenterOffset: {x: 0, y: 0, z: 0}
   EnableCollision: 1
@@ -391,10 +393,10 @@ MonoBehaviour:
     Channel: 0
     TraumaPerPulse: 0.65
     TraumaExponent: 2
-    EnablePosition: 1
+    EnablePosition: 0
     PositionWaveform: 0
     PositionPhase: {x: 0, y: 0, z: 0}
-    PositionAmplitude: {x: 0.05, y: 0.05, z: 0}
+    PositionAmplitude: {x: 1, y: 1, z: 0}
     PositionFrequency: 24
     PositionFrequencyCurve:
       serializedVersion: 2
@@ -445,11 +447,11 @@ MonoBehaviour:
       m_PostInfinity: 2
       m_RotationOrder: 4
     PositionSeed: 137
-    EnableRotation: 0
+    EnableRotation: 1
     RotationWaveform: 0
     RotationPhase: {x: 0, y: 0, z: 0}
-    RotationAmplitude: {x: 1.2, y: 0.8, z: 0.5}
-    RotationFrequency: 20
+    RotationAmplitude: {x: 1.2, y: 1, z: 0}
+    RotationFrequency: 40
     RotationFrequencyCurve:
       serializedVersion: 2
       m_Curve:
@@ -500,7 +502,7 @@ MonoBehaviour:
       m_RotationOrder: 4
     RotationSeed: 251
     EnableFov: 1
-    FovAmplitude: 10
+    FovAmplitude: 15
     FovCurve:
       serializedVersion: 2
       m_Curve:
@@ -514,26 +516,26 @@ MonoBehaviour:
         inWeight: 0
         outWeight: 0
       - serializedVersion: 3
-        time: 0.16333313
-        value: 0.99425507
-        inSlope: -0.08300595
-        outSlope: -0.08300595
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 1
-      - serializedVersion: 3
-        time: 0.86648345
-        value: 0.8595967
-        inSlope: -0.9107409
-        outSlope: -0.9107409
+        time: 0.117224455
+        value: 0.9775783
+        inSlope: 1.478798
+        outSlope: 1.478798
         tangentMode: 0
         weightedMode: 0
         inWeight: 0.33333334
         outWeight: 0.33333334
       - serializedVersion: 3
-        time: 1
-        value: 0
+        time: 0.52575666
+        value: 0.93917984
+        inSlope: -0.7534722
+        outSlope: -0.7534722
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.21115196
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 0.97665405
+        value: 0.0047035217
         inSlope: 0
         outSlope: 0
         tangentMode: 0
@@ -624,8 +626,26 @@ MonoBehaviour:
     - 0.8
     Previewable: 1
     Obj: {fileID: 3138563322578118934}
+  - EventTime: 0.07317073
+    EventRange: {x: 0, y: 1}
+    EventMultiRange:
+    - 0.2
+    - 0.4
+    - 0.6
+    - 0.8
+    Previewable: 0
+    Obj: {fileID: 3353895191729015262}
   - EventTime: 0
-    EventRange: {x: 0.4390244, y: 1}
+    EventRange: {x: 0.0121951215, y: 0.6707317}
+    EventMultiRange:
+    - 0.2
+    - 0.4
+    - 0.6
+    - 0.8
+    Previewable: 1
+    Obj: {fileID: -1475488389427652584}
+  - EventTime: 0
+    EventRange: {x: 0.5121951, y: 1}
     EventMultiRange:
     - 0.2
     - 0.4
@@ -652,15 +672,6 @@ MonoBehaviour:
     Previewable: 1
     Obj: {fileID: -7724095596231834657}
   - EventTime: 0
-    EventRange: {x: 0.0121951215, y: 0.6707317}
-    EventMultiRange:
-    - 0.2
-    - 0.4
-    - 0.6
-    - 0.8
-    Previewable: 1
-    Obj: {fileID: -1475488389427652584}
-  - EventTime: 0
     EventRange: {x: 0.0121951215, y: 0.42682928}
     EventMultiRange:
     - 0.2
@@ -669,15 +680,6 @@ MonoBehaviour:
     - 0.8
     Previewable: 1
     Obj: {fileID: 6696203361939021895}
-  - EventTime: 0.07317073
-    EventRange: {x: 0, y: 1}
-    EventMultiRange:
-    - 0.2
-    - 0.4
-    - 0.6
-    - 0.8
-    Previewable: 0
-    Obj: {fileID: 3353895191729015262}
   - EventTime: 0.09756097
     EventRange: {x: 0, y: 1}
     EventMultiRange:
@@ -732,6 +734,24 @@ MonoBehaviour:
     - 0.8
     Previewable: 1
     Obj: {fileID: 6863384893655961015}
+  - EventTime: 0
+    EventRange: {x: 0, y: 0.6219512}
+    EventMultiRange:
+    - 0.2
+    - 0.4
+    - 0.6
+    - 0.8
+    Previewable: 0
+    Obj: {fileID: -961712734352322381}
+  - EventTime: 0.048780486
+    EventRange: {x: 0, y: 1}
+    EventMultiRange:
+    - 0.2
+    - 0.4
+    - 0.6
+    - 0.8
+    Previewable: 0
+    Obj: {fileID: 5265095698890600255}
   - EventTime: 0.1097561
     EventRange: {x: 0, y: 1}
     EventMultiRange:
@@ -768,15 +788,6 @@ MonoBehaviour:
     - 0.8
     Previewable: 1
     Obj: {fileID: -4436513749769557818}
-  - EventTime: 0
-    EventRange: {x: 0.048780486, y: 0.6097561}
-    EventMultiRange:
-    - 0.2
-    - 0.4
-    - 0.6
-    - 0.8
-    Previewable: 0
-    Obj: {fileID: -961712734352322381}
 --- !u!114 &1418752697386897948
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -803,6 +814,7 @@ MonoBehaviour:
   TimeType: 1
   PlaySpeed: 1
   AffectedByHitStop: 1
+  IgnoreGlobalHitStop: 0
   SizeMultiplier: 1
   CenterOffset: {x: 0, y: 0, z: 0}
   EnableCollision: 1
@@ -840,6 +852,7 @@ MonoBehaviour:
   TimeType: 1
   PlaySpeed: 1
   AffectedByHitStop: 1
+  IgnoreGlobalHitStop: 0
   SizeMultiplier: 2
   CenterOffset: {x: 0, y: 0, z: 0}
   EnableCollision: 1
@@ -892,6 +905,7 @@ MonoBehaviour:
   TimeType: 1
   PlaySpeed: 1
   AffectedByHitStop: 1
+  IgnoreGlobalHitStop: 0
   SizeMultiplier: 1.58
   CenterOffset: {x: 0, y: 0, z: 0}
   EnableCollision: 1
@@ -938,6 +952,23 @@ MonoBehaviour:
   IncludeWeapon: 1
   EffectMaterial: {fileID: 0}
   Lifetime: 0.5
+--- !u!114 &5265095698890600255
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 073a54f545724964c8ee238ce71cd583, type: 3}
+  m_Name: SFX
+  m_EditorClassIdentifier: 
+  IsActive: 1
+  clips:
+  - {fileID: 8300000, guid: 0702df2cdea648c894757f2c3dc79ce1, type: 3}
+  Volume: 0.1
+  PlaybackSpeed: 1.2
 --- !u!114 &6312800943873077881
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1051,7 +1082,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  SampleDistance: 1
+  SampleDistance: 0.6
   FocusPoint: {x: 0.5, y: 0.5}
 --- !u!114 &6863384893655961015
 MonoBehaviour:

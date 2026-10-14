@@ -73,10 +73,15 @@ namespace CombatEditor
         public Dictionary<int, List<AbilityEventWithEffects>> ClipID_To_EventEffects;
         private AbilityScriptableObject activeAbility;
         private readonly HashSet<int> sharedClipIds = new();
+        private readonly HashSet<AbilityScriptableObject> registeredAbilities = new();
+        private readonly HashSet<AbilityScriptableObject> suppressedHitBoxAbilities = new();
+        private readonly Dictionary<int, AbilityScriptableObject> firstAbilityForClip = new();
 
         // Several abilities may deliberately share one clip while authoring different tracks.
         public void SetActiveAbility(AbilityScriptableObject ability)
         {
+            if (ClipID_To_EventEffects != null) RegisterAbilityIfNeeded(ability);
+            if (ability != null) suppressedHitBoxAbilities.Remove(ability);
             if (activeAbility == ability) return;
             activeAbility = ability;
             if (ClipID_To_EventEffects == null) return;
@@ -87,6 +92,18 @@ namespace CombatEditor
                     if (entry.effect.IsRunning && entry.effect.AnimObj != activeAbility)
                         entry.effect.EndEffect();
             }
+        }
+
+        public void SuppressHitBoxesForAbility(AbilityScriptableObject ability)
+        {
+            if (ability == null || ClipID_To_EventEffects == null) return;
+            suppressedHitBoxAbilities.Add(ability);
+            foreach (var entries in ClipID_To_EventEffects.Values)
+                foreach (var entry in entries)
+                    if (entry.effect.AnimObj == ability &&
+                        entry.effect is AbilityEventEffect_CreateHitBox hitBox &&
+                        hitBox.IsRunning)
+                        hitBox.EndEffect();
         }
 
 
@@ -257,6 +274,8 @@ namespace CombatEditor
             {
                 var eve = abilityEventWithEffects[j];
                 if (selectTrack && eve.effect.AnimObj != activeAbility) continue;
+                if (eve.effect is AbilityEventEffect_CreateHitBox &&
+                    suppressedHitBoxAbilities.Contains(eve.effect.AnimObj)) continue;
                 var StartTime = eve.eve.GetEventStartTime();
                 var EndTime = eve.eve.GetEventEndTime();
                 var EveTimeType = eve.eve.GetEventTimeType();
@@ -275,6 +294,8 @@ namespace CombatEditor
                             // Point particles also need action frames for repeated-hit intervals.
                             if (eve.effect is AbilityEventEffect_Particles particles)
                                 particles.EffectRunning(NormalizedTime);
+                            if (eve.effect is AbilityEventEffect_CameraShot shot)
+                                shot.EffectRunning(NormalizedTime);
                         }
                     }
                     //If self to self translation, events can't close itself cause clip is not change. So it need to close itself by percentage.
@@ -317,8 +338,7 @@ namespace CombatEditor
                     {
                         if (eve.effect._EventObj.IsActive)
                         {
-                            if (NormalizedTime >= EndTime && eve.effect is AbilityEventEffect_CameraShot shot) shot.CompleteEffect();
-                            else eve.effect.EndEffect();
+                            eve.effect.EndEffect();
                         }
                     }
                 }
@@ -428,25 +448,16 @@ namespace CombatEditor
 	    public void InitAnimEffects()
 	    {
             sharedClipIds.Clear();
-            var firstAbilityForClip = new Dictionary<int, AbilityScriptableObject>();
+            registeredAbilities.Clear();
+            firstAbilityForClip.Clear();
             foreach (CombatGroup group in CombatDatas)
                 foreach (AbilityScriptableObject ability in group.CombatObjs)
                 {
                     if (ability?.Clip == null) continue;
-                    RegisterClip(ability.Clip);
+                    RegisterClipOwner(ability.Clip, ability);
                     if (ability.AdditionalClips == null) continue;
                     foreach (AnimationClip variant in ability.AdditionalClips)
-                        if (variant != null) RegisterClip(variant);
-
-                    void RegisterClip(AnimationClip animationClip)
-                    {
-                        int id = animationClip.GetInstanceID();
-                        if (firstAbilityForClip.TryGetValue(id, out AbilityScriptableObject first))
-                        {
-                            if (first != ability) sharedClipIds.Add(id);
-                        }
-                        else firstAbilityForClip.Add(id, ability);
-                    }
+                        if (variant != null) RegisterClipOwner(variant, ability);
                 }
 	        for (int i = 0; i < CombatDatas.Count; i++)
 	        {
@@ -455,6 +466,7 @@ namespace CombatEditor
 	            {
 	                //Caution: The Number of CombatObj and EventEffects must sync
 	                var CombatObj = Group.CombatObjs[j];
+                    registeredAbilities.Add(CombatObj);
 	                AbilityObjWithEffect ae = new AbilityObjWithEffect();
 	                ae.Obj = CombatObj;
 	                for (int k = 0; k < CombatObj.events.Count; k++)
@@ -482,6 +494,35 @@ namespace CombatEditor
 	            }
 	        }
 	    }
+
+        private void RegisterClipOwner(AnimationClip animationClip, AbilityScriptableObject ability)
+        {
+            int id = animationClip.GetInstanceID();
+            if (firstAbilityForClip.TryGetValue(id, out AbilityScriptableObject first))
+            {
+                if (first != ability) sharedClipIds.Add(id);
+            }
+            else firstAbilityForClip.Add(id, ability);
+        }
+
+        private void RegisterAbilityIfNeeded(AbilityScriptableObject ability)
+        {
+            if (ability == null || ability.Clip == null || !registeredAbilities.Add(ability)) return;
+
+            RegisterClipOwner(ability.Clip, ability);
+            var clips = new HashSet<AnimationClip> { ability.Clip };
+            if (ability.AdditionalClips != null)
+                foreach (AnimationClip variant in ability.AdditionalClips)
+                    if (variant != null && clips.Add(variant)) RegisterClipOwner(variant, ability);
+
+            foreach (AnimationClip animationClip in clips)
+                foreach (AbilityEvent abilityEvent in ability.events)
+                {
+                    if (abilityEvent?.Obj == null) continue;
+                    AbilityEventEffect effect = AddEventEffects(animationClip.GetInstanceID(), abilityEvent);
+                    effect.AnimObj = ability;
+                }
+        }
 	
 	    List<AbilityEventEffect> _abilityEventEffects = new List<AbilityEventEffect>();
 	    public AbilityEventEffect AddEventEffects( int clipID, AbilityEvent eve)

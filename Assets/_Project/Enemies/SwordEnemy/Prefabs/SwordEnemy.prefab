@@ -209,8 +209,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 64942a9a33ca4d2aa8f618ea36460fde, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
+  m_Name: 
+  m_EditorClassIdentifier: 
   animator: {fileID: 2647459391825987368}
   pelvisRoot: {fileID: 1084057145695442055}
   leftFoot: {fileID: 6979782033973243367}
@@ -2324,8 +2324,8 @@ SkinnedMeshRenderer:
   m_BlendShapeWeights: []
   m_RootBone: {fileID: 7830092927421807097}
   m_AABB:
-    m_Center: {x: 0.8256206, y: -0.3844967, z: -0.24570837}
-    m_Extent: {x: 2.057605, y: 1.5522139, z: 1.0484075}
+    m_Center: {x: 0.8256206, y: -0.3844967, z: -0.24570838}
+    m_Extent: {x: 2.057605, y: 1.5522139, z: 1.0484076}
   m_DirtyAABB: 0
 --- !u!1 &8402284800093098520
 GameObject:

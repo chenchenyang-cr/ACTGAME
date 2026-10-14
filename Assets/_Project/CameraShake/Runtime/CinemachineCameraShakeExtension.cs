@@ -21,7 +21,7 @@ namespace CombatCamera
                 return;
 
             var shot = GetComponent<CinemachineCameraShotExtension>();
-            if (shot != null && shot.IsSolvingReturn) return;
+            if (shot != null && shot.IsApplyingHandoff) return;
             shot?.Apply(ref state);
             ApplyShake(ref state);
         }
