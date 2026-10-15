@@ -9,6 +9,7 @@ namespace CombatEditor
     public sealed class AbilityEventObj_CameraShakeEditor : Editor
     {
         private SerializedProperty triggerMode;
+        private SerializedProperty playOnPerfectDodge;
         private SerializedProperty settings;
         private SerializedProperty affectedByHitStop;
         private SerializedProperty hitStopWeight;
@@ -56,6 +57,7 @@ namespace CombatEditor
         private void OnEnable()
         {
             triggerMode = serializedObject.FindProperty("TriggerMode");
+            playOnPerfectDodge = serializedObject.FindProperty("playOnPerfectDodge");
             settings = serializedObject.FindProperty("Settings");
             affectedByHitStop = serializedObject.FindProperty("AffectedByHitStop");
             hitStopWeight = serializedObject.FindProperty("HitStopWeight");
@@ -112,6 +114,7 @@ namespace CombatEditor
                 EditorGUIUtility.currentViewWidth * 0.32f, 68f, 96f);
 
             EditorGUILayout.PropertyField(triggerMode, new GUIContent("触发方式"));
+            EditorGUILayout.PropertyField(playOnPerfectDodge);
             EditorGUILayout.Space();
             DrawShakeSettings();
             EditorGUILayout.PropertyField(affectedByHitStop,

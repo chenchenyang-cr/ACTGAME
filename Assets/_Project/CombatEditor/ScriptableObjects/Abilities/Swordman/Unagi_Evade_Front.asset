@@ -1,5 +1,208 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-9139688207835640264
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 14ca8f5ea4e74055ab796f7144daf242, type: 3}
+  m_Name: "\u5168\u5C40\u987F\u5E27"
+  m_EditorClassIdentifier: 
+  IsActive: 1
+  playOnPerfectDodge: 1
+  DurationFrames: 20
+  Speed: 0.2
+  EnableFadeIn: 1
+  FadeInFrames: 2
+  FadeInCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  EnableFadeOut: 1
+  FadeOutFrames: 2
+  FadeOutCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: -1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: -1
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+--- !u!114 &-8166218399792857422
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0086f6a666f9497d8e5624765739814c, type: 3}
+  m_Name: PostFxColor
+  m_EditorClassIdentifier: 
+  IsActive: 1
+  playOnPerfectDodge: 1
+  Intensity: 1
+  IntensityCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0.0065841675
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.33006284
+      value: 1
+      inSlope: -0.007906937
+      outSlope: -0.007906937
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  Desaturation: 1
+  TintStrength: 0
+  Tint: {r: 0.7740191, g: 0.96981126, b: 0.9227834, a: 1}
+--- !u!114 &-4662728972914562711
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca2229d21ed65194bac74b8298b11290, type: 3}
+  m_Name: Particles
+  m_EditorClassIdentifier: 
+  IsActive: 1
+  ObjData:
+    TargetObj: {fileID: 1419821361456571106, guid: c2176caf368f54c4ba16ab09a7e1adbe, type: 3}
+    controlType: 0
+    Offset: {x: -0.09960695, y: 0.20929204, z: 0.19113603}
+    Rot: {x: 0, y: 0, z: 0, w: 1}
+    Scale: {x: 1, y: 1, z: 1}
+    TargetNode: 12
+    FollowNode: 1
+    RotateByNode: 0
+  HitProfile: {fileID: 0}
+  playOnPerfectDodge: 1
+  PerfectDodgeUseHitPoint: 1
+  LeaveParticlesInWorld: 0
+  TimeType: 1
+  PlaySpeed: 4
+  AffectedByHitStop: 0
+  IgnoreGlobalHitStop: 0
+  SizeMultiplier: 1
+  CenterOffset: {x: 0, y: 0, z: 0}
+  EnableCollision: 0
+  Collision:
+    Shape: 0
+    Offset: {x: 0, y: 0, z: 0}
+    Rotation: {x: 0, y: 0, z: 0}
+    BoxSize: {x: 1, y: 1, z: 1}
+    Radius: 0.5
+    Height: 2
+    CapsuleDirection: 1
+--- !u!114 &-1109638551639420637
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1b18aa8245604872bc98018931476ff4, type: 3}
+  m_Name: PostFxVignette
+  m_EditorClassIdentifier: 
+  IsActive: 1
+  playOnPerfectDodge: 1
+  Intensity: 1
+  IntensityCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  InnerRadius: 0.945
+  OuterRadius: 1.418
+  Color: {r: 0.6699537, g: 0.7735849, b: 0.762484, a: 1}
+  FocusPoint: {x: 0.5, y: 0.5}
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -24,6 +227,15 @@ MonoBehaviour:
   loopCount: 0
   events:
   - EventTime: 0
+    EventRange: {x: 0, y: 0.13636364}
+    EventMultiRange:
+    - 0.2
+    - 0.4
+    - 0.6
+    - 0.8
+    Previewable: 0
+    Obj: {fileID: 771754051834780336}
+  - EventTime: 0
     EventRange: {x: 0.14049587, y: 1}
     EventMultiRange:
     - 0.2
@@ -32,6 +244,78 @@ MonoBehaviour:
     - 0.8
     Previewable: 0
     Obj: {fileID: 771754051834780335}
+  - EventTime: 0.06198347
+    EventRange: {x: 0, y: 1}
+    EventMultiRange:
+    - 0.2
+    - 0.4
+    - 0.6
+    - 0.8
+    Previewable: 0
+    Obj: {fileID: -4662728972914562711}
+  - EventTime: 0
+    EventRange: {x: 0.06198347, y: 0.12809917}
+    EventMultiRange:
+    - 0.2
+    - 0.4
+    - 0.6
+    - 0.8
+    Previewable: 1
+    Obj: {fileID: 6254582149708187263}
+  - EventTime: 0
+    EventRange: {x: 0.06198347, y: 0.14049587}
+    EventMultiRange:
+    - 0.2
+    - 0.4
+    - 0.6
+    - 0.8
+    Previewable: 1
+    Obj: {fileID: 7980754001522487485}
+  - EventTime: 0
+    EventRange: {x: 0.06198347, y: 0.14049587}
+    EventMultiRange:
+    - 0.2
+    - 0.4
+    - 0.6
+    - 0.8
+    Previewable: 0
+    Obj: {fileID: 4185490559029979267}
+  - EventTime: 0
+    EventRange: {x: 0.06198347, y: 0.1446281}
+    EventMultiRange:
+    - 0.2
+    - 0.4
+    - 0.6
+    - 0.8
+    Previewable: 0
+    Obj: {fileID: -1109638551639420637}
+  - EventTime: 0.0661157
+    EventRange: {x: 0, y: 1}
+    EventMultiRange:
+    - 0.2
+    - 0.4
+    - 0.6
+    - 0.8
+    Previewable: 1
+    Obj: {fileID: 971468753785160085}
+  - EventTime: 0.07438017
+    EventRange: {x: 0, y: 1}
+    EventMultiRange:
+    - 0.2
+    - 0.4
+    - 0.6
+    - 0.8
+    Previewable: 0
+    Obj: {fileID: -9139688207835640264}
+  - EventTime: 0
+    EventRange: {x: 0.06198347, y: 0.1446281}
+    EventMultiRange:
+    - 0.2
+    - 0.4
+    - 0.6
+    - 0.8
+    Previewable: 0
+    Obj: {fileID: -8166218399792857422}
 --- !u!114 &771754051834780335
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -50,3 +334,309 @@ MonoBehaviour:
   AllowMovement: 1
   MinimumPriority: 0
   AllowHitReaction: 1
+--- !u!114 &771754051834780336
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a9043d8799c244ba8e6bc1e69be87ec1, type: 3}
+  m_Name: PerfectDodgeWindow
+  m_EditorClassIdentifier: 
+  IsActive: 1
+  Priority: 0
+--- !u!114 &971468753785160085
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c0f4515b78484c2b831438c2e85fe17c, type: 3}
+  m_Name: CharacterAfterimage
+  m_EditorClassIdentifier: 
+  IsActive: 1
+  playOnPerfectDodge: 1
+  TargetNode: 0
+  IncludeChildren: 1
+  IncludeWeapon: 1
+  EffectMaterial: {fileID: 2100000, guid: 0e4366017c67451e8201ee1234b7389b, type: 2}
+  Lifetime: 0.5
+--- !u!114 &4185490559029979267
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 962496911cda4ad3ac90c50693573c5a, type: 3}
+  m_Name: PostFxRadialBlur
+  m_EditorClassIdentifier: 
+  IsActive: 1
+  playOnPerfectDodge: 1
+  Intensity: 1
+  IntensityCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0.013332367
+      value: 0.047977448
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.39317766
+      value: 1
+      inSlope: -0.07260252
+      outSlope: -0.07260252
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  SampleDistance: 2
+  FocusPoint: {x: 0.5, y: 0.5}
+--- !u!114 &6254582149708187263
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca2229d21ed65194bac74b8298b11290, type: 3}
+  m_Name: PerfectDodge_BlueSparkTrail
+  m_EditorClassIdentifier: 
+  IsActive: 1
+  ObjData:
+    TargetObj: {fileID: 1419821361456571106, guid: 94af5b17ba704cc8bc28310678a032ef, type: 3}
+    controlType: 0
+    Offset: {x: 0, y: 0.85, z: 0}
+    Rot: {x: 0, y: 0, z: 0, w: 1}
+    Scale: {x: 1, y: 1, z: 1}
+    TargetNode: 0
+    FollowNode: 1
+    RotateByNode: 0
+  HitProfile: {fileID: 0}
+  playOnPerfectDodge: 1
+  PerfectDodgeUseHitPoint: 0
+  LeaveParticlesInWorld: 1
+  TimeType: 2
+  PlaySpeed: 1
+  AffectedByHitStop: 0
+  IgnoreGlobalHitStop: 1
+  SizeMultiplier: 1
+  CenterOffset: {x: 0, y: 0, z: 0}
+  EnableCollision: 0
+  Collision:
+    Shape: 0
+    Offset: {x: 0, y: 0, z: 0}
+    Rotation: {x: 0, y: 0, z: 0}
+    BoxSize: {x: 1, y: 1, z: 1}
+    Radius: 0.5
+    Height: 2
+    CapsuleDirection: 1
+--- !u!114 &7980754001522487485
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ecb4428928fb4c62b267851f7bd2d6a5, type: 3}
+  m_Name: CharacterEcho
+  m_EditorClassIdentifier: 
+  IsActive: 1
+  playOnPerfectDodge: 1
+  TargetNode: 0
+  IncludeChildren: 1
+  EnableOutline: 1
+  OutlineTint: {r: 0.4, g: 1.5, b: 3, a: 1}
+  OutlineWidthPixels: 2.5
+  OutlineOpacity:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0.8
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 0.8
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  EffectMaterial: {fileID: 0}
+  EnableBody: 0
+  BodyColorBlend:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  EnableAfterimages: 0
+  SnapshotsPerSecond: 0
+  MaxSnapshots: 0
+  SnapshotLifetime: 0
+  HideOriginalDuringBody: 0
+  BodyColor:
+    serializedVersion: 2
+    key0: {r: 1, g: 1, b: 1, a: 1}
+    key1: {r: 1, g: 1, b: 1, a: 1}
+    key2: {r: 0, g: 0, b: 0, a: 0}
+    key3: {r: 0, g: 0, b: 0, a: 0}
+    key4: {r: 0, g: 0, b: 0, a: 0}
+    key5: {r: 0, g: 0, b: 0, a: 0}
+    key6: {r: 0, g: 0, b: 0, a: 0}
+    key7: {r: 0, g: 0, b: 0, a: 0}
+    ctime0: 0
+    ctime1: 65535
+    ctime2: 0
+    ctime3: 0
+    ctime4: 0
+    ctime5: 0
+    ctime6: 0
+    ctime7: 0
+    atime0: 0
+    atime1: 65535
+    atime2: 0
+    atime3: 0
+    atime4: 0
+    atime5: 0
+    atime6: 0
+    atime7: 0
+    m_Mode: 0
+    m_ColorSpace: -1
+    m_NumColorKeys: 2
+    m_NumAlphaKeys: 2
+  BodyCoverage:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  BodyOpacity:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  BodyDissolve:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  AfterimageColor:
+    serializedVersion: 2
+    key0: {r: 1, g: 1, b: 1, a: 1}
+    key1: {r: 1, g: 1, b: 1, a: 1}
+    key2: {r: 0, g: 0, b: 0, a: 0}
+    key3: {r: 0, g: 0, b: 0, a: 0}
+    key4: {r: 0, g: 0, b: 0, a: 0}
+    key5: {r: 0, g: 0, b: 0, a: 0}
+    key6: {r: 0, g: 0, b: 0, a: 0}
+    key7: {r: 0, g: 0, b: 0, a: 0}
+    ctime0: 0
+    ctime1: 65535
+    ctime2: 0
+    ctime3: 0
+    ctime4: 0
+    ctime5: 0
+    ctime6: 0
+    ctime7: 0
+    atime0: 0
+    atime1: 65535
+    atime2: 0
+    atime3: 0
+    atime4: 0
+    atime5: 0
+    atime6: 0
+    atime7: 0
+    m_Mode: 0
+    m_ColorSpace: -1
+    m_NumColorKeys: 2
+    m_NumAlphaKeys: 2
+  SpawnRate:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  SnapshotLifetimeMultiplier:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  SnapshotOpacity:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  SnapshotDissolve:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  FlowAmount:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  FlowSpeed:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  FlowScale:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  DissolveSoftness:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4

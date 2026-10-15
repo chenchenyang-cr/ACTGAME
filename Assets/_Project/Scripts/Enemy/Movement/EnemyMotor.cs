@@ -113,9 +113,13 @@ namespace UnityLearning.EnemySystem
             if (animator == null || navMeshAgent == null)
                 return;
 
+            float visualSpeed = GlobalHitStopRuntime.CurrentVisualSpeed;
+            if (visualSpeed <= 0.0001f) return;
+            float deltaTime = Time.deltaTime * visualSpeed;
+
             Vector3 desiredVelocity = StabilizeMovementIntent(
                 CalculateMovementIntent(),
-                Time.deltaTime);
+                deltaTime);
             currentMovementVelocity = desiredVelocity;
             desiredVelocity.y = 0f;
             float normalizedSpeed = Mathf.Clamp01(desiredVelocity.magnitude);
@@ -132,7 +136,7 @@ namespace UnityLearning.EnemySystem
             }
 
             if (hasSpeedParameter)
-                animator.SetFloat(speedHash, normalizedSpeed, animatorDampTime, Time.deltaTime);
+                animator.SetFloat(speedHash, normalizedSpeed, animatorDampTime, deltaTime);
 
             if (hasDirectionalParameters)
             {
@@ -140,12 +144,12 @@ namespace UnityLearning.EnemySystem
                     moveXHash,
                     localDirection.x * normalizedSpeed,
                     animatorDampTime,
-                    Time.deltaTime);
+                    deltaTime);
                 animator.SetFloat(
                     moveYHash,
                     localDirection.y * normalizedSpeed,
                     animatorDampTime,
-                    Time.deltaTime);
+                    deltaTime);
             }
 
             if (hasIsMovingParameter)
@@ -158,10 +162,13 @@ namespace UnityLearning.EnemySystem
             if (!hitRecoilActive)
                 return;
 
+            float visualSpeed = GlobalHitStopRuntime.CurrentVisualSpeed;
+            if (visualSpeed <= 0.0001f) return;
+
             float speedScale = hitRecoilAffectedByHitStop && hitRecoilOwner != null &&
                                hitRecoilOwner._animSpeedExecutor != null
                 ? hitRecoilOwner._animSpeedExecutor.CurrentHitStopSpeedScale : 1f;
-            float recoilDeltaTime = Time.deltaTime * speedScale;
+            float recoilDeltaTime = Time.deltaTime * visualSpeed * speedScale;
             float normalizedTime = Mathf.Clamp01(hitRecoilElapsed / hitRecoilDuration);
             float decay = hitRecoilDecayCurve != null &&
                           hitRecoilDecayCurve.length > 0

@@ -274,6 +274,8 @@ namespace CombatEditor
             {
                 var eve = abilityEventWithEffects[j];
                 if (selectTrack && eve.effect.AnimObj != activeAbility) continue;
+                if (eve.effect._EventObj is IPerfectDodgeFeedbackTrack feedback &&
+                    feedback.IsPerfectDodgeFeedback) continue;
                 if (eve.effect is AbilityEventEffect_CreateHitBox &&
                     suppressedHitBoxAbilities.Contains(eve.effect.AnimObj)) continue;
                 var StartTime = eve.eve.GetEventStartTime();

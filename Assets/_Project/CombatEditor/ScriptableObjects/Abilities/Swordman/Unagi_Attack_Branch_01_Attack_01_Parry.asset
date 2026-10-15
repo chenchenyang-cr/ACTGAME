@@ -68,6 +68,7 @@ MonoBehaviour:
   m_Name: CameraShake
   m_EditorClassIdentifier: 
   IsActive: 1
+  playOnPerfectDodge: 0
   TriggerMode: 0
   Settings:
     AmplitudeDecayCurve:
@@ -100,8 +101,8 @@ MonoBehaviour:
     EnablePosition: 1
     PositionWaveform: 1
     PositionPhase: {x: 0, y: 0, z: 0}
-    PositionAmplitude: {x: 0.15, y: 0.15, z: 0}
-    PositionFrequency: 40
+    PositionAmplitude: {x: 0.2, y: 0.2, z: 0}
+    PositionFrequency: 35
     PositionFrequencyCurve:
       serializedVersion: 2
       m_Curve:
@@ -139,13 +140,13 @@ MonoBehaviour:
         inWeight: 0
         outWeight: 0
       - serializedVersion: 3
-        time: 0.23716909
+        time: 0.230501
         value: 1.0277165
-        inSlope: -2.0299208
-        outSlope: -2.0299208
+        inSlope: -3.8793194
+        outSlope: -3.8793194
         tangentMode: 0
         weightedMode: 0
-        inWeight: 0.33333334
+        inWeight: 0.17590389
         outWeight: 0.06294227
       - serializedVersion: 3
         time: 1
@@ -160,7 +161,7 @@ MonoBehaviour:
       m_PostInfinity: 2
       m_RotationOrder: 4
     PositionSeed: 137
-    EnableRotation: 1
+    EnableRotation: 0
     RotationWaveform: 0
     RotationPhase: {x: 0, y: 0, z: 0}
     RotationAmplitude: {x: 1.2, y: 0.8, z: 0.5}
@@ -215,7 +216,7 @@ MonoBehaviour:
       m_RotationOrder: 4
     RotationSeed: 251
     EnableFov: 1
-    FovAmplitude: 10
+    FovAmplitude: 20
     FovCurve:
       serializedVersion: 2
       m_Curve:
@@ -307,6 +308,7 @@ MonoBehaviour:
   m_Name: CameraShot
   m_EditorClassIdentifier: 
   IsActive: 1
+  playOnPerfectDodge: 0
   Profile: {fileID: 11400000, guid: 7bd95711bc5b4a64b760acafecc10e21, type: 2}
   Channel: 0
   Timing:
@@ -400,15 +402,6 @@ MonoBehaviour:
     - 0.8
     Previewable: 0
     Obj: {fileID: 7701080202840114492}
-  - EventTime: 0
-    EventRange: {x: 0, y: 0.85714287}
-    EventMultiRange:
-    - 0.2
-    - 0.4
-    - 0.6
-    - 0.8
-    Previewable: 0
-    Obj: {fileID: 6324967577447957013}
   - EventTime: 0.21428572
     EventRange: {x: 0, y: 1}
     EventMultiRange:
@@ -418,7 +411,7 @@ MonoBehaviour:
     - 0.8
     Previewable: 0
     Obj: {fileID: 4175301676949052754}
-  - EventTime: 0.17857143
+  - EventTime: 0.10714286
     EventRange: {x: 0, y: 1}
     EventMultiRange:
     - 0.2
@@ -446,7 +439,7 @@ MonoBehaviour:
     Previewable: 1
     Obj: {fileID: 8318222931002656072}
   - EventTime: 0
-    EventRange: {x: 0.10714286, y: 1}
+    EventRange: {x: 0.10714286, y: 0.78571427}
     EventMultiRange:
     - 0.2
     - 0.4
@@ -454,24 +447,6 @@ MonoBehaviour:
     - 0.8
     Previewable: 0
     Obj: {fileID: -528808884998312564}
-  - EventTime: 0
-    EventRange: {x: 0, y: 0.78571427}
-    EventMultiRange:
-    - 0.2
-    - 0.4
-    - 0.6
-    - 0.8
-    Previewable: 0
-    Obj: {fileID: 6897310319142022810}
-  - EventTime: 0
-    EventRange: {x: 0, y: 0.5}
-    EventMultiRange:
-    - 0.2
-    - 0.4
-    - 0.6
-    - 0.8
-    Previewable: 0
-    Obj: {fileID: 605304167626948772}
   - EventTime: 0.071428575
     EventRange: {x: 0, y: 1}
     EventMultiRange:
@@ -490,6 +465,42 @@ MonoBehaviour:
     - 0.8
     Previewable: 0
     Obj: {fileID: -4699926335967309915}
+  - EventTime: 0
+    EventRange: {x: 0, y: 0.78571427}
+    EventMultiRange:
+    - 0.2
+    - 0.4
+    - 0.6
+    - 0.8
+    Previewable: 0
+    Obj: {fileID: 6897310319142022810}
+  - EventTime: 0
+    EventRange: {x: 0, y: 0.5}
+    EventMultiRange:
+    - 0.2
+    - 0.4
+    - 0.6
+    - 0.8
+    Previewable: 0
+    Obj: {fileID: 605304167626948772}
+  - EventTime: 0
+    EventRange: {x: 0, y: 0.85714287}
+    EventMultiRange:
+    - 0.2
+    - 0.4
+    - 0.6
+    - 0.8
+    Previewable: 0
+    Obj: {fileID: 6324967577447957013}
+  - EventTime: 0
+    EventRange: {x: 0, y: 0.96428573}
+    EventMultiRange:
+    - 0.2
+    - 0.4
+    - 0.6
+    - 0.8
+    Previewable: 0
+    Obj: {fileID: 1250100571078741779}
 --- !u!114 &605304167626948772
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -503,7 +514,8 @@ MonoBehaviour:
   m_Name: PostFxColor
   m_EditorClassIdentifier: 
   IsActive: 1
-  Intensity: 0.5
+  playOnPerfectDodge: 0
+  Intensity: 1
   IntensityCurve:
     serializedVersion: 2
     m_Curve:
@@ -517,8 +529,8 @@ MonoBehaviour:
       inWeight: 0
       outWeight: 0
     - serializedVersion: 3
-      time: 0.6216111
-      value: 0.98992294
+      time: 0.51826334
+      value: 1
       inSlope: 0.09659648
       outSlope: 0.09659648
       tangentMode: 0
@@ -537,9 +549,61 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  Desaturation: 0.7
-  TintStrength: 1
-  Tint: {r: 1, g: 1, b: 1, a: 1}
+  Desaturation: 0.421
+  TintStrength: 0
+  Tint: {r: 0.5999999, g: 0.5999999, b: 0.5999999, a: 1}
+--- !u!114 &1250100571078741779
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1b18aa8245604872bc98018931476ff4, type: 3}
+  m_Name: PostFxVignette
+  m_EditorClassIdentifier: 
+  IsActive: 1
+  playOnPerfectDodge: 0
+  Intensity: 0.2
+  IntensityCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0.08560562
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.42160404
+      value: 0.985621
+      inSlope: -1.4205773
+      outSlope: -1.4205773
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  InnerRadius: 0.8
+  OuterRadius: 1.2
+  Color: {r: 0.4188679, g: 0.4188679, b: 0.4188679, a: 1}
+  FocusPoint: {x: 0.5, y: 0.5}
 --- !u!114 &1301457536102478840
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -570,8 +634,9 @@ MonoBehaviour:
   m_Name: "\u5168\u5C40\u987F\u5E27"
   m_EditorClassIdentifier: 
   IsActive: 1
+  playOnPerfectDodge: 0
   DurationFrames: 15
-  Speed: 0
+  Speed: 0.1
   EnableFadeIn: 0
   FadeInFrames: 2
   FadeInCurve:
@@ -599,7 +664,7 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   EnableFadeOut: 1
-  FadeOutFrames: 8
+  FadeOutFrames: 10
   FadeOutCurve:
     serializedVersion: 2
     m_Curve:
@@ -637,6 +702,7 @@ MonoBehaviour:
   m_Name: PostFxRadialBlur
   m_EditorClassIdentifier: 
   IsActive: 1
+  playOnPerfectDodge: 0
   Intensity: 1
   IntensityCurve:
     serializedVersion: 2
@@ -686,6 +752,7 @@ MonoBehaviour:
   m_Name: PostFxChromaticAberration
   m_EditorClassIdentifier: 
   IsActive: 1
+  playOnPerfectDodge: 0
   Intensity: 1
   IntensityCurve:
     serializedVersion: 2
@@ -753,6 +820,7 @@ MonoBehaviour:
   m_Name: CharacterEcho
   m_EditorClassIdentifier: 
   IsActive: 1
+  playOnPerfectDodge: 0
   TargetNode: 0
   IncludeChildren: 1
   EnableOutline: 1
@@ -944,8 +1012,11 @@ MonoBehaviour:
     FollowNode: 1
     RotateByNode: 0
   HitProfile: {fileID: 0}
+  playOnPerfectDodge: 0
+  PerfectDodgeUseHitPoint: 0
+  LeaveParticlesInWorld: 0
   TimeType: 1
-  PlaySpeed: 0.7
+  PlaySpeed: 0.6
   AffectedByHitStop: 0
   IgnoreGlobalHitStop: 1
   SizeMultiplier: 1

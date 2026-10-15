@@ -4,8 +4,11 @@ namespace CombatEditor
 {
     [AbilityEvent]
     [CreateAssetMenu(menuName = "动作事件/单次角色残影")]
-    public sealed class AbilityEventObj_CharacterAfterimage : AbilityEventObj
+    public sealed class AbilityEventObj_CharacterAfterimage : AbilityEventObj, IPerfectDodgeFeedbackTrack
     {
+        [SerializeField, InspectorName("仅完美闪避成功时播放")]
+        private bool playOnPerfectDodge;
+        public bool IsPerfectDodgeFeedback => playOnPerfectDodge;
         public CharacterNode.NodeType TargetNode = CharacterNode.NodeType.Animator;
         public bool IncludeChildren = true;
         [Tooltip("武器不在角色挂点子树中时，也捕获武器挂点下的模型。")]

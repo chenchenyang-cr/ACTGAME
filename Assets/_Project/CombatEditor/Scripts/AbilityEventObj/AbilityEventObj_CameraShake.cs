@@ -13,8 +13,11 @@ namespace CombatEditor
 
     [AbilityEvent]
     [CreateAssetMenu(menuName = "动作事件/摄像机震动")]
-    public sealed class AbilityEventObj_CameraShake : AbilityEventObj
+    public sealed class AbilityEventObj_CameraShake : AbilityEventObj, IPerfectDodgeFeedbackTrack
     {
+        [SerializeField, InspectorName("仅完美闪避成功时播放")]
+        private bool playOnPerfectDodge;
+        public bool IsPerfectDodgeFeedback => playOnPerfectDodge;
         [Header("震动触发")]
         public CameraShakeTriggerMode TriggerMode = CameraShakeTriggerMode.Direct;
 
@@ -61,6 +64,7 @@ namespace CombatEditor
 
     public sealed class AbilityEventEffect_CameraShake : AbilityEventEffect
     {
+        public bool ForceDirect;
         private int shakeHandle;
         private int hitBindingHandle;
         private double shakeStartTime;
@@ -77,7 +81,7 @@ namespace CombatEditor
             base.StartEffect();
             Release();
 
-            if (Config.TriggerMode == CameraShakeTriggerMode.Direct)
+            if (ForceDirect || Config.TriggerMode == CameraShakeTriggerMode.Direct)
             {
                 shakeStartTime = Time.unscaledTimeAsDouble;
                 lastShakeTime = shakeStartTime;
@@ -109,7 +113,7 @@ namespace CombatEditor
         public override void EffectRunning(float currentTimePercentage)
         {
             base.EffectRunning(currentTimePercentage);
-            if (Config.TriggerMode != CameraShakeTriggerMode.Direct || shakeHandle == 0)
+            if ((!ForceDirect && Config.TriggerMode != CameraShakeTriggerMode.Direct) || shakeHandle == 0)
                 return;
 
             float localTime = Mathf.InverseLerp(eve.GetEventStartTime(),
@@ -232,7 +236,7 @@ namespace CombatEditor
                 return;
             }
 
-            if (Config.TriggerMode == CameraShakeTriggerMode.Direct)
+            if (Config.IsPerfectDodgeFeedback || Config.TriggerMode == CameraShakeTriggerMode.Direct)
                 PreviewDirect(currentTimePercentage);
             else
                 PreviewConfirmedHit(currentTimePercentage);
@@ -303,7 +307,7 @@ namespace CombatEditor
             }
             if (shakeHandle == 0)
                 shakeHandle = CameraShakeRuntime.Add(Config.Settings, intensityScale);
-            if (Config.TriggerMode == CameraShakeTriggerMode.OnConfirmedHit)
+            if (!Config.IsPerfectDodgeFeedback && Config.TriggerMode == CameraShakeTriggerMode.OnConfirmedHit)
                 intensityScale = Config.Settings.EvaluateHitIntensity(normalizedTime, intensityScale);
             CameraShakeRuntime.Update(shakeHandle, Config.Settings, waveTime, normalizedTime,
                 intensityScale, _combatController != null && _combatController._animator != null

@@ -9,7 +9,8 @@ namespace CombatEditor
         Critical = 1,
         Blocked = 2,
         Parried = 3,
-        Immune = 4
+        Immune = 4,
+        PerfectDodged = 5
     }
 
     [Flags]
@@ -27,8 +28,10 @@ namespace CombatEditor
         Parried = 1 << 3,
         [InspectorName("无效命中")]
         Immune = 1 << 4,
+        [InspectorName("完美闪避")]
+        PerfectDodged = 1 << 5,
         [InspectorName("全部结果")]
-        All = Normal | Critical | Blocked | Parried | Immune
+        All = Normal | Critical | Blocked | Parried | Immune | PerfectDodged
     }
 
     public readonly struct CombatHitConfirmedEvent

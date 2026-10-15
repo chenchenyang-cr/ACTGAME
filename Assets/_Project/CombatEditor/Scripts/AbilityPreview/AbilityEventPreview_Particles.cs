@@ -31,10 +31,22 @@ using UnityEngine;
 	    ParticleColliderPreviewHandle collisionHandle;
 	    ParticleSystem[] particles;
 	    float[] particleInitSpeeds;
+	    float lastWorldSimulationTime = -1f;
+	    bool worldEmissionStopped;
 	
 	    public override void InitPreview()
 	    {
 	        base.InitPreview();
+	        if (InstantiatedObj != null && Obj.IsPerfectDodgeFeedback && Obj.ObjData.FollowNode)
+	        {
+	            foreach (ParticleSystem particle in InstantiatedObj.GetComponentsInChildren<ParticleSystem>(true))
+	            {
+	                var main = particle.main;
+	                main.simulationSpace = Obj.LeaveParticlesInWorld
+	                    ? ParticleSystemSimulationSpace.World
+	                    : ParticleSystemSimulationSpace.Local;
+	            }
+	        }
 	        if (InstantiatedObj != null)
 	        {
 	            ParticleSizeUtility.ApplySize(InstantiatedObj, Obj.SizeMultiplier);
@@ -56,6 +68,8 @@ using UnityEngine;
 	    }
 	    public void SetParticleData()
 	    {
+	        lastWorldSimulationTime = -1f;
+	        worldEmissionStopped = false;
 	        if (InstantiatedObj != null)
 	        {
 	            particles = InstantiatedObj.GetComponentsInChildren<ParticleSystem>(true);
@@ -75,6 +89,8 @@ using UnityEngine;
 
 	    public void ResetParticlePreview()
 	    {
+	        lastWorldSimulationTime = -1f;
+	        worldEmissionStopped = false;
 	        if (particles == null)
 	        {
 	            return;
@@ -123,6 +139,12 @@ using UnityEngine;
 	            {
 	                IsInRange = true;
 	            }
+	            if (Obj.LeaveParticlesInWorld &&
+	                EventObj.GetEventTimeType() == AbilityEventObj.EventTimeType.EventRange &&
+	                ScaledPercentage >= StartTimeScaledPercentage)
+	            {
+	                IsInRange = true;
+	            }
 	            if(EventObj.GetEventTimeType() == AbilityEventObj.EventTimeType.EventTime && ScaledPercentage >= StartTimeScaledPercentage)
 	            {
 	                IsInRange = true;
@@ -130,7 +152,11 @@ using UnityEngine;
 	            // Sample elapsed event time without advancing one extra animation frame.
 	            if (IsInRange)
 	            {
-                    SimulateAllParticles(Mathf.Max(0f, (ScaledPercentage - StartTimeScaledPercentage) * AnimLength));
+	                    float elapsed = Mathf.Max(0f, (ScaledPercentage - StartTimeScaledPercentage) * AnimLength);
+	                    if (Obj.LeaveParticlesInWorld)
+	                        SimulateWorldParticles(elapsed);
+	                    else
+	                        SimulateAllParticles(elapsed);
                     SceneView.RepaintAll();
 	            }
 	            else
@@ -139,6 +165,8 @@ using UnityEngine;
                     // Before the event, clear without restarting the system.
                     for (int i = 0; i < particles.Length; i++)
                         particles[i].Stop(false, ParticleSystemStopBehavior.StopEmittingAndClear);
+	                    lastWorldSimulationTime = -1f;
+	                    worldEmissionStopped = false;
                     SceneView.RepaintAll();
 	            }
 	        }
@@ -153,6 +181,40 @@ using UnityEngine;
 	            particles[i].Simulate(time, false, true);
 	        }
 	    }
+
+	    void SimulateWorldParticles(float time)
+	    {
+	        float emissionEnd = Mathf.Max(0f,
+	            (EndTimeScaledPercentage - StartTimeScaledPercentage) * AnimLength);
+	        if (lastWorldSimulationTime < 0f || time < lastWorldSimulationTime)
+	        {
+	            worldEmissionStopped = false;
+	            for (int i = 0; i < particles.Length; i++)
+	            {
+	                particles[i].Stop(false, ParticleSystemStopBehavior.StopEmittingAndClear);
+	                particles[i].Simulate(Mathf.Min(time, emissionEnd), false, true);
+	            }
+	        }
+	        else if (time > lastWorldSimulationTime && !worldEmissionStopped)
+	        {
+	            float delta = Mathf.Min(time, emissionEnd) - lastWorldSimulationTime;
+	            for (int i = 0; i < particles.Length; i++)
+	                if (delta > 0f) particles[i].Simulate(delta, false, false);
+	        }
+	        if (time >= emissionEnd && !worldEmissionStopped)
+	        {
+	            for (int i = 0; i < particles.Length; i++)
+	                particles[i].Stop(false, ParticleSystemStopBehavior.StopEmitting);
+	            worldEmissionStopped = true;
+	        }
+	        if (worldEmissionStopped && time > Mathf.Max(lastWorldSimulationTime, emissionEnd))
+	        {
+	            float drain = time - Mathf.Max(lastWorldSimulationTime, emissionEnd);
+	            for (int i = 0; i < particles.Length; i++)
+	                particles[i].Simulate(drain, false, false);
+	        }
+	        lastWorldSimulationTime = time;
+	}
 
         public override void DestroyPreview()
         {

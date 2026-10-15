@@ -18,6 +18,7 @@ namespace CombatEditor
             EditorGUIUtility.labelWidth = 105;
             var config = (AbilityEventObj_CameraShot)target;
             serializedObject.Update();
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("playOnPerfectDodge"));
             EditorGUILayout.PropertyField(serializedObject.FindProperty("Profile"), new GUIContent("机位配置"));
             if (config.Profile == null && GUILayout.Button("创建机位配置")) {
                 var profile = ScriptableObject.CreateInstance<CameraShotProfile>();

@@ -288,12 +288,12 @@ MonoBehaviour:
       m_PostInfinity: 2
       m_RotationOrder: 4
     EnableDirectionalImpulse: 1
-    DirectionalDirectionMode: 1
-    DirectionalManualSpace: 1
-    DirectionalPositionRange: 0.5
-    DirectionalManualPositionRange: {x: 0.3, y: 0, z: 0}
-    DirectionalPositionFrequency: 35
-    DirectionalPositionRangeDecay: 0.7
+    DirectionalDirectionMode: 0
+    DirectionalManualSpace: 0
+    DirectionalPositionRange: 0.15
+    DirectionalManualPositionRange: {x: 0.1, y: 0.1, z: 0}
+    DirectionalPositionFrequency: 45
+    DirectionalPositionRangeDecay: 0.75
     DirectionalPositionDecayCurve:
       serializedVersion: 2
       m_Curve:
@@ -327,4 +327,4 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    DirectionalTrajectoryStraightness: 2
+    DirectionalTrajectoryStraightness: 1

@@ -77,6 +77,14 @@ namespace CombatEditor
                 return;
             }
 
+            if (GlobalHitStopRuntime.CurrentVisualSpeed <= 0.0001f)
+            {
+                receiver.ConsumeRootMotion();
+                receiver.ConsumeRootRotation();
+                lastAppliedFrame = receiver.LastRootMotionFrame;
+                return;
+            }
+
             int sourceFrame = receiver.LastRootMotionFrame;
             if (sourceFrame <= 0 || sourceFrame == lastAppliedFrame)
             {

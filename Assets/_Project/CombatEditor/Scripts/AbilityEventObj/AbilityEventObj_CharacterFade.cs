@@ -7,8 +7,11 @@ namespace CombatEditor
 {
     [AbilityEvent]
     [CreateAssetMenu(menuName = "动作事件/人物淡入淡出")]
-    public sealed class AbilityEventObj_CharacterFade : AbilityEventObj
+    public sealed class AbilityEventObj_CharacterFade : AbilityEventObj, IPerfectDodgeFeedbackTrack
     {
+        [SerializeField, InspectorName("仅完美闪避成功时播放")]
+        private bool playOnPerfectDodge;
+        public bool IsPerfectDodgeFeedback => playOnPerfectDodge;
         public CharacterNode.NodeType TargetNode = CharacterNode.NodeType.Animator;
         public bool IncludeChildren = true;
         [Tooltip("同时处理武器挂点，适用于武器不在角色挂点子树中的情况。")]

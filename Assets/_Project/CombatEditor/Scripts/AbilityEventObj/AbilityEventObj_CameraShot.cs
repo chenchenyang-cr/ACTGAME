@@ -5,8 +5,11 @@ namespace CombatEditor
 {
     [AbilityEvent]
     [CreateAssetMenu(menuName = "AbilityEvents/Camera Shot")]
-    public sealed class AbilityEventObj_CameraShot : AbilityEventObj
+    public sealed class AbilityEventObj_CameraShot : AbilityEventObj, IPerfectDodgeFeedbackTrack
     {
+        [SerializeField, InspectorName("仅完美闪避成功时播放")]
+        private bool playOnPerfectDodge;
+        public bool IsPerfectDodgeFeedback => playOnPerfectDodge;
         public CameraShotProfile Profile;
         public int Channel;
         public CameraShotTiming Timing = CameraShotTiming.Default;

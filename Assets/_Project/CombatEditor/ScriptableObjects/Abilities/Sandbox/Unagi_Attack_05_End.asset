@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   IsActive: 1
   Priority: 0
-  AllowedCommands: 0200000004000000
+  AllowedCommands: 020000000400000001000000
   AllowMovement: 1
   MinimumPriority: 0
   AllowHitReaction: 1

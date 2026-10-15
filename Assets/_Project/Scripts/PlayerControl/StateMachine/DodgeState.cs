@@ -1,15 +1,19 @@
+using CombatEditor;
 using UnityEngine;
 
 public sealed class DodgeState : PlayerState
 {
     private bool animationStarted;
     private bool continuationSelected;
+    private bool perfectDodgeConsumed;
+    public bool PerfectDodgeConsumed => perfectDodgeConsumed;
 
     public DodgeState(PlayerStateMachine machine) : base(machine) { }
 
     public override void Enter()
     {
         continuationSelected = false;
+        perfectDodgeConsumed = false;
         PlayerMovementDirectionSnapshot snapshot =
             Machine.Movement.CaptureDirectionSnapshot(Machine.HasLatestMoveInput ? Machine.LatestMoveInput : Vector2.zero);
         bool directionalDodge = !string.IsNullOrEmpty(Machine.AnimationProfile.DirectionalDodgeStateName);
@@ -93,6 +97,26 @@ public sealed class DodgeState : PlayerState
         Machine.Movement.SetRootMotionTranslationScale(1f);
         Machine.Combat?.EndDodgeAbility();
         Machine.ActionAnimator?.StopTrackingDodge();
+    }
+
+    public bool TryPerfectDodge()
+    {
+        if (Machine.CurrentState != this || perfectDodgeConsumed ||
+            Machine.ActionAnimator == null || Machine.Combat == null ||
+            !Machine.ActionAnimator.TryGetDodgeNormalizedTime(out float time))
+            return false;
+
+        AbilityScriptableObject ability = Machine.Combat.DodgeAbility;
+        if (ability == null) return false;
+        foreach (AbilityEvent entry in ability.events)
+        {
+            if (entry?.Obj is not AbilityEventObj_PerfectDodgeWindow window ||
+                !window.IsActive) continue;
+            if (time < entry.GetEventStartTime() || time >= entry.GetEventEndTime()) continue;
+            perfectDodgeConsumed = true;
+            return true;
+        }
+        return false;
     }
 
     public override bool TryCompleteAction()

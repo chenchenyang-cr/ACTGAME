@@ -11,7 +11,6 @@ namespace CombatEditor
         private float duration;
         private float frequency;
         private float amplitude;
-        private float startTime;
         private float elapsedTime;
         private float lastSampleTime;
         private bool affectedByHitStop;
@@ -72,9 +71,8 @@ namespace CombatEditor
                 ? shakePivot.localPosition - pivotBaseLocalPosition
                 : impulse;
             restartCorrection = initialOffset - impulse;
-            startTime = Time.unscaledTime;
             elapsedTime = 0f;
-            lastSampleTime = startTime;
+            lastSampleTime = Time.unscaledTime;
             affectedByHitStop = useHitStop;
             hitStopOwner = owner;
             playing = true;
@@ -86,17 +84,17 @@ namespace CombatEditor
             if (!playing || shakePivot == null)
                 return;
 
-            float elapsed = Time.unscaledTime - startTime;
+            float now = Time.unscaledTime;
+            float speedScale = GlobalHitStopRuntime.CurrentVisualSpeed;
             if (affectedByHitStop)
             {
-                float now = Time.unscaledTime;
-                float speedScale = hitStopOwner != null &&
+                speedScale *= hitStopOwner != null &&
                                    hitStopOwner._animSpeedExecutor != null
                     ? hitStopOwner._animSpeedExecutor.CurrentHitStopSpeedScale : 1f;
-                elapsedTime += Mathf.Max(0f, now - lastSampleTime) * speedScale;
-                lastSampleTime = now;
-                elapsed = elapsedTime;
             }
+            elapsedTime += Mathf.Max(0f, now - lastSampleTime) * speedScale;
+            lastSampleTime = now;
+            float elapsed = elapsedTime;
             if (elapsed >= duration)
             {
                 StopAndRestore();

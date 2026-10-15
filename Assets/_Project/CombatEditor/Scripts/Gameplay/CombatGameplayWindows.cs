@@ -11,7 +11,8 @@ namespace CombatEditor
         Interrupt,
         Exit,
         Parry,
-        ParryOpportunity
+        ParryOpportunity,
+        PerfectDodge
     }
 
     public enum CombatRotationPolicy

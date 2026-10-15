@@ -3,8 +3,16 @@ using UnityEngine;
 
 namespace CombatEditor
 {
-    public abstract class AbilityEventObj_PostFxTrack : AbilityEventObj
+    public interface IPerfectDodgeFeedbackTrack
     {
+        bool IsPerfectDodgeFeedback { get; }
+    }
+
+    public abstract class AbilityEventObj_PostFxTrack : AbilityEventObj, IPerfectDodgeFeedbackTrack
+    {
+        [SerializeField, InspectorName("仅完美闪避成功时播放")]
+        private bool playOnPerfectDodge;
+        public bool IsPerfectDodgeFeedback => playOnPerfectDodge;
         [Min(0f)] public float Intensity = 1f;
         [MyAnimationCurve]
         public AnimationCurve IntensityCurve = AnimationCurve.EaseInOut(0f, 1f, 1f, 0f);

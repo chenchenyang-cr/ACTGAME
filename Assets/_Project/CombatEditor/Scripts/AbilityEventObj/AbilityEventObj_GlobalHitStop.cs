@@ -4,8 +4,12 @@ namespace CombatEditor
 {
     [AbilityEvent]
     [CreateAssetMenu(menuName = "AbilityEvents/Global Hit Stop")]
-    public sealed class AbilityEventObj_GlobalHitStop : AbilityEventObj
+    public sealed class AbilityEventObj_GlobalHitStop : AbilityEventObj, IPerfectDodgeFeedbackTrack
     {
+        [SerializeField, InspectorName("仅完美闪避成功时播放")]
+        private bool playOnPerfectDodge;
+        public bool IsPerfectDodgeFeedback => playOnPerfectDodge;
+
         [Min(1)]
         [InspectorName("顿帧时长（帧）")]
         [Tooltip("包含淡入和淡出的总时长，按动作编辑器的 60 FPS 换算为实际时间。")]

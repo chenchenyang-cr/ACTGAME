@@ -18,15 +18,15 @@ MonoBehaviour:
   StaggerDuration: 0
   SuppressDamageNumber: 0
   DamageNumberOverride: {fileID: 11400000, guid: 517c29ecf043ffd44b586e943e0a2e6c, type: 2}
-  HitMode: 0
-  RepeatIntervalFrames: 6
-  MaximumHitsPerTarget: 0
+  HitMode: 1
+  RepeatIntervalFrames: 12
+  MaximumHitsPerTarget: 2
   TargetLayers:
     serializedVersion: 2
     m_Bits: 4294967295
   AllowFriendlyFire: 0
   CanBeParried: 1
-  ParticleCollisionDelayFrames: 5
+  ParticleCollisionDelayFrames: 6
   EnableHitCameraShake: 1
   HitCameraShakeProfile: {fileID: 11400000, guid: fbc4ddffe7d5809468f22d434cad72c0, type: 2}
   HitCameraShakeDuration: 0.16
@@ -236,7 +236,7 @@ MonoBehaviour:
     DirectionalTrajectoryStraightness: 1
   PreviewHitCameraShake: 0
   EnableHitAnimationSpeed: 1
-  HitStopFrames: 6
+  HitStopFrames: 3
   HitStopAnimationSpeed: 0
   EnableHitStopFadeIn: 0
   HitStopFadeInFrames: 2
@@ -265,7 +265,7 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   EnableHitStopFadeOut: 1
-  HitStopFadeOutFrames: 2
+  HitStopFadeOutFrames: 1
   HitStopFadeOutCurve:
     serializedVersion: 2
     m_Curve:

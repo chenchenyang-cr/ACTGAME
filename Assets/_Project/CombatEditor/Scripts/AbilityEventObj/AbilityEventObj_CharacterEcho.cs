@@ -7,8 +7,11 @@ namespace CombatEditor
 {
     [AbilityEvent]
     [CreateAssetMenu(menuName = "动作事件/角色外轮廓发光")]
-    public sealed class AbilityEventObj_CharacterEcho : AbilityEventObj
+    public sealed class AbilityEventObj_CharacterEcho : AbilityEventObj, IPerfectDodgeFeedbackTrack
     {
+        [SerializeField, InspectorName("仅完美闪避成功时播放")]
+        private bool playOnPerfectDodge;
+        public bool IsPerfectDodgeFeedback => playOnPerfectDodge;
         public CharacterNode.NodeType TargetNode = CharacterNode.NodeType.Animator;
         public bool IncludeChildren = true;
         public bool EnableOutline = true;

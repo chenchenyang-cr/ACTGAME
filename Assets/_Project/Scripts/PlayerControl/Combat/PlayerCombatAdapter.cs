@@ -77,6 +77,7 @@ public sealed class PlayerCombatAdapter : MonoBehaviour, ICombatGameplayWindowLi
     private readonly HashSet<CombatWindowHandle> exitWindows = new();
     private CombatController combatController;
     private GameplayWindowAbilityRunner dodgeWindowRunner;
+    private PerfectDodgeFeedbackRunner perfectDodgeRunner;
     private bool exitRequested;
 
     public AbilityScriptableObject CurrentAbility { get; private set; }
@@ -91,10 +92,23 @@ public sealed class PlayerCombatAdapter : MonoBehaviour, ICombatGameplayWindowLi
         combatController = GetComponent<CombatController>();
         if (combatController == null) combatController = GetComponentInChildren<CombatController>();
         dodgeWindowRunner = new GameplayWindowAbilityRunner(combatController);
+        perfectDodgeRunner = new PerfectDodgeFeedbackRunner(combatController);
+    }
+
+    private void OnEnable() => CombatHitEventBus.HitConfirmed += OnHitConfirmed;
+
+    private void Update() => perfectDodgeRunner?.Tick();
+
+    private void OnHitConfirmed(CombatHitConfirmedEvent hit)
+    {
+        if (hit.Target == gameObject && hit.ResultType == CombatHitResultType.PerfectDodged)
+            perfectDodgeRunner?.Play(dodgeAbility, hit.HitPoint, hit.AttackDirection);
     }
 
     private void OnDisable()
     {
+        CombatHitEventBus.HitConfirmed -= OnHitConfirmed;
+        perfectDodgeRunner?.Stop();
         EndDodgeAbility();
         ClearWindows();
         combatController?.EndHitExecution();

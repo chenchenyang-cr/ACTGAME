@@ -4869,9 +4869,6 @@ ParticleSystemRenderer:
   m_ReflectionProbeUsage: 0
   m_RayTracingMode: 0
   m_RayTraceProcedural: 0
-  m_RayTracingAccelStructBuildFlagsOverride: 0
-  m_RayTracingAccelStructBuildFlags: 1
-  m_SmallMeshCulling: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -4945,7 +4942,7 @@ MonoBehaviour:
   horizontalWidth: 0.026
   verticalWidth: 0.032
   glowWidth: 16
-  endFade: 0.45
+  endFade: 0.37681636
   coreColor: {r: 1.8, g: 2.25, b: 2.8, a: 1}
   glowColor: {r: 0.42, g: 0.68, b: 1.45, a: 1}
   brightness: 1
@@ -5009,9 +5006,9 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  expandTime: 0.16
-  holdTime: 0.06
-  fadeTime: 0.48
+  expandTime: 0.1
+  holdTime: 0.1
+  fadeTime: 0.3
   playOnEnable: 1
   loop: 0
   loopInterval: 0.35

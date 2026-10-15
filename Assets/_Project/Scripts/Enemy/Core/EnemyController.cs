@@ -120,7 +120,9 @@ namespace UnityLearning.EnemySystem
 
         private void Update()
         {
-            stateMachine?.Tick(Time.deltaTime);
+            float visualSpeed = GlobalHitStopRuntime.CurrentVisualSpeed;
+            if (visualSpeed <= 0.0001f) return;
+            stateMachine?.Tick(Time.deltaTime * visualSpeed);
         }
 
         private void OnDisable()

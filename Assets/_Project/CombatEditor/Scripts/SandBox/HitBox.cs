@@ -178,7 +178,9 @@ namespace CombatEditor
                 state.NextEligibleFrame = currentAnimationFrame + interval;
             }
 
-            if (resolution.ResultType != CombatHitResultType.Parried && Settings != null && Settings.EnableHitAnimationSpeed)
+            if (resolution.ResultType != CombatHitResultType.Parried &&
+                resolution.ResultType != CombatHitResultType.PerfectDodged &&
+                Settings != null && Settings.EnableHitAnimationSpeed)
             {
                 PlayHitStop(Owner);
                 CombatController targetController =
@@ -189,7 +191,9 @@ namespace CombatEditor
                 if (targetController != Owner)
                     PlayHitStop(targetController, delayOneFrame: true);
             }
-            if (resolution.ResultType != CombatHitResultType.Parried && Settings != null && Settings.EnableHitCameraShake)
+            if (resolution.ResultType != CombatHitResultType.Parried &&
+                resolution.ResultType != CombatHitResultType.PerfectDodged &&
+                Settings != null && Settings.EnableHitCameraShake)
             {
                 CombatCamera.CameraShakeSettings shakeSettings =
                     Settings.ResolveHitCameraShakeSettings();

@@ -11,6 +11,7 @@ namespace CombatEditor
             serializedObject.Update();
             EditorGUILayout.LabelField("角色外轮廓发光", EditorStyles.boldLabel);
             EditorGUILayout.HelpBox("区间事件：只控制角色最外沿的深度轮廓。", MessageType.Info);
+            Draw("playOnPerfectDodge", "仅完美闪避成功时播放");
 
             Draw("TargetNode", "目标挂点");
             Draw("IncludeChildren", "包含子物体");
@@ -58,6 +59,7 @@ namespace CombatEditor
         {
             serializedObject.Update();
             EditorGUILayout.HelpBox("点事件：播放到此帧时，在当前位置留下一个静止的 LTY 风格幻影，并按寿命淡出。", MessageType.Info);
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("playOnPerfectDodge"));
             EditorGUILayout.PropertyField(serializedObject.FindProperty("TargetNode"), new GUIContent("目标挂点"));
             EditorGUILayout.PropertyField(serializedObject.FindProperty("IncludeChildren"), new GUIContent("包含子物体"));
             EditorGUILayout.PropertyField(serializedObject.FindProperty("IncludeWeapon"), new GUIContent("同时包含武器"));
@@ -77,6 +79,7 @@ namespace CombatEditor
         {
             serializedObject.Update();
             EditorGUILayout.HelpBox("区间事件：曲线横轴是事件时间，纵轴 0 为完全消失、1 为完全可见。淡入和淡出可画在同一条曲线上。", MessageType.Info);
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("playOnPerfectDodge"));
             EditorGUILayout.PropertyField(serializedObject.FindProperty("TargetNode"), new GUIContent("目标挂点"));
             EditorGUILayout.PropertyField(serializedObject.FindProperty("IncludeChildren"), new GUIContent("包含子物体"));
             EditorGUILayout.PropertyField(serializedObject.FindProperty("IncludeWeapon"), new GUIContent("同时包含武器"));

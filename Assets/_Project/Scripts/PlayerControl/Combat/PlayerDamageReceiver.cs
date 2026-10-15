@@ -51,6 +51,15 @@ public sealed class PlayerDamageReceiver : MonoBehaviour, ICombatDamageReceiver
             resolution = new CombatHitResolution(true, CombatHitResultType.Parried);
             return true;
         }
+        if (machine.CurrentState == machine.DodgeState)
+        {
+            if (machine.DodgeState.PerfectDodgeConsumed) return false;
+            if (machine.DodgeState.TryPerfectDodge())
+            {
+                resolution = new CombatHitResolution(true, CombatHitResultType.PerfectDodged);
+                return true;
+            }
+        }
         float damage = Mathf.Min(CurrentHealth, request.Damage);
         CurrentHealth -= damage;
         bool killed = CurrentHealth <= 0f;

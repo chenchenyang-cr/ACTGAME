@@ -30,11 +30,14 @@ namespace UnityLearning.EnemySystem
                 controller.LifeState == EnemyLifeState.Dead)
                 return;
 
+            float visualSpeed = GlobalHitStopRuntime.CurrentVisualSpeed;
+            if (visualSpeed <= 0.0001f) return;
+
             if (Time.time < lastPoiseDamageTime + controller.Config.PoiseRecoveryDelay)
                 return;
 
             currentPoise = Mathf.MoveTowards(currentPoise, controller.Config.MaximumPoise,
-                controller.Config.PoiseRecoveryPerSecond * Time.deltaTime);
+                controller.Config.PoiseRecoveryPerSecond * Time.deltaTime * visualSpeed);
         }
 
         public bool TryReceiveHit(in CombatHitRequest request,

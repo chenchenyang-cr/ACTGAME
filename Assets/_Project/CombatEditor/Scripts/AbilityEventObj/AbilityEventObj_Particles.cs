@@ -50,8 +50,17 @@ using UnityEngine;
 	
 	[AbilityEvent]
 	[CreateAssetMenu(menuName = "AbilityEvents / Particles")]
-	public class AbilityEventObj_Particles : AbilityEventObj_HitSource
+	public class AbilityEventObj_Particles : AbilityEventObj_HitSource, IPerfectDodgeFeedbackTrack
 	{
+	    [SerializeField, InspectorName("仅完美闪避成功时播放")]
+	    private bool playOnPerfectDodge;
+	    public bool IsPerfectDodgeFeedback => playOnPerfectDodge;
+	    [InspectorName("成功时放在命中点")]
+	    [Tooltip("仅完美闪避反馈使用。开启后从实际命中点生成；若同时启用跟随节点，粒子会从命中点开始跟随所选节点。编辑器中以节点和偏移预览位置。")]
+	    public bool PerfectDodgeUseHitPoint;
+	    [InspectorName("粒子留在世界位置")]
+	    [Tooltip("发射器继续跟随节点，已经发射的粒子留在场景原位。适合闪避时沿移动路径留下的光点。")]
+	    public bool LeaveParticlesInWorld;
 	    //public InsedObject ParticleData = new InsedObject();
 	    public EventTimeType TimeType = EventTimeType.EventTime;
 	    [Min(0.01f)] public float PlaySpeed = 1f;
@@ -118,6 +127,9 @@ using UnityEngine;
         private AbilityEventObj_Particles Obj => (AbilityEventObj_Particles)_EventObj;
         private ParticleEffectLifetime lifetime;
         public HitBox CurrentHitBox => lifetime != null ? lifetime.CurrentHitBox : null;
+        public bool HasPerfectDodgeHitPoint;
+        public Vector3 PerfectDodgeHitPoint;
+        public Vector3 PerfectDodgeAttackDirection;
 
         public AbilityEventEffect_Particles(AbilityEventObj obj) : base(obj) { }
 
@@ -125,10 +137,50 @@ using UnityEngine;
         {
             base.StartEffect();
             GameObject instance = Obj.ObjData.CreateObject(_combatController);
+            if (instance != null && Obj.PerfectDodgeUseHitPoint && HasPerfectDodgeHitPoint)
+            {
+                Vector3 direction = PerfectDodgeAttackDirection.sqrMagnitude > 0.0001f
+                    ? PerfectDodgeAttackDirection.normalized : Vector3.forward;
+                Quaternion rotation = Quaternion.LookRotation(direction, Vector3.up);
+                instance.transform.SetPositionAndRotation(
+                    PerfectDodgeHitPoint + rotation * Obj.ObjData.Offset,
+                    rotation * Obj.ObjData.Rot);
+                NodeFollower follower = instance.GetComponent<NodeFollower>();
+                if (follower != null)
+                {
+                    if (Obj.ObjData.FollowNode && follower.NodeTrans != null)
+                    {
+                        Transform node = follower.NodeTrans;
+                        follower.PosOffset = Quaternion.Inverse(node.rotation) *
+                                             (instance.transform.position - node.position);
+                        Transform rotationNode = Obj.ObjData.RotateByNode
+                            ? node : _combatController.GetNodeTranform(CharacterNode.NodeType.Animator);
+                        if (rotationNode != null)
+                            follower.RotOverNode = Quaternion.Inverse(rotationNode.rotation) *
+                                                   instance.transform.rotation;
+                    }
+                    else follower.enabled = false;
+                }
+            }
+            if (instance != null && HasPerfectDodgeHitPoint && Obj.ObjData.FollowNode)
+            {
+                foreach (ParticleSystem particle in instance.GetComponentsInChildren<ParticleSystem>(true))
+                {
+                    var main = particle.main;
+                    main.simulationSpace = Obj.LeaveParticlesInWorld
+                        ? ParticleSystemSimulationSpace.World
+                        : ParticleSystemSimulationSpace.Local;
+                }
+            }
             ParticleSizeUtility.ApplySize(instance, Obj.SizeMultiplier);
             ParticleCenterOffsetUtility.ApplyOffset(instance, Obj.CenterOffset);
             ParticlePlaybackSpeedUtility.ApplySpeed(instance, Obj.PlaySpeed);
             if (instance == null) return;
+            if (HasPerfectDodgeHitPoint)
+            {
+                foreach (ParticleSystem particle in instance.GetComponentsInChildren<ParticleSystem>(true))
+                    if (!particle.isPlaying) particle.Play(false);
+            }
             lifetime = instance.AddComponent<ParticleEffectLifetime>();
             lifetime.Initialize(_combatController, AnimObj, Obj, eve.GetEventStartTime());
         }
